@@ -35,21 +35,24 @@
             overflow-x: hidden;
         }
 
-        /* أزرار بظل عصري صلب */
         .btn-neo {
-            box-shadow: 0 5px 0 var(--text-color);
+            box-shadow: 0 4px 0 var(--text-color);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
         .btn-neo:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 0 var(--text-color);
+            box-shadow: 0 6px 0 var(--text-color);
         }
         .btn-neo:active {
-            transform: translateY(3px);
+            transform: translateY(2px);
             box-shadow: 0 2px 0 var(--text-color);
         }
 
-        /* بطاقات المجالات ذات الزوايا الدائرية المميزة */
+        .card-neo {
+            border: 2px solid var(--text-color);
+            box-shadow: 4px 4px 0 var(--text-color);
+        }
+
         .field-card-shape {
             border-radius: 34px 12px 34px 34px;
             box-shadow: 0 6px 0 var(--text-color);
@@ -60,7 +63,6 @@
             box-shadow: 0 10px 0 var(--text-color);
         }
 
-        /* الشكل البيضاوي المائل المتقطع لقسم الاختبار */
         .quiz-oval-banner {
             border-radius: 50% 45% 48% 52% / 55% 48% 52% 45%;
             border: 3px dashed var(--text-color);
@@ -71,7 +73,6 @@
             transform: rotate(0deg) scale(1.02);
         }
 
-        /* بطاقات Bento للمقالات في الصفحة الرئيسية */
         .bento-article-card {
             border: 2px solid var(--text-color);
             box-shadow: 4px 4px 0 var(--text-color);
@@ -82,10 +83,9 @@
             box-shadow: 6px 6px 0 var(--text-color);
         }
 
-        /* إظهار وإخفاء الأقسام بسلاسة */
         .page-section {
             display: none;
-            animation: fadeSlide 0.25s ease-out forwards;
+            animation: fadeSlide 0.22s ease-out forwards;
         }
         .page-section.active {
             display: block;
@@ -96,7 +96,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* إخفاء شريط التمرير مع بقاء التمرير فعالاً */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -106,17 +105,17 @@
     <!-- ===================================================================== -->
     <!-- شريط علوي للجوال فقط (Mobile Top Bar) -->
     <!-- ===================================================================== -->
-    <header class="md:hidden sticky top-0 z-40 bg-[var(--primary-color)] text-white px-4 py-3.5 flex items-center justify-between shadow-md">
-        <button onclick="navigateTo('home')" class="text-right focus:outline-none">
+    <header class="md:hidden sticky top-0 z-40 bg-[var(--primary-color)] text-white px-4 py-3 flex items-center justify-between shadow-md">
+        <button onclick="navigateTo('home')" class="text-right focus:outline-none cursor-pointer">
             <span class="font-black text-xl block leading-none">اكتشفي مسارك</span>
             <span class="text-[11px] text-white/90 font-medium">مسارك الدراسي والمهني</span>
         </button>
 
         <div class="flex items-center gap-2">
-            <button onclick="navigateTo('profile')" class="px-3 py-1.5 rounded-full bg-white text-[var(--text-color)] text-xs font-extrabold flex items-center gap-1 cursor-pointer">
+            <button onclick="navigateTo('profile')" class="px-3 py-1.5 rounded-full bg-white text-[var(--text-color)] text-xs font-extrabold flex items-center gap-1.5 cursor-pointer">
                 <i class="ph-fill ph-user-circle text-base text-[var(--accent-color)]"></i>
-                <span>حسابي</span>
-                <span id="mobileSavedBadge" class="bg-[var(--tertiary-color)] text-[var(--text-color)] px-1.5 rounded-full text-[10px]">0</span>
+                <span id="mobileAuthLabel">دخول / حسابي</span>
+                <span id="mobileSavedBadge" class="bg-[var(--tertiary-color)] text-[var(--text-color)] px-1.5 rounded-full text-[10px] font-black">0</span>
             </button>
             <button onclick="toggleMobileDrawer()" class="p-2 rounded-xl bg-white/15 text-white hover:bg-white/25 cursor-pointer" aria-label="القائمة">
                 <i id="mobileDrawerIcon" class="ph ph-list text-2xl"></i>
@@ -125,39 +124,37 @@
     </header>
 
     <!-- القائمة المنسدلة للجوال -->
-    <div id="mobileDrawer" class="hidden md:hidden fixed inset-x-0 top-[60px] z-30 bg-[var(--primary-color)] text-white px-5 py-4 shadow-2xl border-t border-white/15 space-y-1.5 max-h-[80vh] overflow-y-auto">
-        <!-- يتم توليد الروابط برمجياً -->
-    </div>
+    <div id="mobileDrawer" class="hidden md:hidden fixed inset-x-0 top-[58px] z-30 bg-[var(--primary-color)] text-white px-5 py-4 shadow-2xl border-t border-white/15 space-y-1.5 max-h-[80vh] overflow-y-auto"></div>
 
     <!-- ===================================================================== -->
     <!-- القائمة الجانبية اليمنى الثابتة (Fixed Right Sidebar) -->
     <!-- ===================================================================== -->
     <aside class="hidden md:flex md:w-64 shrink-0 bg-[var(--primary-color)] text-white flex-col justify-between sticky top-0 h-screen p-5 z-30">
         <div class="overflow-y-auto no-scrollbar">
-            <!-- الشعار -->
-            <button onclick="navigateTo('home')" class="text-right block w-full mb-5 group focus:outline-none cursor-pointer">
+            <button onclick="navigateTo('home')" class="text-right block w-full mb-4 group focus:outline-none cursor-pointer">
                 <h1 class="font-black text-3xl tracking-tight leading-tight group-hover:scale-[1.02] transition-transform">
                     اكتشفي مسارك
                 </h1>
                 <p class="text-xs text-white/90 font-medium mt-1">مسارك الدراسي والمهني</p>
             </button>
 
+            <!-- شارة الحساب الحالي في القائمة الجانبية -->
+            <div id="sidebarAccountCard" class="mb-4 p-3 rounded-2xl bg-white/12 border border-white/20 text-xs">
+                <!-- يتم تعبئتها برمجياً -->
+            </div>
+
             <!-- روابط التنقل -->
-            <nav id="sidebarNav" class="space-y-1">
-                <!-- يتم توليدها برمجياً -->
-            </nav>
+            <nav id="sidebarNav" class="space-y-1"></nav>
         </div>
 
-        <!-- بطاقة سريعة للمفضلة والنتائج في أسفل القائمة -->
         <div class="pt-3 border-t border-white/20 space-y-2 shrink-0">
             <button onclick="navigateTo('profile')" class="w-full py-2.5 px-4 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer">
                 <span class="flex items-center gap-2">
-                    <i class="ph-fill ph-bookmark-simple text-base text-[var(--tertiary-color)]"></i>
-                    <span>المفضلة والنتائج</span>
+                    <i class="ph-fill ph-user-circle text-base text-[var(--tertiary-color)]"></i>
+                    <span>صفحتي والحسابات</span>
                 </span>
                 <span id="sidebarSavedBadge" class="px-2 py-0.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] font-black">0</span>
             </button>
-            <p class="text-[11px] text-white/80 text-center font-medium">منصة إرشادية للدراسة والمهنة</p>
         </div>
     </aside>
 
@@ -168,70 +165,76 @@
         <!-- الدائرة الصفراء الزخرفية في الزاوية العلوية اليسرى -->
         <div class="w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[var(--tertiary-color)] absolute -top-20 -left-20 pointer-events-none opacity-95"></div>
 
-        <div class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 py-8 sm:py-12">
+        <div class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 lg:px-10 py-6 sm:py-9">
+
+            <!-- شريط حالة الحساب العلوي المرتب -->
+            <div class="mb-7 bg-white/90 backdrop-blur-xs rounded-2xl border-2 border-[var(--text-color)] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-[3px_3px_0_var(--text-color)]">
+                <div id="topAuthStatusBar" class="flex items-center gap-2.5 text-xs sm:text-sm font-bold">
+                    <!-- يتم تعبئتها برمجياً -->
+                </div>
+                <div id="topAuthActionsBar" class="flex items-center gap-2">
+                    <!-- يتم تعبئتها برمجياً -->
+                </div>
+            </div>
 
             <!-- ============================================================= -->
-            <!-- القسم 1: الرئيسية (Home - مطابق للتصميم المرجعي بالكامل) -->
+            <!-- القسم 1: الرئيسية (Home) -->
             <!-- ============================================================= -->
-            <section id="section-home" class="page-section active space-y-14">
+            <section id="section-home" class="page-section active space-y-12">
 
-                <!-- قسم الترحيب الرئيسي (Hero Section) -->
-                <div class="pt-2 sm:pt-4 max-w-2xl">
-                    <h2 class="text-3xl sm:text-5xl font-black text-[var(--text-color)] leading-snug mb-5">
+                <!-- الترحيب الرئيسي -->
+                <div class="max-w-2xl">
+                    <h2 class="text-3xl sm:text-5xl font-black text-[var(--text-color)] leading-snug mb-4">
                         اكتشفي وجهتكِ
-                        <span class="inline-block bg-[var(--accent-color)] text-white px-5 py-1.5 rounded-2xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] transform -rotate-1">
+                        <span class="inline-block bg-[var(--accent-color)] text-white px-5 py-1 rounded-2xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] transform -rotate-1">
                             القادمة
                         </span>
                     </h2>
-                    <p class="text-base sm:text-lg text-[var(--text-color)]/90 font-medium leading-relaxed mb-7">
+                    <p class="text-base sm:text-lg text-[var(--text-color)]/90 font-medium leading-relaxed mb-6">
                         منصة متكاملة تجمع بين المسار الدراسي والمهني؛ تساعدكِ على فهم نفسكِ واكتشاف ميولكِ وقدراتكِ وقيمكِ، والتعرف على المجالات والتخصصات والوظائف والمسارات التعليمية والمهنية بعد الثانوية.
                     </p>
-                    <div class="flex flex-wrap items-center gap-4">
-                        <button onclick="navigateTo('quiz')" class="btn-neo px-8 py-3.5 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-base cursor-pointer">
-                            ابدئي رحلتكِ
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="startQuizGuarded()" class="btn-neo px-7 py-3 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer">
+                            ابدئي رحلتكِ والاختبار
                         </button>
-                        <button onclick="navigateTo('majors')" class="px-6 py-3.5 rounded-full bg-white text-[var(--text-color)] border-2 border-[var(--text-color)] font-extrabold text-sm hover:bg-[var(--tertiary-color)] transition-colors cursor-pointer">
+                        <button onclick="navigateTo('majors')" class="px-5 py-3 rounded-full bg-white text-[var(--text-color)] border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm hover:bg-[var(--tertiary-color)] transition-colors cursor-pointer">
                             استكشفي التخصصات (15)
                         </button>
-                        <button onclick="navigateTo('pathways')" class="px-6 py-3.5 rounded-full bg-white text-[var(--text-color)] border-2 border-[var(--text-color)] font-extrabold text-sm hover:bg-[var(--tertiary-color)] transition-colors cursor-pointer">
+                        <button onclick="navigateTo('pathways')" class="px-5 py-3 rounded-full bg-white text-[var(--text-color)] border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm hover:bg-[var(--tertiary-color)] transition-colors cursor-pointer">
                             المسارات التعليمية والمهنية
                         </button>
                     </div>
                 </div>
 
-                <!-- قسم المجالات الدراسية والمهنية (شبكة البطاقات الملونة 2x2) -->
+                <!-- شبكة المجالات 2x2 -->
                 <div>
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center justify-between mb-5">
                         <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">المجالات</h3>
-                        <button onclick="navigateTo('fields')" class="text-sm font-extrabold text-[var(--primary-color)] hover:underline flex items-center gap-1 cursor-pointer">
+                        <button onclick="navigateTo('fields')" class="text-xs sm:text-sm font-extrabold text-[var(--primary-color)] hover:underline flex items-center gap-1 cursor-pointer">
                             <span>عرض جميع المجالات الخمسة</span>
                             <i class="ph-bold ph-arrow-left"></i>
                         </button>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-                        <!-- بطاقة 1: الصحي والطبي -->
                         <div onclick="filterMajorsByTrack('الصحي والطبي')" class="field-card-shape bg-[var(--accent-color)] text-white p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
                             <i class="ph-duotone ph-stethoscope text-5xl mb-3 text-white"></i>
                             <h4 class="text-xl font-black mb-1">الصحي والطبي</h4>
                             <p class="text-xs sm:text-sm text-white/95 font-medium">علاج وظيفي، سمعيات، وتغذية علاجية</p>
                         </div>
 
-                        <!-- بطاقة 2: التقني والرقمي -->
                         <div onclick="filterMajorsByTrack('التقني والرقمي')" class="field-card-shape bg-[var(--tertiary-color)] text-[var(--text-color)] p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
                             <i class="ph-duotone ph-laptop text-5xl mb-3 text-[var(--text-color)]"></i>
                             <h4 class="text-xl font-black mb-1">التقني والرقمي</h4>
                             <p class="text-xs sm:text-sm text-[var(--text-color)]/90 font-bold">برمجة، ذكاء اصطناعي، وأدلة رقمية</p>
                         </div>
 
-                        <!-- بطاقة 3: الهندسي والعلوم -->
                         <div onclick="filterMajorsByTrack('الهندسي والعلوم')" class="field-card-shape bg-[var(--primary-color)] text-white p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
                             <i class="ph-duotone ph-compass-tool text-5xl mb-3 text-white"></i>
                             <h4 class="text-xl font-black mb-1">الهندسي والعلوم</h4>
                             <p class="text-xs sm:text-sm text-white/95 font-medium">طيران وفضاء، طاقة متجددة، وهندسة طبية</p>
                         </div>
 
-                        <!-- بطاقة 4: المالي والثقافي -->
                         <div onclick="navigateTo('fields')" class="field-card-shape bg-[var(--text-color)] text-white p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
                             <i class="ph-duotone ph-chart-bar text-5xl mb-3 text-[var(--tertiary-color)]"></i>
                             <h4 class="text-xl font-black mb-1">المالي والثقافي</h4>
@@ -240,64 +243,145 @@
                     </div>
                 </div>
 
-                <!-- قسم بانر الاختبار التفاعلي (جرّبي الآن + الشكل البيضاوي المائل) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 py-4">
+                <!-- بانر الاختبار التفاعلي (جرّبي الآن + الشكل البيضاوي المائل) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 py-3">
                     <div class="text-right space-y-3">
                         <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">جرّبي الآن</h3>
                         <p class="text-sm sm:text-base text-[var(--text-color)]/85 font-bold">
-                            10 أسئلة شاملة • 3 دقائق • نتيجة فورية بالتخصصات والوظائف والمسارات الأنسب لكِ
+                            ماذا أحب وبماذا أتميز • ميولي المبدئية • خلاصتي وأداة القياس (يتطلب تسجيل الدخول)
                         </p>
-                        <div class="pt-2">
-                            <button onclick="navigateTo('quiz')" class="btn-neo px-8 py-3 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-base cursor-pointer">
+                        <div class="pt-1">
+                            <button onclick="startQuizGuarded()" class="btn-neo px-8 py-3 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer">
                                 ابدئي الاختبار
                             </button>
                         </div>
                     </div>
 
-                    <div onclick="navigateTo('quiz')" class="quiz-oval-banner bg-[var(--accent-color)] text-white py-12 px-8 text-center cursor-pointer shadow-lg">
+                    <div onclick="startQuizGuarded()" class="quiz-oval-banner bg-[var(--accent-color)] text-white py-11 px-8 text-center cursor-pointer shadow-lg">
                         <span class="block text-xl sm:text-2xl font-black tracking-wide">
-                            اختبار الاهتمامات والقدرات
+                            مقياس الميول والتميز الذاتي
                         </span>
                         <span class="inline-block mt-2 text-xs font-bold bg-white/20 px-3.5 py-1 rounded-full">
-                            اكتشفي ميولكِ ومهاراتكِ وبيئة عملكِ الآن
+                            مستوحى من بطاقات اكتشاف الميول والتميز
                         </span>
                     </div>
                 </div>
 
-                <!-- قسم مقالات ونصائح (Bento Grid من 3 بطاقات مطابق للصورة) -->
-                <div class="pt-2">
-                    <div class="flex items-center justify-between mb-6">
+                <!-- معاينة المقالات ونصائح (Bento Grid من 3 بطاقات) -->
+                <div>
+                    <div class="flex items-center justify-between mb-5">
                         <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">مقالات ونصائح</h3>
-                        <button onclick="navigateTo('articles')" class="text-sm font-extrabold text-[var(--primary-color)] hover:underline cursor-pointer">عرض الكل</button>
+                        <button onclick="navigateTo('articles')" class="text-xs sm:text-sm font-extrabold text-[var(--primary-color)] hover:underline cursor-pointer">عرض الكل</button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch" id="homeArticlesPreview">
-                        <!-- يتم توليدها برمجياً بتخطيط Bento مطابق للصورة -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch" id="homeArticlesPreview"></div>
                 </div>
-
             </section>
 
             <!-- ============================================================= -->
-            <!-- القسم 2: اكتشفي نفسك والمسار المهني (اختبار تحديد الميول والقدرات) -->
+            <!-- القسم 2: الاختبار المستلهم من الصور الأربع (يتطلب تسجيل الدخول) -->
             <!-- ============================================================= -->
-            <section id="section-quiz" class="page-section max-w-3xl mx-auto">
-                <div class="bg-white rounded-3xl border-2 border-[var(--text-color)] shadow-[6px_6px_0_var(--text-color)] overflow-hidden">
-                    <div class="p-6 sm:p-8 bg-[var(--primary-color)] text-white">
-                        <div class="flex items-center justify-between mb-3">
+            <section id="section-quiz" class="page-section max-w-4xl mx-auto space-y-6">
+                <div class="bg-white rounded-3xl card-neo overflow-hidden">
+                    <div class="p-6 sm:p-7 bg-[var(--primary-color)] text-white">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                             <span class="px-3.5 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black">
-                                اختبار اكتشاف الذات والمسار المهني
+                                مقياس اكتشاف الذات والميول (4 محاور)
                             </span>
-                            <span id="quizStepLabel" class="text-sm font-extrabold">السؤال 1 من 10</span>
+                            <span id="quizCurrentUserBadge" class="text-xs font-extrabold bg-white/15 px-3 py-1 rounded-full"></span>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-black mb-4">اكتشفي ميولكِ ومهاراتكِ وقيمكِ وبيئة العمل المناسبة لكِ</h2>
-                        <div class="w-full h-3 bg-white/25 rounded-full overflow-hidden">
-                            <div id="quizProgressFill" class="h-full bg-[var(--tertiary-color)] transition-all duration-300" style="width: 10%;"></div>
-                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black">اكتشفي ميولكِ وتميزكِ وخلاصتكِ</h2>
+                        <p class="text-xs sm:text-sm text-white/90 font-medium mt-1">
+                            أولاً: ماذا أحب وبماذا أتميز • ثانياً: ميولي المبدئية • ثالثاً: خلاصتي • رابعاً: أداة القياس الأدق
+                        </p>
                     </div>
 
-                    <div id="quizBodyContainer" class="p-6 sm:p-8">
-                        <!-- يتم تعبئتها برمجياً -->
-                    </div>
+                    <form onsubmit="submitInspiredQuiz(event)" class="p-6 sm:p-7 space-y-8">
+
+                        <!-- أولاً: ماذا أحب؟ وبماذا أتميز؟ -->
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black text-[var(--primary-color)] border-r-4 border-[var(--accent-color)] pr-3">
+                                أولاً: ماذا أحب؟ وبماذا أتميز؟
+                            </h3>
+                            <div class="overflow-x-auto rounded-2xl border-2 border-[var(--text-color)]">
+                                <table class="w-full text-right border-collapse text-xs sm:text-sm">
+                                    <thead>
+                                        <tr class="bg-[var(--bg-color)] border-b-2 border-[var(--text-color)]">
+                                            <th class="p-3.5 font-black w-2/5 border-l border-[var(--text-color)]/30">السؤال</th>
+                                            <th class="p-3.5 font-black">إجابتي</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="partOneTableBody" class="divide-y divide-[var(--text-color)]/20 bg-white">
+                                        <!-- يتم تعبئتها برمجياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ثانياً: ميولي المبدئية لكل مجال -->
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black text-[var(--primary-color)] border-r-4 border-[var(--accent-color)] pr-3">
+                                ثانياً: ميولي المبدئية. اختاري الدرجة المناسبة لكل مجال
+                            </h3>
+                            <div class="overflow-x-auto rounded-2xl border-2 border-[var(--text-color)]">
+                                <table class="w-full text-right border-collapse text-xs sm:text-sm">
+                                    <thead>
+                                        <tr class="bg-[var(--bg-color)] border-b-2 border-[var(--text-color)]">
+                                            <th class="p-3.5 font-black border-l border-[var(--text-color)]/30">المجال</th>
+                                            <th class="p-3.5 font-black text-center border-l border-[var(--text-color)]/30">أميل إليه بدرجة كبيرة</th>
+                                            <th class="p-3.5 font-black text-center border-l border-[var(--text-color)]/30">بدرجة متوسطة</th>
+                                            <th class="p-3.5 font-black text-center">بدرجة ضعيفة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="partTwoTableBody" class="divide-y divide-[var(--text-color)]/20 bg-white">
+                                        <!-- يتم تعبئتها برمجياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ثالثاً: خلاصتي -->
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black text-[var(--primary-color)] border-r-4 border-[var(--accent-color)] pr-3">
+                                ثالثاً: خلاصتي
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-[var(--bg-color)] border-2 border-[var(--text-color)]">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-black mb-1.5">المجال الذي يناسبني مبدئياً</label>
+                                    <select id="summaryFieldSelect" required class="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[var(--text-color)]/30 focus:border-[var(--primary-color)] focus:outline-none text-xs sm:text-sm font-bold">
+                                        <option value="">-- اختاري المجال --</option>
+                                        <option value="الصحي والطبي">الصحي والطبي</option>
+                                        <option value="الهندسي">الهندسي</option>
+                                        <option value="الحاسب والتقنية">الحاسب والتقنية</option>
+                                        <option value="الإداري والمالي">الإداري والمالي</option>
+                                        <option value="الإنساني واللغات">الإنساني واللغات</option>
+                                        <option value="الشرعي">الشرعي</option>
+                                        <option value="التعليمي">التعليمي</option>
+                                        <option value="الفني والتصميم">الفني والتصميم</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-black mb-1.5">لأن...</label>
+                                    <input type="text" id="summaryBecauseInput" required placeholder="اذكري السبب باختصار..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[var(--text-color)]/30 focus:border-[var(--primary-color)] focus:outline-none text-xs sm:text-sm font-bold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- رابعاً: أداة سأجربها لاكتشاف ميولي بدقة أكبر -->
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black text-[var(--primary-color)] border-r-4 border-[var(--accent-color)] pr-3">
+                                رابعاً: أداة سأجربها لاكتشاف ميولي بدقة أكبر
+                            </h3>
+                            <div id="partFourToolsBox" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <!-- يتم تعبئتها برمجياً -->
+                            </div>
+                        </div>
+
+                        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-200">
+                            <button type="submit" class="btn-neo px-8 py-3 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer">
+                                حفظ وعرض النتيجة
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
 
@@ -305,9 +389,7 @@
             <!-- القسم 3: نتائج الاختبار (Test Results) -->
             <!-- ============================================================= -->
             <section id="section-results" class="page-section max-w-4xl mx-auto space-y-6">
-                <div id="resultsDisplayContainer">
-                    <!-- يتم عرض النتيجة هنا بعد إتمام الاختبار -->
-                </div>
+                <div id="resultsDisplayContainer"></div>
             </section>
 
             <!-- ============================================================= -->
@@ -319,10 +401,7 @@
                     <h2 class="text-2xl sm:text-3xl font-black text-[var(--text-color)] mt-2">دليل المسارات التعليمية والتأهيلية</h2>
                     <p class="text-sm sm:text-base text-[var(--text-color)]/80 font-medium mt-1">تعرّفي على المسارات الستة للوصول إلى الدراسة والعمل مع شروط الالتحاق والجهات المقدمة لها.</p>
                 </div>
-
-                <div id="pathwaysFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- يتم توليدها برمجياً -->
-                </div>
+                <div id="pathwaysFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </section>
 
             <!-- ============================================================= -->
@@ -334,18 +413,15 @@
                     <h2 class="text-2xl sm:text-3xl font-black text-[var(--text-color)] mt-2">دليل المجالات الدراسية والمهنية</h2>
                     <p class="text-sm sm:text-base text-[var(--text-color)]/80 font-medium mt-1">تعرّفي على طبيعة العمل في كل مجال، المواد والموضوعات، المهارات المطلوبة، والتخصصات والوظائف التابعة له.</p>
                 </div>
-
-                <div id="fieldsFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- يتم توليدها برمجياً -->
-                </div>
+                <div id="fieldsFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </section>
 
             <!-- ============================================================= -->
-            <!-- القسم 6: دليل التخصصات والوظائف (15 تخصصاً ووظيفة مترابطة) -->
+            <!-- القسم 6: دليل التخصصات والوظائف -->
             <!-- ============================================================= -->
             <section id="section-majors" class="page-section space-y-6">
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div class="bg-white p-6 rounded-3xl card-neo">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
                             <h2 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">دليل التخصصات والوظائف</h2>
                             <p class="text-sm text-[var(--text-color)]/80 font-medium">15 تخصصاً ووظيفة نوعية ومطلوبة مع شرح مبسط، المواد، المهارات، بيئة العمل، والربط بين الدراسة والمهنة.</p>
@@ -355,25 +431,15 @@
                         </span>
                     </div>
 
-                    <!-- حقل البحث -->
                     <div class="relative mb-4">
                         <i class="ph-bold ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-color)]/60 text-lg"></i>
-                        <input
-                            type="text"
-                            id="majorSearchInput"
-                            placeholder="ابحثي باسم التخصص، وظيفة، مادة دراسية، أو مهارة..."
-                            class="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg-color)] border-2 border-transparent focus:border-[var(--primary-color)] focus:bg-white focus:outline-none text-sm font-bold"
-                        >
+                        <input type="text" id="majorSearchInput" placeholder="ابحثي باسم التخصص، وظيفة، مادة دراسية، أو مهارة..." class="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg-color)] border-2 border-transparent focus:border-[var(--primary-color)] focus:bg-white focus:outline-none text-sm font-bold">
                     </div>
 
-                    <!-- أزرار تصفية المسارات -->
-                    <div id="majorsFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                        <!-- يتم توليدها برمجياً -->
-                    </div>
+                    <div id="majorsFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
                 </div>
 
-                <!-- لوحة العلاقة بين التخصصات والوظائف المشتركة -->
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
+                <div class="bg-white p-6 rounded-3xl card-neo">
                     <h3 class="text-lg font-black text-[var(--text-color)] mb-2 flex items-center gap-2">
                         <i class="ph-fill ph-git-branch text-xl text-[var(--primary-color)]"></i>
                         <span>العلاقة بين الدراسة والعمل والوظائف متعددة التخصصات</span>
@@ -381,16 +447,12 @@
                     <p class="text-xs sm:text-sm font-medium text-[var(--text-color)]/85 mb-4">
                         كثير من الوظائف الحديثة لا تقتصر على تخصص واحد فقط؛ بل يمكن الوصول إليها من خلال تخصصات متكاملة تجمع بين التقنية والعلوم والإدارة والمهارات الشخصية:
                     </p>
-                    <div id="crossCareerMatrix" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <!-- يتم توليدها برمجياً -->
-                    </div>
+                    <div id="crossCareerMatrix" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
 
-                <div id="majorsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- يتم توليد بطاقات التخصصات والوظائف برمجياً -->
-                </div>
+                <div id="majorsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
-                <div id="majorsNoResults" class="hidden bg-white p-10 rounded-3xl border-2 border-[var(--text-color)] text-center">
+                <div id="majorsNoResults" class="hidden bg-white p-10 rounded-3xl card-neo text-center">
                     <p class="font-extrabold text-lg mb-2">لا توجد تخصصات أو وظائف مطابقة لبحثكِ</p>
                     <button onclick="resetMajorsFilter()" class="btn-neo px-6 py-2 rounded-full bg-[var(--primary-color)] text-white text-sm font-bold cursor-pointer">عرض الكل</button>
                 </div>
@@ -406,12 +468,9 @@
                     <p class="text-sm sm:text-base text-[var(--text-color)]/80 font-medium mt-1">المهارات الشخصية والتقنية المطلوبة في سوق العمل، المعارف والقيم المهنية، وطرق تطويرها وتنظيم الدراسة.</p>
                 </div>
 
-                <div id="skillsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <!-- يتم توليدها برمجياً -->
-                </div>
+                <div id="skillsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
 
-                <!-- المعارف والقيم المهمة في بيئة العمل -->
-                <div class="bg-white p-6 sm:p-7 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
+                <div class="bg-white p-6 sm:p-7 rounded-3xl card-neo">
                     <h3 class="text-xl font-black text-[var(--text-color)] mb-4 flex items-center gap-2">
                         <i class="ph-fill ph-shield-check text-2xl text-[var(--primary-color)]"></i>
                         <span>المعارف والقيم المهمة في بيئة العمل</span>
@@ -436,8 +495,7 @@
                     </div>
                 </div>
 
-                <!-- نصائح تنظيم الدراسة -->
-                <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl card-neo">
                     <h3 class="text-xl font-black text-[var(--text-color)] mb-4 flex items-center gap-2">
                         <i class="ph-fill ph-lightbulb text-2xl text-[var(--accent-color)]"></i>
                         <span>نصائح عملية لتنظيم الدراسة والتعلم</span>
@@ -460,94 +518,78 @@
             </section>
 
             <!-- ============================================================= -->
-            <!-- القسم 8: المقالات والموضوعات والتفاعل (Articles & Interaction) -->
+            <!-- القسم 8: المقالات والموضوعات والتفاعل -->
             <!-- ============================================================= -->
             <section id="section-articles" class="page-section space-y-6">
                 <div>
                     <span class="px-3.5 py-1 rounded-full bg-[var(--primary-color)] text-white border border-[var(--text-color)] text-xs font-black">المعرفة والتجارب وسوق العمل</span>
                     <h2 class="text-2xl sm:text-3xl font-black text-[var(--text-color)] mt-2">المقالات والموضوعات</h2>
-                    <p class="text-sm sm:text-base text-[var(--text-color)]/80 font-medium mt-1">مقالات حول اختيار التخصص، سوق العمل، المقابلات الوظيفية والسيرة الذاتية، العمل الحر وريادة الأعمال، مع التفاعل والتعليقات.</p>
+                    <p class="text-sm sm:text-base text-[var(--text-color)]/80 font-medium mt-1">مقالات حول اختيار التخصص، سوق العمل، المقابلات الوظيفية والسيرة الذاتية، العمل الحر وريادة الأعمال (التعليق يتطلب تسجيل الدخول).</p>
                 </div>
-
-                <div id="articlesFullGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- يتم توليدها برمجياً -->
-                </div>
+                <div id="articlesFullGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
             </section>
 
             <!-- ============================================================= -->
-            <!-- القسم 9: حسابي الشخصي (User Profile) -->
+            <!-- القسم 9: صفحتي (تسجيل الدخول/إنشاء حساب باليوزر وكلمة السر + الحسابات التي دخلت + الأكثر تفاعلاً + المحفوظات) -->
             <!-- ============================================================= -->
             <section id="section-profile" class="page-section space-y-6">
-                <!-- تنبيه حالة قاعدة البيانات Supabase -->
-                <div class="bg-[var(--tertiary-color)]/55 border-2 border-[var(--text-color)] rounded-2xl p-4 flex items-start gap-3">
-                    <i class="ph-fill ph-database text-2xl text-[var(--text-color)] shrink-0 mt-0.5"></i>
-                    <div class="text-xs sm:text-sm">
-                        <p class="font-black">حالة الاتصال بقاعدة البيانات: وضع الجلسة المؤقتة (غير مرتبط بـ Supabase بعد)</p>
-                        <p class="font-medium mt-0.5">بياناتكِ ونتائج اختباراتكِ ومفضلتكِ وتعليقاتكِ محفوظة في جلسة التصفح الحالية، ومهيأة برمجياً للمزامنة الفورية عند إضافة مفاتيح Supabase.</p>
+
+                <!-- صندوق تسجيل الدخول / إنشاء حساب جديد -->
+                <div id="authGateCard" class="bg-white rounded-3xl card-neo p-6 sm:p-8">
+                    <!-- يتم تعبئتها برمجياً -->
+                </div>
+
+                <!-- الحسابات التي دخلت + الحسابات الأكثر تفاعلاً -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-3xl card-neo space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-black flex items-center gap-2">
+                                <i class="ph-fill ph-users-three text-xl text-[var(--primary-color)]"></i>
+                                <span>الحسابات التي دخلت</span>
+                            </h3>
+                            <span id="visitedAccountsCount" class="px-3 py-1 rounded-full bg-[var(--bg-color)] border border-[var(--text-color)] text-xs font-black">0</span>
+                        </div>
+                        <p class="text-xs font-medium text-[var(--text-color)]/75">يمكنكِ التبديل السريع بين الحسابات المسجلة أو التي دخلت المنصة لتجربة صلاحيات الطالب والمعلم.</p>
+                        <div id="visitedAccountsList" class="space-y-2.5"></div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl card-neo space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-black flex items-center gap-2">
+                                <i class="ph-fill ph-trend-up text-xl text-[var(--accent-color)]"></i>
+                                <span>الحسابات الأكثر تفاعلاً</span>
+                            </h3>
+                            <span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">الأعلى نشاطاً</span>
+                        </div>
+                        <p class="text-xs font-medium text-[var(--text-color)]/75">ترتيب الحسابات بحسب عدد الاختبارات المنجزة والتعليقات والإعجابات والمحفوظات.</p>
+                        <div id="mostActiveAccountsList" class="space-y-2.5"></div>
                     </div>
                 </div>
 
+                <!-- سجل النتائج والمفضلة للحساب الحالي -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- بيانات المستخدم -->
-                    <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] h-fit space-y-4 shadow-[4px_4px_0_var(--text-color)]">
-                        <div class="flex items-center gap-3 pb-3 border-b border-slate-200">
-                            <div class="w-12 h-12 rounded-2xl bg-[var(--primary-color)] text-white flex items-center justify-center">
-                                <i class="ph-fill ph-student text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 id="profileNameTitle" class="font-black text-lg">طالبة طموحة</h3>
-                                <p id="profileGradeSubtitle" class="text-xs font-bold text-[var(--primary-color)]">الصف الثاني الثانوي</p>
-                            </div>
-                        </div>
-
-                        <form onsubmit="handleProfileSave(event)" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-extrabold mb-1">الاسم</label>
-                                <input type="text" id="inputUserName" value="طالبة طموحة" required class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-extrabold mb-1">المرحلة الدراسية</label>
-                                <select id="inputUserGrade" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
-                                    <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
-                                    <option value="الصف الثاني الثانوي" selected>الصف الثاني الثانوي</option>
-                                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-extrabold mb-1">البريد الإلكتروني</label>
-                                <input type="email" id="inputUserEmail" value="student@example.com" required class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
-                            </div>
-                            <button type="submit" class="btn-neo w-full py-2.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer">
-                                حفظ البيانات
-                            </button>
-                        </form>
+                    <div class="bg-white p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2">
+                            <i class="ph-fill ph-exam text-[var(--accent-color)] text-lg"></i>
+                            <span>نتائج الاختبارات المحفوظة</span>
+                        </h3>
+                        <div id="profileSavedResults" class="space-y-2.5"></div>
                     </div>
 
-                    <!-- السجل والمفضلة -->
-                    <div class="lg:col-span-2 space-y-5">
-                        <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
-                            <h3 class="text-lg font-black mb-3 flex items-center gap-2">
-                                <i class="ph-fill ph-exam text-[var(--accent-color)] text-xl"></i>
-                                <span>نتائج الاختبارات المحفوظة</span>
-                            </h3>
-                            <div id="profileSavedResults" class="space-y-2.5"></div>
-                        </div>
+                    <div class="bg-white p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2">
+                            <i class="ph-fill ph-heart text-[var(--accent-color)] text-lg"></i>
+                            <span>التخصصات والوظائف المفضلة</span>
+                        </h3>
+                        <div id="profileSavedMajors" class="space-y-2.5"></div>
+                    </div>
 
-                        <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
-                            <h3 class="text-lg font-black mb-3 flex items-center gap-2">
-                                <i class="ph-fill ph-heart text-[var(--accent-color)] text-xl"></i>
-                                <span>التخصصات والوظائف المفضلة</span>
-                            </h3>
-                            <div id="profileSavedMajors" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
-                            <h3 class="text-lg font-black mb-3 flex items-center gap-2">
-                                <i class="ph-fill ph-bookmark-simple text-[var(--primary-color)] text-xl"></i>
-                                <span>المقالات المفضلة</span>
-                            </h3>
-                            <div id="profileSavedArticles" class="space-y-2.5"></div>
-                        </div>
+                    <div class="bg-white p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2">
+                            <i class="ph-fill ph-bookmark-simple text-[var(--primary-color)] text-lg"></i>
+                            <span>المقالات المفضلة</span>
+                        </h3>
+                        <div id="profileSavedArticles" class="space-y-2.5"></div>
                     </div>
                 </div>
             </section>
@@ -556,7 +598,7 @@
             <!-- القسم 10: عن الموقع (About) -->
             <!-- ============================================================= -->
             <section id="section-about" class="page-section max-w-4xl mx-auto">
-                <div class="bg-white p-7 sm:p-10 rounded-3xl border-2 border-[var(--text-color)] space-y-6 shadow-[6px_6px_0_var(--text-color)]">
+                <div class="bg-white p-7 sm:p-10 rounded-3xl card-neo space-y-6">
                     <div>
                         <span class="px-3.5 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">فكرة المشروع</span>
                         <h2 class="text-2xl sm:text-3xl font-black mt-2 mb-3">عن منصة "اكتشفي مسارك"</h2>
@@ -579,10 +621,10 @@
                         <div class="p-5 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/20">
                             <h3 class="font-black text-base text-[var(--accent-color)] mb-2">طريقة استخدام الموقع</h3>
                             <ol class="text-xs sm:text-sm font-bold space-y-2 list-decimal list-inside">
-                                <li>ابدئي باختبار <strong>"اكتشفي نفسك والمسار المهني"</strong> لمعرفة ميولكِ وبيئة عملكِ.</li>
-                                <li>اطّلعي على <strong>"نتائج الاختبار"</strong> والخطوات المقترحة للوصول لمساركِ.</li>
-                                <li>تصفحي <strong>"المسارات التعليمية والمهنية"</strong> و<strong>"دليل التخصصات والوظائف"</strong>.</li>
-                                <li>اقرئي المقالات وتفاعلي معها واحفظي ما يعجبكِ في <strong>"حسابي الشخصي"</strong>.</li>
+                                <li>سجّلي الدخول بالاسم الحقيقي واسم المستخدم وكلمة السر كـ <strong>طالب</strong> أو <strong>معلم</strong>.</li>
+                                <li>أجري الاختبار المستوحى من بطاقات اكتشاف الميول والتميز واطّلعي على النتيجة.</li>
+                                <li>تصفحي <strong>المسارات</strong> و<strong>المجالات</strong> و<strong>التخصصات والوظائف</strong>.</li>
+                                <li>اقرئي المقالات وتفاعلي معها وعلّقي وتابعي الحسابات الأكثر تفاعلاً من صفحتكِ.</li>
                             </ol>
                         </div>
                     </div>
@@ -593,7 +635,7 @@
     </main>
 
     <!-- ===================================================================== -->
-    <!-- النافذة المنبثقة الموحدة (Modal لعرض تفاصيل التخصص/الوظيفة أو المقال) -->
+    <!-- النافذة المنبثقة الموحدة (Modal لعرض التفاصيل أو تنبيه تسجيل الدخول) -->
     <!-- ===================================================================== -->
     <div id="infoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-[#073B4C]/65 backdrop-blur-xs" onclick="closeInfoModal(event)">
         <div class="bg-white w-full max-w-2xl rounded-3xl border-2 border-[var(--text-color)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
@@ -615,47 +657,86 @@
         <span id="toastBoxMessage">تمت العملية بنجاح</span>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- البرمجة المنظمة وهيكلة البيانات والاستعداد للربط مع Supabase -->
-    <!-- ===================================================================== -->
     <script>
         /**
          * ===================================================================
-         * 1. طبقة الإعداد والربط المستقبلي مع Supabase (Supabase Service Layer)
+         * 1. بيانات الحسابات والصلاحيات (اسم حقيقي + يوزر + كلمة سر + طالب/معلم)
          * ===================================================================
          */
-        const SUPABASE_URL = "https://jcsarxytyadzuyukakhf.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_uEYkeyIXyfIrA_E-KoP7kQ_e2ujdSjQ";
-
-        function isSupabaseReady() {
-            return Boolean(SUPABASE_URL && SUPABASE_URL.trim() !== "" && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.trim() !== "");
-        }
-
-        async function fetchSpecializations() {
-            if (!isSupabaseReady()) {
-                return APP_DATA.specializations;
+        const INITIAL_ACCOUNTS = [
+            {
+                id: "acc_student_1",
+                realName: "سارة المنصور",
+                username: "sara_student",
+                password: "123",
+                role: "طالب",
+                hasVisited: true,
+                quizzesCount: 2,
+                commentsCount: 3,
+                likesCount: 4,
+                savedResults: [],
+                favoriteSpecs: ["spec_02", "spec_04"],
+                favoriteArticles: ["art_1"]
+            },
+            {
+                id: "acc_teacher_1",
+                realName: "أ. نورة الحربي",
+                username: "noura_teacher",
+                password: "123",
+                role: "معلم",
+                hasVisited: true,
+                quizzesCount: 1,
+                commentsCount: 5,
+                likesCount: 6,
+                savedResults: [],
+                favoriteSpecs: ["spec_10"],
+                favoriteArticles: ["art_1", "art_2"]
+            },
+            {
+                id: "acc_student_2",
+                realName: "جود الغامدي",
+                username: "joud_std",
+                password: "123",
+                role: "طالب",
+                hasVisited: false,
+                quizzesCount: 1,
+                commentsCount: 1,
+                likesCount: 2,
+                savedResults: [],
+                favoriteSpecs: [],
+                favoriteArticles: []
             }
-            return APP_DATA.specializations;
-        }
+        ];
 
-        async function saveQuizResult(resultObject) {
-            if (!isSupabaseReady()) {
-                showToast("تم حفظ النتيجة في الجلسة الحالية (جاهزة للمزامنة مع Supabase)", "ph-info");
-                return { synced: false, local: true };
-            }
-            return { synced: true };
-        }
+        const PART_ONE_PROMPTS = [
+            { key: "loved_subjects", label: "المواد التي أحبها", placeholder: "مثال: الأحياء، الحاسب، الفيزياء..." },
+            { key: "excel_subjects", label: "المواد التي أتفوق فيها", placeholder: "مثال: الرياضيات، الإنجليزية، الأحياء..." },
+            { key: "out_of_class", label: "الأنشطة أو المجالات التي أستمتع بها خارج الصف", placeholder: "مثال: البرمجة، التصميم، القراءة، التطوع..." },
+            { key: "my_skills", label: "مهاراتي (حل المشكلات، الإبداع، التواصل، العمل الجماعي، المهارات الرقمية...)", placeholder: "اذكري أبرز المهارات التي تتقنينها..." },
+            { key: "skills_to_develop", label: "مهارات أريد تطويرها", placeholder: "مثال: الإلقاء، إدارة الوقت، البرمجة..." },
+            { key: "my_values", label: "القيم التي أميل إليها (الانتماء، التعاون، خدمة المجتمع، الإنجاز...)", placeholder: "اذكري القيم الأقرب إليكِ..." }
+        ];
 
-        async function toggleBookmark(itemType, itemId) {
-            if (!isSupabaseReady()) {
-                return { synced: false, local: true };
-            }
-            return { synced: true };
-        }
+        const PART_TWO_FIELDS = [
+            { name: "الصحي والطبي", majorTrack: "الصحي والطبي" },
+            { name: "الهندسي", majorTrack: "الهندسي والعلوم" },
+            { name: "الحاسب والتقنية", majorTrack: "التقني والرقمي" },
+            { name: "الإداري والمالي", majorTrack: "المالي والإداري" },
+            { name: "الإنساني واللغات", majorTrack: "الثقافي والسياحي" },
+            { name: "الشرعي", majorTrack: "الثقافي والسياحي" },
+            { name: "التعليمي", majorTrack: "الثقافي والسياحي" },
+            { name: "الفني والتصميم", majorTrack: "التقني والرقمي" }
+        ];
+
+        const PART_FOUR_TOOLS = [
+            "اختبار الميول في منصة مدرستي",
+            "منصة سُبل",
+            "مقياس الميول المهنية من هيئة تقويم التعليم والتدريب"
+        ];
 
         /**
          * ===================================================================
-         * 2. مخزن البيانات المنظمة (Normalized Data Store)
+         * 2. المحتوى الأكاديمي والمهني (المسارات، المجالات، التخصصات، المهارات، المقالات)
          * ===================================================================
          */
         const APP_DATA = {
@@ -731,8 +812,7 @@
                     nature: "يعتمد على التفكير المنطقي، حل المشكلات التقنية، والتطور المستمر في بيئة رقمية سريعة.",
                     subjects: "الحاسب الآلي، البرمجة، الرياضيات، والمنطق.",
                     required_skills: "التفكير التحليلي، البرمجة وحل المشكلات، البحث الذاتي، والانتباه للتفاصيل.",
-                    careers_list: "مطورة برمجيات، عالمة بيانات ومهندسة ذكاء اصطناعي، محللة أدلة رقمية، مصممة UX/UI.",
-                    created_at: "2026-01-01"
+                    careers_list: "مطورة برمجيات، عالمة بيانات ومهندسة ذكاء اصطناعي، محللة أدلة رقمية، مصممة UX/UI."
                 },
                 {
                     id: "track_eng",
@@ -742,8 +822,7 @@
                     nature: "يجمع بين الفهم العلمي العميق والتطبيق العملي الميداني والمخبري وإدارة الأنظمة.",
                     subjects: "الفيزياء، الرياضيات، الكيمياء، والتصميم الهندسي.",
                     required_skills: "النمذجة والقياس، حل المشكلات الهندسية، العمل الجماعي، والدقة العالية.",
-                    careers_list: "مهندسة طيران وفضاء، مهندسة طاقة متجددة، مهندسة أجهزة طبية، أخصائية سلاسل إمداد وGIS.",
-                    created_at: "2026-01-01"
+                    careers_list: "مهندسة طيران وفضاء، مهندسة طاقة متجددة، مهندسة أجهزة طبية، أخصائية سلاسل إمداد وGIS."
                 },
                 {
                     id: "track_health",
@@ -753,8 +832,7 @@
                     nature: "يتطلب دقة عالية، صبراً، التزاماً بالأخلاقيات، وتواصلاً إنسانياً مباشراً مع المستفيدين.",
                     subjects: "الأحياء، الكيمياء، التشريح، والعلوم الصحية.",
                     required_skills: "التعاطف الإنساني، الصبر والهدوء، التواصل السريري، والدقة في المتابعة.",
-                    careers_list: "أخصائية علاج وظيفي، أخصائية نطق وتخاطب وسمعيات، أخصائية تغذية علاجية.",
-                    created_at: "2026-01-01"
+                    careers_list: "أخصائية علاج وظيفي، أخصائية نطق وتخاطب وسمعيات، أخصائية تغذية علاجية."
                 },
                 {
                     id: "track_finance",
@@ -764,8 +842,7 @@
                     nature: "يقوم على تحليل الأرقام، التنبؤ الاقتصادي، إدارة المخاطر، والابتكار في عالم الأعمال.",
                     subjects: "الرياضيات المالية، الإحصاء، الاقتصاد، والإدارة.",
                     required_skills: "التحليل الكمي، تقييم المخاطر، التخطيط المالي، واتخاذ القرار.",
-                    careers_list: "محللة اكتوارية ومقيمة مخاطر مالية، مطورة حلول تقنية مالية (FinTech).",
-                    created_at: "2026-01-01"
+                    careers_list: "محللة اكتوارية ومقيمة مخاطر مالية، مطورة حلول تقنية مالية (FinTech)."
                 },
                 {
                     id: "track_culture",
@@ -775,379 +852,39 @@
                     nature: "يمزج بين الشغف بالتاريخ والفنون وبين التنظيم والتسويق وإدارة التجارب والتواصل.",
                     subjects: "التاريخ، الجغرافيا، الفنون، ومهارات التواصل.",
                     required_skills: "السرد الثقافي، تنظيم الفعاليات، الذائقة الفنية، والتواصل مع الجمهور.",
-                    careers_list: "أمينة متحف، منسقة برامج ثقافية وسياحية، مصممة تجارب ثقافية.",
-                    created_at: "2026-01-01"
+                    careers_list: "أمينة متحف، منسقة برامج ثقافية وسياحية، مصممة تجارب ثقافية."
                 }
             ],
 
             specializations: [
-                {
-                    id: "spec_01",
-                    track_id: "track_tech",
-                    track_name: "التقني والرقمي",
-                    title: "علوم الحاسب",
-                    job_title: "مطورة برمجيات ومهندسة أنظمة",
-                    description: "بناء البرمجيات والتطبيقات والأنظمة الذكية من الصفر وتطوير حلول تقنية موثوقة.",
-                    subjects: "البرمجة، الخوارزميات، قواعد البيانات، والشبكات.",
-                    skills: "التفكير المنطقي، حل المشكلات، والصبر.",
-                    work_env: "شركات التقنية، فرق تطوير المنتجات الرقمية، والعمل الهجين أو عن بُعد.",
-                    careers: "مطورة برمجيات، ومبرمجة تطبيقات ومواقع وهندسة أنظمة.",
-                    related_majors: "علوم الحاسب، هندسة البرمجيات، نظم المعلومات"
-                },
-                {
-                    id: "spec_02",
-                    track_id: "track_tech",
-                    track_name: "التقني والرقمي",
-                    title: "علم البيانات والذكاء الاصطناعي",
-                    job_title: "عالمة بيانات ومهندسة ذكاء اصطناعي",
-                    description: "تحليل البيانات الضخمة لبناء أنظمة ذكية ونماذج تعلم آلي تحاكي الاستنتاج والتنبؤ.",
-                    subjects: "الإحصاء، تعلم الآلة، تحليل البيانات، ولغة Python.",
-                    skills: "الفضول التحليلي، وحب التعامل مع الأرقام.",
-                    work_env: "مختبرات البيانات، شركات التقنية، والقطاعات الصحية والمالية والحكومية.",
-                    careers: "عالمة بيانات، ومهندسة ذكاء اصطناعي ومحللة بيانات.",
-                    related_majors: "علم البيانات، الذكاء الاصطناعي، علوم الحاسب، الإحصاء"
-                },
-                {
-                    id: "spec_03",
-                    track_id: "track_tech",
-                    track_name: "التقني والرقمي",
-                    title: "الأدلة الجنائية الرقمية",
-                    job_title: "محققة جرائم إلكترونية ومحللة أدلة رقمية",
-                    description: "تتبع الجرائم الإلكترونية واسترجاع الأدلة الرقمية لكشف الاختراقات وتحليل الحوادث الأمنية.",
-                    subjects: "أمن الشبكات، أنظمة التشغيل، والقوانين الرقمية.",
-                    skills: "قوة الملاحظة، التحليل المنطقي، وربط الخيوط.",
-                    work_env: "مراكز الاستجابة للحوادث الأمنية، الجهات الرقابية والأمنية، وشركات الأمن السيبراني.",
-                    careers: "محققة جرائم إلكترونية، ومحللة أدلة رقمية وأمن سيبراني.",
-                    related_majors: "الأدلة الجنائية الرقمية، الأمن السيبراني، علوم الحاسب"
-                },
-                {
-                    id: "spec_04",
-                    track_id: "track_tech",
-                    track_name: "التقني والرقمي",
-                    title: "تصميم تجربة المستخدم (UX/UI)",
-                    job_title: "مصممة واجهات وتجربة مستخدم",
-                    description: "تصميم واجهات التطبيقات والمواقع وبناء رحلة مستخدم سهلة وواضحة وجذابة.",
-                    subjects: "سلوك المستخدم، التصميم البصري، والنماذج الأولية.",
-                    skills: "الحس الفني، فهم المستخدمين، والانتباه للتفاصيل.",
-                    work_env: "استوديوهات التصميم والمنتجات الرقمية، شركات التقنية، والعمل الحر.",
-                    careers: "مصممة واجهات وتجربة مستخدم وباحثة تجربة مستخدم.",
-                    related_majors: "تصميم تجربة المستخدم، التصميم الرقمي، علوم الحاسب"
-                },
-                {
-                    id: "spec_05",
-                    track_id: "track_eng",
-                    track_name: "الهندسي والعلوم",
-                    title: "هندسة الطيران والفضاء",
-                    job_title: "مهندسة طيران وأنظمة فضائية",
-                    description: "تصميم وتطوير وصيانة الطائرات والمركبات الفضائية والأقمار الصناعية وأنظمة الملاحة.",
-                    subjects: "الديناميكا الهوائية، أنظمة الدفع، وهياكل الطائرات.",
-                    skills: "التفوق في الفيزياء والرياضيات، والدقة العالية.",
-                    work_env: "شركات الطيران والصناعات الجوية، مراكز الأبحاث، ومطارات الصيانة والاختبار.",
-                    careers: "مهندسة طيران، ومهندسة أنظمة فضائية وهياكل.",
-                    related_majors: "هندسة الطيران والفضاء، الهندسة الميكانيكية"
-                },
-                {
-                    id: "spec_06",
-                    track_id: "track_eng",
-                    track_name: "الهندسي والعلوم",
-                    title: "هندسة الطاقة المتجددة",
-                    job_title: "مهندسة طاقة متجددة ومستشارة استدامة",
-                    description: "توليد الطاقة النظيفة من الطبيعة (كالشمس والرياح والهيدروجين) وتخزينها لحماية البيئة.",
-                    subjects: "الفيزياء، أنظمة الطاقة الشمسية والرياح، وتخزينها.",
-                    skills: "التفكير الهندسي، الابتكار، والاهتمام بالبيئة.",
-                    work_env: "محطات الطاقة النظيفة، مشاريع المدن المستدامة، وشركات الاستشارات البيئية.",
-                    careers: "مهندسة طاقة متجددة، ومستشارة استدامة وكفاءة طاقة.",
-                    related_majors: "هندسة الطاقة المتجددة، الهندسة الكهربائية، الهندسة الميكانيكية"
-                },
-                {
-                    id: "spec_07",
-                    track_id: "track_eng",
-                    track_name: "الهندسي والعلوم",
-                    title: "الهندسة الطبية الحيوية",
-                    job_title: "مهندسة أجهزة طبية ومطورة تقنيات صحية",
-                    description: "دمج الهندسة بالطب لتصميم وتطوير وصيانة الأجهزة الطبية والأطراف الصناعية والمستشعرات الحيوية.",
-                    subjects: "علم التشريح، الإلكترونيات الطبية، والميكانيكا الحيوية.",
-                    skills: "حب الاختراع، والإلمام بالعلوم والهندسة.",
-                    work_env: "المستشفيات والمراكز الطبية، شركات الأجهزة الطبية، ومختبرات الابتكار الصحي.",
-                    careers: "مهندسة أجهزة طبية، ومطورة تقنيات طبية وأخصائية هندسة إكلينيكية.",
-                    related_majors: "الهندسة الطبية الحيوية، الهندسة الكهربائية، العلوم الطبية التطبيقية"
-                },
-                {
-                    id: "spec_08",
-                    track_id: "track_eng",
-                    track_name: "الهندسي والعلوم",
-                    title: "الهندسة اللوجستية وسلاسل الإمداد",
-                    job_title: "أخصائية سلاسل إمداد ومديرة عمليات لوجستية",
-                    description: "إدارة حركة المواد والمنتجات من المصنع للمستهلك بأسرع وقت وأقل تكلفة وأعلى كفاءة.",
-                    subjects: "إدارة العمليات، تخطيط المخزون، والنقل الدولي.",
-                    skills: "التنظيم العالي، سرعة القرار، والتفاوض.",
-                    work_env: "المراكز اللوجستية، الموانئ والمطارات، وشركات التجارة والصناعة والتوزيع.",
-                    careers: "أخصائية سلاسل إمداد، ومديرة عمليات ومخططة مخزون.",
-                    related_majors: "الهندسة اللوجستية، الهندسة الصناعية، إدارة سلاسل الإمداد"
-                },
-                {
-                    id: "spec_09",
-                    track_id: "track_eng",
-                    track_name: "الهندسي والعلوم",
-                    title: "نظم المعلومات الجغرافية (GIS)",
-                    job_title: "أخصائية نظم معلومات جغرافية وتحليل مكاني",
-                    description: "تحليل الخرائط الرقمية والبيانات المكانية لتخطيط المدن والمشاريع والبيئة والنقل.",
-                    subjects: "علم الخرائط، الاستشعار عن بعد، والبيانات المكانية.",
-                    skills: "دقة الملاحظة، التحليل البصري، وحب الخرائط.",
-                    work_env: "جهات التخطيط الحضري والبلدي، مراكز البيانات المكانية، وشركات البيئة والمشاريع.",
-                    careers: "أخصائية نظم معلومات جغرافية ومحللة بيانات مكانية.",
-                    related_majors: "نظم المعلومات الجغرافية، الجغرافيا التطبيقية، علوم البيانات المكانية"
-                },
-                {
-                    id: "spec_10",
-                    track_id: "track_health",
-                    track_name: "الصحي والطبي",
-                    title: "العلاج الوظيفي",
-                    job_title: "أخصائية علاج وظيفي",
-                    description: "مساعدة المرضى وذوي الإعاقة على ممارسة أنشطة حياتهم اليومية والعملية باستقلالية.",
-                    subjects: "علم التشريح، التأهيل الحركي والنفسي، وتعديل البيئات.",
-                    skills: "الصبر، التعاطف الإنساني، وحب المساعدة.",
-                    work_env: "المستشفيات، مراكز التأهيل الطبي، المدارس الدامجة، والعيادات التخصصية.",
-                    careers: "أخصائية علاج وظيفي وتأهيل مجتمعي.",
-                    related_majors: "العلاج الوظيفي، العلوم الطبية التطبيقية"
-                },
-                {
-                    id: "spec_11",
-                    track_id: "track_health",
-                    track_name: "الصحي والطبي",
-                    title: "السمعيات واضطرابات التخاطب",
-                    job_title: "أخصائية نطق وتخاطب وسمعيات",
-                    description: "تشخيص وتأهيل مشاكل النطق، اللغة، الصوت، البلع، وضعف السمع لدى الأطفال والكبار.",
-                    subjects: "علم الصوتيات، تشريح الجهاز السمعي، وتأهيل النطق.",
-                    skills: "حسن الاستماع، الصبر، والتواصل الفعال.",
-                    work_env: "مراكز السمع والنطق، المستشفيات، ومراكز الرعاية والتأهيل.",
-                    careers: "أخصائية نطق وتخاطب، وأخصائية سمعيات وتأهيل لغوي.",
-                    related_majors: "السمعيات واضطرابات التخاطب، العلوم الطبية التطبيقية"
-                },
-                {
-                    id: "spec_12",
-                    track_id: "track_health",
-                    track_name: "الصحي والطبي",
-                    title: "التغذية العلاجية والحميات",
-                    job_title: "أخصائية تغذية علاجية وحميات",
-                    description: "تصميم خطط غذائية طبية مبنية على الأدلة لعلاج الحالات المرضية والوقاية وتعزيز الصحة.",
-                    subjects: "الكيمياء الحيوية، تغذية الأمراض، والتقييم الغذائي.",
-                    skills: "الدقة، مهارات الإقناع، والاهتمام بالصحة.",
-                    work_env: "المستشفيات والعيادات الطبية، مراكز الصحة الوقائية، والاستشارات الغذائية.",
-                    careers: "أخصائية تغذية علاجية ومستشارة تغذية إكلينيكية.",
-                    related_majors: "التغذية العلاجية، علوم الأغذية والتغذية"
-                },
-                {
-                    id: "spec_13",
-                    track_id: "track_finance",
-                    track_name: "المالي والإداري",
-                    title: "العلوم الاكتوارية",
-                    job_title: "محللة اكتوارية ومقيمة مخاطر مالية",
-                    description: "دمج الرياضيات والإحصاء والمالية لتوقع المخاطر المستقبلية وحساب احتمالاتها بدقة.",
-                    subjects: "الرياضيات المالية، الإحصاء المتقدم، ونظرية الاحتمالات.",
-                    skills: "شغف بالرياضيات، دقة التركيز، والتحليل المالي.",
-                    work_env: "شركات التأمين، البنوك والمؤسسات المالية، وهيئات التخطيط المالي.",
-                    careers: "محللة اكتوارية، ومقيمة مخاطر مالية ومحللة استثمار.",
-                    related_majors: "العلوم الاكتوارية، الرياضيات المالية، الإحصاء، المالية"
-                },
-                {
-                    id: "spec_14",
-                    track_id: "track_finance",
-                    track_name: "المالي والإداري",
-                    title: "التكنولوجيا المالية (FinTech)",
-                    job_title: "مطورة حلول مالية رقمية ومحللة تقنية مالية",
-                    description: "ابتكار حلول تقنية في عالم المال كالمحافظ الإلكترونية، المدفوعات الذكية، والخدمات الرقمية.",
-                    subjects: "الأسواق المالية، البرمجة، وأمن المعلومات المالية.",
-                    skills: "التفكير الابتكاري، فهم لغة المال، وحب التقنية.",
-                    work_env: "شركات التقنية المالية الناشئة، البنوك الرقمية، ومراكز الابتكار المالي.",
-                    careers: "مطورة حلول مالية رقمية، ومحللة تقنية مالية ومنتجات مالية.",
-                    related_majors: "التكنولوجيا المالية، المالية، نظم المعلومات، علوم الحاسب"
-                },
-                {
-                    id: "spec_15",
-                    track_id: "track_culture",
-                    track_name: "الثقافي والسياحي",
-                    title: "إدارة التراث والمتاحف",
-                    job_title: "أمينة متحف ومنسقة برامج ثقافية وسياحية",
-                    description: "الحفاظ على التراث والآثار وتصميم المتاحف التفاعلية والمعارض والتجارب السياحية والثقافية.",
-                    subjects: "تاريخ الفنون والآثار، تنظيم المعارض، والتسويق السياحي.",
-                    skills: "الذائقة الفنية، الشغف بالتاريخ، والتنظيم.",
-                    work_env: "المتاحف والمواقع التراثية، الهيئات الثقافية والسياحية، ومراكز الفنون والمعارض.",
-                    careers: "أمينة متحف، ومنسقة برامج ثقافية وسياحية ومصممة تجارب ثقافية.",
-                    related_majors: "إدارة التراث والمتاحف، الآثار، السياحة وإدارة الفعاليات، الفنون"
-                }
+                { id: "spec_01", track_id: "track_tech", track_name: "التقني والرقمي", title: "علوم الحاسب", job_title: "مطورة برمجيات ومهندسة أنظمة", description: "بناء البرمجيات والتطبيقات والأنظمة الذكية من الصفر وتطوير حلول تقنية موثوقة.", subjects: "البرمجة، الخوارزميات، قواعد البيانات، والشبكات.", skills: "التفكير المنطقي، حل المشكلات، والصبر.", work_env: "شركات التقنية، فرق تطوير المنتجات الرقمية، والعمل الهجين أو عن بُعد.", careers: "مطورة برمجيات، ومبرمجة تطبيقات ومواقع وهندسة أنظمة.", related_majors: "علوم الحاسب، هندسة البرمجيات، نظم المعلومات" },
+                { id: "spec_02", track_id: "track_tech", track_name: "التقني والرقمي", title: "علم البيانات والذكاء الاصطناعي", job_title: "عالمة بيانات ومهندسة ذكاء اصطناعي", description: "تحليل البيانات الضخمة لبناء أنظمة ذكية ونماذج تعلم آلي تحاكي الاستنتاج والتنبؤ.", subjects: "الإحصاء، تعلم الآلة، تحليل البيانات، ولغة Python.", skills: "الفضول التحليلي، وحب التعامل مع الأرقام.", work_env: "مختبرات البيانات، شركات التقنية، والقطاعات الصحية والمالية والحكومية.", careers: "عالمة بيانات، ومهندسة ذكاء اصطناعي ومحللة بيانات.", related_majors: "علم البيانات، الذكاء الاصطناعي، علوم الحاسب، الإحصاء" },
+                { id: "spec_03", track_id: "track_tech", track_name: "التقني والرقمي", title: "الأدلة الجنائية الرقمية", job_title: "محققة جرائم إلكترونية ومحللة أدلة رقمية", description: "تتبع الجرائم الإلكترونية واسترجاع الأدلة الرقمية لكشف الاختراقات وتحليل الحوادث الأمنية.", subjects: "أمن الشبكات، أنظمة التشغيل، والقوانين الرقمية.", skills: "قوة الملاحظة، التحليل المنطقي، وربط الخيوط.", work_env: "مراكز الاستجابة للحوادث الأمنية، الجهات الرقابية والأمنية، وشركات الأمن السيبراني.", careers: "محققة جرائم إلكترونية، ومحللة أدلة رقمية وأمن سيبراني.", related_majors: "الأدلة الجنائية الرقمية، الأمن السيبراني، علوم الحاسب" },
+                { id: "spec_04", track_id: "track_tech", track_name: "التقني والرقمي", title: "تصميم تجربة المستخدم (UX/UI)", job_title: "مصممة واجهات وتجربة مستخدم", description: "تصميم واجهات التطبيقات والمواقع وبناء رحلة مستخدم سهلة وواضحة وجذابة.", subjects: "سلوك المستخدم، التصميم البصري، والنماذج الأولية.", skills: "الحس الفني، فهم المستخدمين، والانتباه للتفاصيل.", work_env: "استوديوهات التصميم والمنتجات الرقمية، شركات التقنية، والعمل الحر.", careers: "مصممة واجهات وتجربة مستخدم وباحثة تجربة مستخدم.", related_majors: "تصميم تجربة المستخدم، التصميم الرقمي، علوم الحاسب" },
+                { id: "spec_05", track_id: "track_eng", track_name: "الهندسي والعلوم", title: "هندسة الطيران والفضاء", job_title: "مهندسة طيران وأنظمة فضائية", description: "تصميم وتطوير وصيانة الطائرات والمركبات الفضائية والأقمار الصناعية وأنظمة الملاحة.", subjects: "الديناميكا الهوائية، أنظمة الدفع، وهياكل الطائرات.", skills: "التفوق في الفيزياء والرياضيات، والدقة العالية.", work_env: "شركات الطيران والصناعات الجوية، مراكز الأبحاث، ومطارات الصيانة والاختبار.", careers: "مهندسة طيران، ومهندسة أنظمة فضائية وهياكل.", related_majors: "هندسة الطيران والفضاء، الهندسة الميكانيكية" },
+                { id: "spec_06", track_id: "track_eng", track_name: "الهندسي والعلوم", title: "هندسة الطاقة المتجددة", job_title: "مهندسة طاقة متجددة ومستشارة استدامة", description: "توليد الطاقة النظيفة من الطبيعة (كالشمس والرياح والهيدروجين) وتخزينها لحماية البيئة.", subjects: "الفيزياء، أنظمة الطاقة الشمسية والرياح، وتخزينها.", skills: "التفكير الهندسي، الابتكار، والاهتمام بالبيئة.", work_env: "محطات الطاقة النظيفة، مشاريع المدن المستدامة، وشركات الاستشارات البيئية.", careers: "مهندسة طاقة متجددة، ومستشارة استدامة وكفاءة طاقة.", related_majors: "هندسة الطاقة المتجددة، الهندسة الكهربائية، الهندسة الميكانيكية" },
+                { id: "spec_07", track_id: "track_eng", track_name: "الهندسي والعلوم", title: "الهندسة الطبية الحيوية", job_title: "مهندسة أجهزة طبية ومطورة تقنيات صحية", description: "دمج الهندسة بالطب لتصميم وتطوير وصيانة الأجهزة الطبية والأطراف الصناعية والمستشعرات الحيوية.", subjects: "علم التشريح، الإلكترونيات الطبية، والميكانيكا الحيوية.", skills: "حب الاختراع، والإلمام بالعلوم والهندسة.", work_env: "المستشفيات والمراكز الطبية، شركات الأجهزة الطبية، ومختبرات الابتكار الصحي.", careers: "مهندسة أجهزة طبية، ومطورة تقنيات طبية وأخصائية هندسة إكلينيكية.", related_majors: "الهندسة الطبية الحيوية، الهندسة الكهربائية، العلوم الطبية التطبيقية" },
+                { id: "spec_08", track_id: "track_eng", track_name: "الهندسي والعلوم", title: "الهندسة اللوجستية وسلاسل الإمداد", job_title: "أخصائية سلاسل إمداد ومديرة عمليات لوجستية", description: "إدارة حركة المواد والمنتجات من المصنع للمستهلك بأسرع وقت وأقل تكلفة وأعلى كفاءة.", subjects: "إدارة العمليات، تخطيط المخزون، والنقل الدولي.", skills: "التنظيم العالي، سرعة القرار، والتفاوض.", work_env: "المراكز اللوجستية، الموانئ والمطارات، وشركات التجارة والصناعة والتوزيع.", careers: "أخصائية سلاسل إمداد، ومديرة عمليات ومخططة مخزون.", related_majors: "الهندسة اللوجستية، الهندسة الصناعية، إدارة سلاسل الإمداد" },
+                { id: "spec_09", track_id: "track_eng", track_name: "الهندسي والعلوم", title: "نظم المعلومات الجغرافية (GIS)", job_title: "أخصائية نظم معلومات جغرافية وتحليل مكاني", description: "تحليل الخرائط الرقمية والبيانات المكانية لتخطيط المدن والمشاريع والبيئة والنقل.", subjects: "علم الخرائط، الاستشعار عن بعد، والبيانات المكانية.", skills: "دقة الملاحظة، التحليل البصري، وحب الخرائط.", work_env: "جهات التخطيط الحضري والبلدي، مراكز البيانات المكانية، وشركات البيئة والمشاريع.", careers: "أخصائية نظم معلومات جغرافية ومحللة بيانات مكانية.", related_majors: "نظم المعلومات الجغرافية، الجغرافيا التطبيقية، علوم البيانات المكانية" },
+                { id: "spec_10", track_id: "track_health", track_name: "الصحي والطبي", title: "العلاج الوظيفي", job_title: "أخصائية علاج وظيفي", description: "مساعدة المرضى وذوي الإعاقة على ممارسة أنشطة حياتهم اليومية والعملية باستقلالية.", subjects: "علم التشريح، التأهيل الحركي والنفسي، وتعديل البيئات.", skills: "الصبر، التعاطف الإنساني، وحب المساعدة.", work_env: "المستشفيات، مراكز التأهيل الطبي، المدارس الدامجة، والعيادات التخصصية.", careers: "أخصائية علاج وظيفي وتأهيل مجتمعي.", related_majors: "العلاج الوظيفي، العلوم الطبية التطبيقية" },
+                { id: "spec_11", track_id: "track_health", track_name: "الصحي والطبي", title: "السمعيات واضطرابات التخاطب", job_title: "أخصائية نطق وتخاطب وسمعيات", description: "تشخيص وتأهيل مشاكل النطق، اللغة، الصوت، البلع، وضعف السمع لدى الأطفال والكبار.", subjects: "علم الصوتيات، تشريح الجهاز السمعي، وتأهيل النطق.", skills: "حسن الاستماع، الصبر، والتواصل الفعال.", work_env: "مراكز السمع والنطق، المستشفيات، ومراكز الرعاية والتأهيل.", careers: "أخصائية نطق وتخاطب، وأخصائية سمعيات وتأهيل لغوي.", related_majors: "السمعيات واضطرابات التخاطب، العلوم الطبية التطبيقية" },
+                { id: "spec_12", track_id: "track_health", track_name: "الصحي والطبي", title: "التغذية العلاجية والحميات", job_title: "أخصائية تغذية علاجية وحميات", description: "تصميم خطط غذائية طبية مبنية على الأدلة لعلاج الحالات المرضية والوقاية وتعزيز الصحة.", subjects: "الكيمياء الحيوية، تغذية الأمراض، والتقييم الغذائي.", skills: "الدقة، مهارات الإقناع، والاهتمام بالصحة.", work_env: "المستشفيات والعيادات الطبية، مراكز الصحة الوقائية، والاستشارات الغذائية.", careers: "أخصائية تغذية علاجية ومستشارة تغذية إكلينيكية.", related_majors: "التغذية العلاجية، علوم الأغذية والتغذية" },
+                { id: "spec_13", track_id: "track_finance", track_name: "المالي والإداري", title: "العلوم الاكتوارية", job_title: "محللة اكتوارية ومقيمة مخاطر مالية", description: "دمج الرياضيات والإحصاء والمالية لتوقع المخاطر المستقبلية وحساب احتمالاتها بدقة.", subjects: "الرياضيات المالية، الإحصاء المتقدم، ونظرية الاحتمالات.", skills: "شغف بالرياضيات، دقة التركيز، والتحليل المالي.", work_env: "شركات التأمين، البنوك والمؤسسات المالية، وهيئات التخطيط المالي.", careers: "محللة اكتوارية، ومقيمة مخاطر مالية ومحللة استثمار.", related_majors: "العلوم الاكتوارية، الرياضيات المالية، الإحصاء، المالية" },
+                { id: "spec_14", track_id: "track_finance", track_name: "المالي والإداري", title: "التكنولوجيا المالية (FinTech)", job_title: "مطورة حلول مالية رقمية ومحللة تقنية مالية", description: "ابتكار حلول تقنية في عالم المال كالمحافظ الإلكترونية، المدفوعات الذكية، والخدمات الرقمية.", subjects: "الأسواق المالية، البرمجة، وأمن المعلومات المالية.", skills: "التفكير الابتكاري، فهم لغة المال، وحب التقنية.", work_env: "شركات التقنية المالية الناشئة، البنوك الرقمية، ومراكز الابتكار المالي.", careers: "مطورة حلول مالية رقمية، ومحللة تقنية مالية ومنتجات مالية.", related_majors: "التكنولوجيا المالية، المالية، نظم المعلومات، علوم الحاسب" },
+                { id: "spec_15", track_id: "track_culture", track_name: "الثقافي والسياحي", title: "إدارة التراث والمتاحف", job_title: "أمينة متحف ومنسقة برامج ثقافية وسياحية", description: "الحفاظ على التراث والآثار وتصميم المتاحف التفاعلية والمعارض والتجارب السياحية والثقافية.", subjects: "تاريخ الفنون والآثار، تنظيم المعارض، والتسويق السياحي.", skills: "الذائقة الفنية، الشغف بالتاريخ، والتنظيم.", work_env: "المتاحف والمواقع التراثية، الهيئات الثقافية والسياحية، ومراكز الفنون والمعارض.", careers: "أمينة متحف، ومنسقة برامج ثقافية وسياحية ومصممة تجارب ثقافية.", related_majors: "إدارة التراث والمتاحف، الآثار، السياحة وإدارة الفعاليات، الفنون" }
             ],
 
             crossCareerMatrix: [
-                {
-                    role: "تحليل البيانات والذكاء الاصطناعي",
-                    majors: "علم البيانات، علوم الحاسب، العلوم الاكتوارية، نظم المعلومات",
-                    bridge: "تجمع بين البرمجة والإحصاء وفهم طبيعة القطاع (صحي، مالي، أو لوجستي)."
-                },
-                {
-                    role: "إدارة المنتجات والحلول الرقمية",
-                    majors: "تصميم UX/UI، التكنولوجيا المالية، علوم الحاسب، إدارة الأعمال",
-                    bridge: "تربط بين احتياج المستخدم، الجدوى المالية، والتنفيذ التقني."
-                },
-                {
-                    role: "الاستدامة وإدارة المشاريع والمخاطر",
-                    majors: "الطاقة المتجددة، الهندسة اللوجستية، العلوم الاكتوارية، GIS",
-                    bridge: "تعتمد على التخطيط المبني على البيانات والتحليل العملي والالتزام بالمعايير."
-                }
-            ],
-
-            quizQuestions: [
-                {
-                    id: "q1",
-                    axis: "الميول والاهتمامات",
-                    question: "عند استخدامكِ لتطبيق جديد، ما أكثر ما يثير فضولكِ؟",
-                    options: [
-                        { text: "طريقة برمجته والذكاء الاصطناعي خلف اقتراحاته", track: "التقني والرقمي", skill: "التفكير البرمجي" },
-                        { text: "التقنيات الهندسية التي تربط أنظمته بكفاءة عالية", track: "الهندسي والعلوم", skill: "التحليل الهندسي" },
-                        { text: "فائدته في تحسين صحة الإنسان وتسهيل حياته", track: "الصحي والطبي", skill: "الرعاية الصحية" },
-                        { text: "نظام المدفوعات الرقمية وكيفية إدارته مالياً", track: "المالي والإداري", skill: "التخطيط المالي" },
-                        { text: "جمال الهوية البصرية والقصة الثقافية التي يقدمها", track: "الثقافي والسياحي", skill: "الذائقة الفنية" }
-                    ]
-                },
-                {
-                    id: "q2",
-                    axis: "المهارات والقدرات",
-                    question: "أي من المهارات التالية تشعرين أنكِ تتقنينها بمتعة؟",
-                    options: [
-                        { text: "حل الألغاز المنطقية واكتشاف الأخطاء الدقيقة", track: "التقني والرقمي", skill: "حل المشكلات المنطقية" },
-                        { text: "فهم كيفية عمل الآلات والظواهر الطبيعية والفيزيائية", track: "الهندسي والعلوم", skill: "الابتكار الهندسي" },
-                        { text: "الاستماع للآخرين بصبر ومساعدتهم على تجاوز الصعوبات", track: "الصحي والطبي", skill: "التعاطف والتأهيل" },
-                        { text: "التعامل مع الأرقام والإحصاءات وتوقع النتائج", track: "المالي والإداري", skill: "التحليل الكمي" },
-                        { text: "تنظيم الفعاليات وسرد القصص التاريخية بأسلوب مشوق", track: "الثقافي والسياحي", skill: "التنظيم والتواصل" }
-                    ]
-                },
-                {
-                    id: "q3",
-                    axis: "القيم المهنية",
-                    question: "ما الأثر الأهم الذي تطمحين لتحقيقه في مستقبلكِ؟",
-                    options: [
-                        { text: "ابتكار تقنيات ذكية تطور العالم الرقمي", track: "التقني والرقمي", skill: "الابتكار الرقمي" },
-                        { text: "تصميم مشاريع مستدامة وصناعات متقدمة تخدم المجتمع", track: "الهندسي والعلوم", skill: "الاستدامة والبناء" },
-                        { text: "تخفيف معاناة المرضى وتحسين جودة حياتهم اليومية", track: "الصحي والطبي", skill: "العطاء الإنساني" },
-                        { text: "إدارة المخاطر المالية وبناء حلول اقتصادية ذكية", track: "المالي والإداري", skill: "الكفاءة المالية" },
-                        { text: "إبراز التراث والثقافة الوطنية للعالم بأسلوب حضاري", track: "الثقافي والسياحي", skill: "الاعتزاز بالهوية" }
-                    ]
-                },
-                {
-                    id: "q4",
-                    axis: "المواد الدراسية",
-                    question: "أي مجموعة من المواد الدراسية تجدين نفسكِ متفوقة فيها؟",
-                    options: [
-                        { text: "الحاسب الآلي والمنطق الرياضي", track: "التقني والرقمي", skill: "العلوم الحاسوبية" },
-                        { text: "الفيزياء والرياضيات التطبيقية", track: "الهندسي والعلوم", skill: "العلوم الفيزيائية" },
-                        { text: "الأحياء والكيمياء والعلوم الصحية", track: "الصحي والطبي", skill: "العلوم الحيوية" },
-                        { text: "الإحصاء والرياضيات المالية والاقتصاد", track: "المالي والإداري", skill: "العلوم المالية" },
-                        { text: "التاريخ والجغرافيا والفنون", track: "الثقافي والسياحي", skill: "العلوم الإنسانية" }
-                    ]
-                },
-                {
-                    id: "q5",
-                    axis: "بيئة العمل المفضلة",
-                    question: "في أي بيئة عمل تتخيلين نفسكِ مبدعة بعد التخرج؟",
-                    options: [
-                        { text: "شركات التقنية ومختبرات الذكاء الاصطناعي والأمن السيبراني", track: "التقني والرقمي", skill: "البيئة التقنية" },
-                        { text: "مراكز الأبحاث الهندسية ومشاريع الطاقة والطيران", track: "الهندسي والعلوم", skill: "البيئة الهندسية" },
-                        { text: "المستشفيات التخصصية ومراكز التأهيل الصحي", track: "الصحي والطبي", skill: "البيئة الطبية" },
-                        { text: "البنوك الرقمية وشركات التأمين والتقنية المالية", track: "المالي والإداري", skill: "البيئة المالية" },
-                        { text: "المتاحف الوطنية والهيئات الثقافية والمشاريع السياحية", track: "الثقافي والسياحي", skill: "البيئة الثقافية" }
-                    ]
-                },
-                {
-                    id: "q6",
-                    axis: "المهارات والقدرات",
-                    question: "في مشروع جماعي مدرسي، أي دور تختارين فوراً؟",
-                    options: [
-                        { text: "تصميم موقع أو عرض رقمي تفاعلي للفكرة", track: "التقني والرقمي", skill: "التصميم الرقمي" },
-                        { text: "بناء نموذج عملي يوضح آلية عمل المشروع", track: "الهندسي والعلوم", skill: "التنفيذ العملي" },
-                        { text: "الاهتمام بجانب التوعية الصحية وسلامة الفريق", track: "الصحي والطبي", skill: "التوعية والرعاية" },
-                        { text: "حساب التكاليف والميزانية وتنظيم الموارد", track: "المالي والإداري", skill: "الإدارة المالية" },
-                        { text: "تنسيق المعرض وتصميم تجربة الزوار", track: "الثقافي والسياحي", skill: "التنسيق الإبداعي" }
-                    ]
-                },
-                {
-                    id: "q7",
-                    axis: "الميول والاهتمامات",
-                    question: "أي موضوع قد يجذبكِ للقراءة والبحث في وقت فراغكِ؟",
-                    options: [
-                        { text: "كيف يكشف المحققون الرقميون الجرائم الإلكترونية؟", track: "التقني والرقمي", skill: "التحقيق الرقمي" },
-                        { text: "مستقبل الطيران الفضائي والطاقة النظيفة", track: "الهندسي والعلوم", skill: "استشراف الهندسة" },
-                        { text: "دور التغذية العلاجية والتأهيل في شفاء المرضى", track: "الصحي والطبي", skill: "الثقافة الصحية" },
-                        { text: "ثورة المحافظ الإلكترونية والبنوك الذكية", track: "المالي والإداري", skill: "الوعي المالي" },
-                        { text: "أسرار ترميم الآثار وتصميم المتاحف العالمية", track: "الثقافي والسياحي", skill: "الشغف التراثي" }
-                    ]
-                },
-                {
-                    id: "q8",
-                    axis: "القيم المهنية",
-                    question: "عند مواجهة تحدٍّ صعب، كيف تتعاملين معه؟",
-                    options: [
-                        { text: "أحلل البيانات المتاحة وأضع خطوات منطقية لحله", track: "التقني والرقمي", skill: "التفكير الخوارزمي" },
-                        { text: "أدرس أسبابه العلمية وأعيد تصميم الحل", track: "الهندسي والعلوم", skill: "إعادة الهندسة" },
-                        { text: "أركز على الجانب الإنساني وتقديم الدعم المباشر", track: "الصحي والطبي", skill: "الحل الإنساني" },
-                        { text: "أحسب الاحتمالات والمخاطر لاختيار القرار الأضمن", track: "المالي والإداري", skill: "تقييم المخاطر" },
-                        { text: "أستلهم من التجارب التاريخية لصياغة حل إبداعي", track: "الثقافي والسياحي", skill: "الاستلهام الإبداعي" }
-                    ]
-                },
-                {
-                    id: "q9",
-                    axis: "بيئة العمل المفضلة",
-                    question: "ما الأدوات التي تستمتعين بالعمل عليها أكثر؟",
-                    options: [
-                        { text: "أجهزة الحاسب ولغات البرمجة وبرامج التصميم", track: "التقني والرقمي", skill: "الأدوات الرقمية" },
-                        { text: "الخرائط الرقمية وأدوات القياس والمحاكاة الهندسية", track: "الهندسي والعلوم", skill: "الأدوات الهندسية" },
-                        { text: "مقاييس الصحة والتغذية والأدوات التأهيلية", track: "الصحي والطبي", skill: "الأدوات الطبية" },
-                        { text: "الجداول الحسابية والنماذج الإحصائية والمالية", track: "المالي والإداري", skill: "الأدوات المالية" },
-                        { text: "الكاميرات والقطع الفنية وأدوات تنظيم المعارض", track: "الثقافي والسياحي", skill: "الأدوات الفنية" }
-                    ]
-                },
-                {
-                    id: "q10",
-                    axis: "الميول والاهتمامات",
-                    question: "أي عبارة تعبر عن طموحكِ المهني بشكل أدق؟",
-                    options: [
-                        { text: "بناء أنظمة ذكية وتجارب مستخدم مبتكرة", track: "التقني والرقمي", skill: "الريادة التقنية" },
-                        { text: "ابتكار حلول هندسية وطبية تخدم البشرية", track: "الهندسي والعلوم", skill: "الابتكار الهندسي" },
-                        { text: "مساعدة الناس على استعادة صحتهم واستقلاليتهم", track: "الصحي والطبي", skill: "الرسالة الصحية" },
-                        { text: "قيادة التحول المالي الذكي وإدارة المخاطر", track: "المالي والإداري", skill: "القيادة المالية" },
-                        { text: "صناعة تجارب ثقافية وسياحية ملهمة", track: "الثقافي والسياحي", skill: "الريادة الثقافية" }
-                    ]
-                }
+                { role: "تحليل البيانات والذكاء الاصطناعي", majors: "علم البيانات، علوم الحاسب، العلوم الاكتوارية، نظم المعلومات", bridge: "تجمع بين البرمجة والإحصاء وفهم طبيعة القطاع (صحي، مالي، أو لوجستي)." },
+                { role: "إدارة المنتجات والحلول الرقمية", majors: "تصميم UX/UI، التكنولوجيا المالية، علوم الحاسب، إدارة الأعمال", bridge: "تربط بين احتياج المستخدم، الجدوى المالية، والتنفيذ التقني." },
+                { role: "الاستدامة وإدارة المشاريع والمخاطر", majors: "الطاقة المتجددة، الهندسة اللوجستية، العلوم الاكتوارية، GIS", bridge: "تعتمد على التخطيط المبني على البيانات والتحليل العملي والالتزام بالمعايير." }
             ],
 
             skills: [
-                {
-                    id: "sk_1",
-                    title: "التفكير النقدي وحل المشكلات",
-                    category: "مهارات شخصية وعقلية",
-                    importance: "يساعدكِ على تحليل الخيارات الدراسية والمهنية واتخاذ قرارات مبنية على الأدلة والمنطق.",
-                    how_to: "قسّمي المشكلة إلى أجزاء صغيرة، ابحثي عن الأسباب الجذرية، وقارني بين البدائل والنتائج المتوقعة."
-                },
-                {
-                    id: "sk_2",
-                    title: "التعلم الذاتي والمهارات الرقمية",
-                    category: "مهارات تقنية وأكاديمية",
-                    importance: "النجاح الجامعي والمهني يعتمد على قدرتكِ في البحث الموثوق واكتساب المهارات الرقمية واللغوية باستمرار.",
-                    how_to: "خصّصي وقتاً أسبوعياً لتعلم أداة رقمية أو لغة أو مهارة عملية وطبّقيها في مشروع صغير."
-                },
-                {
-                    id: "sk_3",
-                    title: "إدارة الوقت وتحديد الأولويات",
-                    category: "مهارات شخصية",
-                    importance: "يمنحكِ التوازن بين الدراسة وتطوير الذات ويخفف التوتر في مواسم المشاريع والاختبارات.",
-                    how_to: "حددي الأولويات اليومية والأسبوعية، واستخدمي فترات تركيز واضحة مع مراجعة دورية للإنجاز."
-                },
-                {
-                    id: "sk_4",
-                    title: "التواصل الفعال والعمل الجماعي",
-                    category: "مهارات مهنية واجتماعية",
-                    importance: "أساسي في المشاريع الجامعية وفرق العمل المهنية وعرض الأفكار بوضوح وإقناع.",
-                    how_to: "تدربي على تلخيص أفكاركِ بإيجاز، الاستماع الفعّال، وتوزيع الأدوار بوضوح داخل الفريق."
-                }
+                { id: "sk_1", title: "التفكير النقدي وحل المشكلات", category: "مهارات شخصية وعقلية", importance: "يساعدكِ على تحليل الخيارات الدراسية والمهنية واتخاذ قرارات مبنية على الأدلة والمنطق.", how_to: "قسّمي المشكلة إلى أجزاء صغيرة، ابحثي عن الأسباب الجذرية، وقارني بين البدائل والنتائج المتوقعة." },
+                { id: "sk_2", title: "التعلم الذاتي والمهارات الرقمية", category: "مهارات تقنية وأكاديمية", importance: "النجاح الجامعي والمهني يعتمد على قدرتكِ في البحث الموثوق واكتساب المهارات الرقمية واللغوية باستمرار.", how_to: "خصّصي وقتاً أسبوعياً لتعلم أداة رقمية أو لغة أو مهارة عملية وطبّقيها في مشروع صغير." },
+                { id: "sk_3", title: "إدارة الوقت وتحديد الأولويات", category: "مهارات شخصية", importance: "يمنحكِ التوازن بين الدراسة وتطوير الذات ويخفف التوتر في مواسم المشاريع والاختبارات.", how_to: "حددي الأولويات اليومية والأسبوعية، واستخدمي فترات تركيز واضحة مع مراجعة دورية للإنجاز." },
+                { id: "sk_4", title: "التواصل الفعال والعمل الجماعي", category: "مهارات مهنية واجتماعية", importance: "أساسي في المشاريع الجامعية وفرق العمل المهنية وعرض الأفكار بوضوح وإقناع.", how_to: "تدربي على تلخيص أفكاركِ بإيجاز، الاستماع الفعّال، وتوزيع الأدوار بوضوح داخل الفريق." }
             ],
 
             articles: [
@@ -1158,12 +895,10 @@
                     read_time: "٥ دقائق",
                     summary: "خطوات عملية للفصل بين رغباتكِ الحقيقية وبين ضغوط المحيطين عند اختيار التخصص.",
                     content: "اختيار التخصص الجامعي قرار يخص مستقبلكِ وحدكِ. ابدئي بتقييم قدراتكِ في المواد الدراسية وميولكِ وبيئة العمل التي ترتاحين لها، ثم اقرئي الخطة الدراسية الفعلية للتخصصات التي تميلين إليها وتعرفي على طبيعة الدراسة والوظائف المرتبطة بها قبل اتخاذ القرار النهائي.",
-                    created_at: "2026-02-01",
                     likes: 18,
                     dislikes: 1,
-                    userVote: null,
                     comments: [
-                        { author: "رؤى", text: "قراءة الخطة الدراسية قبل التقديم فرّقت معي كثيراً في فهم طبيعة المواد." }
+                        { author: "أ. نورة الحربي", role: "معلم", text: "قراءة الخطة الدراسية قبل التقديم فرّقت مع طالباتي كثيراً في فهم طبيعة المواد." }
                     ]
                 },
                 {
@@ -1173,10 +908,8 @@
                     read_time: "٤ دقائق",
                     summary: "دليل مبسط لأهم المهارات الشخصية والتقنية التي تساعدكِ في التفوق الجامعي وسوق العمل.",
                     content: "تمنحكِ الجامعة وسوق العمل مساحة أكبر من الاستقلالية والمسؤولية. ركزي على تنمية التفكير النقدي وحل المشكلات، والتعلم الذاتي والمهارات الرقمية، وإدارة الوقت والتواصل الفعال لتبدئي رحلتكِ بثقة واستعداد.",
-                    created_at: "2026-02-10",
                     likes: 24,
                     dislikes: 0,
-                    userVote: null,
                     comments: []
                 },
                 {
@@ -1186,10 +919,8 @@
                     read_time: "٦ دقائق",
                     summary: "نماذج وتجارب حول تحويل الشغف والهوايات إلى مسار دراسي أو مهني ناجح.",
                     content: "كثير من التخصصات والمسارات الحديثة كتصميم تجربة المستخدم وإدارة التراث والمتاحف والذكاء الاصطناعي بدأت كفضول وهواية، ثم تحولت بالدراسة والتطبيق المستمر ومعرض الأعمال إلى مسار أكاديمي ومهني متميز.",
-                    created_at: "2026-02-18",
                     likes: 21,
                     dislikes: 2,
-                    userVote: null,
                     comments: []
                 },
                 {
@@ -1199,10 +930,8 @@
                     read_time: "٥ دقائق",
                     summary: "كيف تبنين سيرة ذاتية واضحة وتستعدين للمقابلات الوظيفية والتدريبية خطوة بخطوة.",
                     content: "اجعلي سيرتكِ الذاتية مختصرة وواضحة ومبرزة للمهارات والمشاريع والأنشطة التطوعية والتدريبية ذات الصلة. وفي المقابلة، استعدي بأمثلة واقعية توضح كيف حليتِ مشكلة أو عملتِ ضمن فريق، وتدربي على الإجابة بهدوء ووضوح.",
-                    created_at: "2026-02-22",
                     likes: 15,
                     dislikes: 0,
-                    userVote: null,
                     comments: []
                 },
                 {
@@ -1212,10 +941,8 @@
                     read_time: "٦ دقائق",
                     summary: "أساسيات بدء مشروع صغير أو تقديم خدمات عمل حر انطلاقاً من مهارة حقيقية.",
                     content: "يبدأ العمل الحر وريادة الأعمال بتحديد مشكلة واضحة أو خدمة مطلوبة، وبناء نموذج أولي أو عيّنة عمل حقيقية، ثم اختبارها مع مستفيدين فعليين وتطويرها بناءً على الملاحظات مع تنظيم الوقت والميزانية منذ البداية.",
-                    created_at: "2026-02-25",
                     likes: 19,
                     dislikes: 1,
-                    userVote: null,
                     comments: []
                 }
             ]
@@ -1223,25 +950,221 @@
 
         /**
          * ===================================================================
-         * 3. إدارة الحالة والتنقل (State & Navigation)
+         * 3. حالة التطبيق (State)
          * ===================================================================
          */
         const STATE = {
             activeSection: "home",
-            quizIndex: 0,
-            quizAnswers: [],
-            savedResults: [],
-            favoriteSpecs: [],
-            favoriteArticles: [],
+            authTab: "login",
+            currentUserId: null,
+            accounts: JSON.parse(JSON.stringify(INITIAL_ACCOUNTS)),
+            quizAnswers: {
+                partOne: {},
+                partTwo: {},
+                summaryField: "",
+                summaryBecause: "",
+                tools: []
+            },
             filterTrack: "الكل",
-            searchQuery: "",
-            user: {
-                name: "طالبة طموحة",
-                grade: "الصف الثاني الثانوي",
-                email: "student@example.com"
-            }
+            searchQuery: ""
         };
 
+        function getCurrentUser() {
+            return STATE.accounts.find(a => a.id === STATE.currentUserId) || null;
+        }
+
+        function isLoggedIn() {
+            return Boolean(getCurrentUser());
+        }
+
+        function getAccountEngagementScore(acc) {
+            return (acc.quizzesCount || 0) * 3 + (acc.commentsCount || 0) * 2 + (acc.likesCount || 0) + (acc.favoriteSpecs?.length || 0) + (acc.favoriteArticles?.length || 0);
+        }
+
+        /**
+         * ===================================================================
+         * 4. تسجيل الدخول والإنشاء (يوزر + كلمة سر + الاسم الحقيقي + طالب/معلم)
+         * ===================================================================
+         */
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            const found = STATE.accounts.find(
+                a => a.username.toLowerCase() === username.toLowerCase() && a.password === password
+            );
+
+            if (!found) {
+                showToast("اسم المستخدم أو كلمة السر غير صحيحة", "ph-warning-circle");
+                return;
+            }
+
+            found.hasVisited = true;
+            STATE.currentUserId = found.id;
+            updateAuthUI();
+            renderProfileView();
+            showToast(`أهلاً بكِ يا ${found.realName} (${found.role})`);
+        }
+
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const realName = document.getElementById("regRealName").value.trim();
+            const username = document.getElementById("regUsername").value.trim();
+            const password = document.getElementById("regPassword").value;
+            const role = document.getElementById("regRole").value;
+
+            if (!realName || !username || !password) {
+                showToast("يرجى تعبئة الاسم الحقيقي واسم المستخدم وكلمة السر", "ph-warning-circle");
+                return;
+            }
+
+            const exists = STATE.accounts.some(a => a.username.toLowerCase() === username.toLowerCase());
+            if (exists) {
+                showToast("اسم المستخدم مستخدم مسبقاً، اختاري اسماً آخر", "ph-warning-circle");
+                return;
+            }
+
+            const newAcc = {
+                id: "acc_" + Date.now(),
+                realName,
+                username,
+                password,
+                role,
+                hasVisited: true,
+                quizzesCount: 0,
+                commentsCount: 0,
+                likesCount: 0,
+                savedResults: [],
+                favoriteSpecs: [],
+                favoriteArticles: []
+            };
+
+            STATE.accounts.push(newAcc);
+            STATE.currentUserId = newAcc.id;
+            updateAuthUI();
+            renderProfileView();
+            showToast(`تم إنشاء حساب (${role}) باسم ${realName}`);
+        }
+
+        function switchToAccount(accId) {
+            const acc = STATE.accounts.find(a => a.id === accId);
+            if (!acc) return;
+            acc.hasVisited = true;
+            STATE.currentUserId = acc.id;
+            updateAuthUI();
+            renderProfileView();
+            showToast(`تم التبديل إلى حساب ${acc.realName} (${acc.role})`);
+        }
+
+        function logoutCurrentUser() {
+            const user = getCurrentUser();
+            STATE.currentUserId = null;
+            updateAuthUI();
+            if (STATE.activeSection === "quiz") {
+                navigateTo("profile");
+            } else if (STATE.activeSection === "profile") {
+                renderProfileView();
+            }
+            showToast(`تم تسجيل الخروج${user ? " من " + user.realName : ""}`, "ph-sign-out");
+        }
+
+        function requireLoginAction(reasonText, onSuccessNavigate) {
+            if (isLoggedIn()) {
+                if (onSuccessNavigate) navigateTo(onSuccessNavigate);
+                return true;
+            }
+
+            document.getElementById("modalCategoryBadge").textContent = "تسجيل الدخول مطلوب";
+            document.getElementById("modalHeadingTitle").textContent = "سجّلي الدخول للمتابعة";
+            document.getElementById("modalContentArea").innerHTML = `
+                <div class="p-4 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/20 space-y-2">
+                    <p class="font-black text-sm text-[var(--accent-color)]">${reasonText}</p>
+                    <p class="text-xs font-bold leading-relaxed text-[var(--text-color)]/85">
+                        الدخول يتم باستخدام <strong>اسم المستخدم</strong> و<strong>كلمة السر</strong> مع تحديد الصفة (<strong>طالب</strong> أو <strong>معلم</strong>) وإدخال <strong>الاسم الحقيقي</strong> عند التسجيل.
+                    </p>
+                </div>
+            `;
+            document.getElementById("modalActionsArea").innerHTML = `
+                <button onclick="closeInfoModal()" class="px-4 py-2 rounded-full bg-white border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">إلغاء</button>
+                <button onclick="closeInfoModal(); navigateTo('profile');" class="btn-neo px-6 py-2.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer">الانتقال لتسجيل الدخول</button>
+            `;
+            const modal = document.getElementById("infoModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            return false;
+        }
+
+        function startQuizGuarded() {
+            if (!requireLoginAction("لا يمكنكِ إجراء الاختبار إلا بعد تسجيل الدخول بحساب طالب أو معلم.", "quiz")) return;
+            renderInspiredQuizForm();
+            navigateTo("quiz");
+        }
+
+        function updateAuthUI() {
+            const user = getCurrentUser();
+            const topBar = document.getElementById("topAuthStatusBar");
+            const topActions = document.getElementById("topAuthActionsBar");
+            const sidebarCard = document.getElementById("sidebarAccountCard");
+            const mobileLabel = document.getElementById("mobileAuthLabel");
+
+            if (user) {
+                if (topBar) {
+                    topBar.innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                        <span>مرحباً <strong>${user.realName}</strong></span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">${user.role}</span>
+                        <span class="text-xs text-[var(--text-color)]/70">@${user.username}</span>
+                    `;
+                }
+                if (topActions) {
+                    topActions.innerHTML = `
+                        <button onclick="navigateTo('profile')" class="px-3.5 py-1.5 rounded-full bg-[var(--bg-color)] border border-[var(--text-color)] text-xs font-extrabold hover:bg-[var(--tertiary-color)] cursor-pointer">صفحتي</button>
+                        <button onclick="logoutCurrentUser()" class="px-3.5 py-1.5 rounded-full bg-[var(--accent-color)] text-white border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">خروج</button>
+                    `;
+                }
+                if (sidebarCard) {
+                    sidebarCard.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="font-black text-white">${user.realName}</p>
+                                <p class="text-[11px] text-white/80">@${user.username} • ${user.role}</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-[10px] font-black">${user.role}</span>
+                        </div>
+                    `;
+                }
+                if (mobileLabel) mobileLabel.textContent = user.realName.split(" ")[0];
+            } else {
+                if (topBar) {
+                    topBar.innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full bg-[var(--accent-color)] inline-block"></span>
+                        <span>أنتِ تتصفحين كزائرة — <strong>سجّلي الدخول</strong> لإجراء الاختبار أو التعليق على المقالات</span>
+                    `;
+                }
+                if (topActions) {
+                    topActions.innerHTML = `
+                        <button onclick="STATE.authTab='login'; navigateTo('profile');" class="px-4 py-1.5 rounded-full bg-[var(--primary-color)] text-white border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">تسجيل الدخول</button>
+                        <button onclick="STATE.authTab='register'; navigateTo('profile');" class="px-4 py-1.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">إنشاء حساب</button>
+                    `;
+                }
+                if (sidebarCard) {
+                    sidebarCard.innerHTML = `
+                        <p class="font-bold text-white/90 mb-2">غير مسجلة الدخول</p>
+                        <button onclick="navigateTo('profile')" class="w-full py-1.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] font-black text-xs cursor-pointer">دخول / تسجيل</button>
+                    `;
+                }
+                if (mobileLabel) mobileLabel.textContent = "دخول";
+            }
+
+            updateSavedCounters();
+        }
+
+        /**
+         * ===================================================================
+         * 5. التنقل والقوائم (Navigation)
+         * ===================================================================
+         */
         const NAV_ITEMS = [
             { id: "home", label: "الرئيسية", icon: "ph-house" },
             { id: "quiz", label: "اكتشفي نفسك", icon: "ph-sparkle" },
@@ -1250,7 +1173,7 @@
             { id: "majors", label: "التخصصات والوظائف", icon: "ph-graduation-cap" },
             { id: "skills", label: "المهارات والمعارف", icon: "ph-rocket-launch" },
             { id: "articles", label: "مقالات ونصائح", icon: "ph-article" },
-            { id: "profile", label: "حسابي الشخصي", icon: "ph-user-circle" },
+            { id: "profile", label: "صفحتي والحسابات", icon: "ph-user-circle" },
             { id: "about", label: "عن الموقع", icon: "ph-info" }
         ];
 
@@ -1262,14 +1185,9 @@
                 sidebarNav.innerHTML = NAV_ITEMS.map(item => {
                     const isActive = STATE.activeSection === item.id || (STATE.activeSection === "results" && item.id === "quiz");
                     return `
-                        <button
-                            onclick="navigateTo('${item.id}')"
-                            class="w-full text-right px-4 py-2 rounded-full font-extrabold text-sm flex items-center gap-3 transition-all cursor-pointer ${
-                                isActive
-                                ? "bg-white text-[var(--text-color)] shadow-[0_3px_0_var(--text-color)]"
-                                : "text-white/95 hover:bg-white/15"
-                            }"
-                        >
+                        <button onclick="navigateTo('${item.id}')" class="w-full text-right px-4 py-2 rounded-full font-extrabold text-sm flex items-center gap-3 transition-all cursor-pointer ${
+                            isActive ? "bg-white text-[var(--text-color)] shadow-[0_3px_0_var(--text-color)]" : "text-white/95 hover:bg-white/15"
+                        }">
                             <i class="${isActive ? "ph-fill text-[var(--accent-color)]" : "ph-bold"} ${item.icon} text-lg"></i>
                             <span>${item.label}</span>
                         </button>
@@ -1281,12 +1199,9 @@
                 mobileDrawer.innerHTML = NAV_ITEMS.map(item => {
                     const isActive = STATE.activeSection === item.id;
                     return `
-                        <button
-                            onclick="navigateTo('${item.id}'); toggleMobileDrawer(false);"
-                            class="w-full text-right px-4 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-3 ${
-                                isActive ? "bg-white text-[var(--text-color)]" : "text-white hover:bg-white/15"
-                            }"
-                        >
+                        <button onclick="navigateTo('${item.id}'); toggleMobileDrawer(false);" class="w-full text-right px-4 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-3 ${
+                            isActive ? "bg-white text-[var(--text-color)]" : "text-white hover:bg-white/15"
+                        }">
                             <i class="ph-bold ${item.icon} text-lg"></i>
                             <span>${item.label}</span>
                         </button>
@@ -1298,27 +1213,26 @@
         function toggleMobileDrawer(forceState) {
             const drawer = document.getElementById("mobileDrawer");
             const icon = document.getElementById("mobileDrawerIcon");
-            const isHidden = drawer.classList.contains("hidden");
-            const show = typeof forceState === "boolean" ? forceState : isHidden;
-
-            if (show) {
-                drawer.classList.remove("hidden");
-                icon.className = "ph ph-x text-2xl";
-            } else {
-                drawer.classList.add("hidden");
-                icon.className = "ph ph-list text-2xl";
-            }
+            const show = typeof forceState === "boolean" ? forceState : drawer.classList.contains("hidden");
+            drawer.classList.toggle("hidden", !show);
+            icon.className = show ? "ph ph-x text-2xl" : "ph ph-list text-2xl";
         }
 
         function navigateTo(sectionId) {
+            if (sectionId === "quiz" && !isLoggedIn()) {
+                requireLoginAction("لا يمكنكِ الدخول إلى الاختبار إلا بعد تسجيل الدخول.", null);
+                return;
+            }
+
             STATE.activeSection = sectionId;
             document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
             const target = document.getElementById(`section-${sectionId}`);
             if (target) target.classList.add("active");
 
             renderNavMenus();
+            updateAuthUI();
 
-            if (sectionId === "quiz") renderQuizStep();
+            if (sectionId === "quiz") renderInspiredQuizForm();
             if (sectionId === "pathways") renderPathwaysGrid();
             if (sectionId === "fields") renderFieldsFullGrid();
             if (sectionId === "majors") renderMajorsSection();
@@ -1331,220 +1245,216 @@
 
         /**
          * ===================================================================
-         * 4. منطق اختبار اكتشاف الذات والمسار المهني (Quiz Engine)
+         * 6. الاختبار المستلهم من الصور الأربع (أولاً، ثانياً، ثالثاً، رابعاً)
          * ===================================================================
          */
-        function renderQuizStep() {
-            const total = APP_DATA.quizQuestions.length;
-            const current = APP_DATA.quizQuestions[STATE.quizIndex];
-            const pct = Math.round(((STATE.quizIndex + 1) / total) * 100);
+        function renderInspiredQuizForm() {
+            const user = getCurrentUser();
+            const badge = document.getElementById("quizCurrentUserBadge");
+            if (badge && user) {
+                badge.textContent = `${user.realName} (${user.role})`;
+            }
 
-            document.getElementById("quizStepLabel").textContent = `السؤال ${STATE.quizIndex + 1} من ${total}`;
-            document.getElementById("quizProgressFill").style.width = `${pct}%`;
-
-            const chosenIdx = STATE.quizAnswers[STATE.quizIndex];
-            const container = document.getElementById("quizBodyContainer");
-
-            container.innerHTML = `
-                <div class="mb-6">
-                    <span class="inline-block px-3 py-1 rounded-full bg-[var(--bg-color)] border border-[var(--text-color)] text-xs font-extrabold text-[var(--primary-color)] mb-2">
-                        محور: ${current.axis}
-                    </span>
-                    <h3 class="text-lg sm:text-xl font-black text-[var(--text-color)] leading-snug">
-                        ${current.question}
-                    </h3>
-                </div>
-
-                <div class="space-y-3 mb-8">
-                    ${current.options.map((opt, idx) => {
-                        const selected = chosenIdx === idx;
-                        return `
-                            <button
-                                onclick="chooseQuizOption(${idx})"
-                                class="w-full text-right p-4 rounded-2xl border-2 transition-all flex items-center gap-3.5 cursor-pointer ${
-                                    selected
-                                    ? "bg-[var(--tertiary-color)] border-[var(--text-color)] shadow-[3px_3px_0_var(--text-color)] font-black"
-                                    : "bg-[var(--bg-color)] border-transparent hover:border-[var(--primary-color)] font-bold"
-                                }"
+            // أولاً: ماذا أحب وبماذا أتميز
+            const p1Body = document.getElementById("partOneTableBody");
+            if (p1Body) {
+                p1Body.innerHTML = PART_ONE_PROMPTS.map(item => `
+                    <tr>
+                        <td class="p-3.5 font-extrabold border-l border-[var(--text-color)]/20 align-top">${item.label}</td>
+                        <td class="p-2.5">
+                            <input
+                                type="text"
+                                data-p1="${item.key}"
+                                value="${STATE.quizAnswers.partOne[item.key] || ""}"
+                                placeholder="${item.placeholder}"
+                                required
+                                class="w-full px-3 py-2 rounded-xl bg-[var(--bg-color)]/60 border border-[var(--text-color)]/25 focus:border-[var(--primary-color)] focus:bg-white focus:outline-none text-xs sm:text-sm font-bold"
                             >
-                                <span class="w-7 h-7 rounded-full border-2 border-[var(--text-color)] flex items-center justify-center text-xs font-black shrink-0 ${
-                                    selected ? "bg-[var(--text-color)] text-white" : "bg-white text-[var(--text-color)]"
-                                }">
-                                    ${idx + 1}
-                                </span>
-                                <span class="text-sm sm:text-base">${opt.text}</span>
-                            </button>
-                        `;
-                    }).join("")}
-                </div>
+                        </td>
+                    </tr>
+                `).join("");
+            }
 
-                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
-                    <button
-                        onclick="prevQuizStep()"
-                        ${STATE.quizIndex === 0 ? "disabled" : ""}
-                        class="px-5 py-2.5 rounded-full bg-[var(--bg-color)] text-[var(--text-color)] font-extrabold text-sm disabled:opacity-40 cursor-pointer"
-                    >
-                        السابق
-                    </button>
-                    <button
-                        onclick="nextQuizStep()"
-                        class="btn-neo px-8 py-3 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer"
-                    >
-                        ${STATE.quizIndex === total - 1 ? "عرض النتيجة" : "التالي"}
-                    </button>
-                </div>
-            `;
-        }
+            // ثانياً: ميولي المبدئية
+            const p2Body = document.getElementById("partTwoTableBody");
+            if (p2Body) {
+                const levels = ["أميل إليه بدرجة كبيرة", "بدرجة متوسطة", "بدرجة ضعيفة"];
+                p2Body.innerHTML = PART_TWO_FIELDS.map(f => {
+                    const selected = STATE.quizAnswers.partTwo[f.name] || "";
+                    return `
+                        <tr>
+                            <td class="p-3.5 font-extrabold border-l border-[var(--text-color)]/20">${f.name}</td>
+                            ${levels.map(lvl => {
+                                const isChecked = selected === lvl;
+                                return `
+                                    <td class="p-2.5 text-center border-l border-[var(--text-color)]/20 last:border-l-0">
+                                        <button
+                                            type="button"
+                                            onclick="selectFieldLevel('${f.name}', '${lvl}')"
+                                            class="w-full py-2 px-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                                                isChecked
+                                                ? "bg-[var(--tertiary-color)] text-[var(--text-color)] border-[var(--text-color)] shadow-[2px_2px_0_var(--text-color)]"
+                                                : "bg-[var(--bg-color)]/50 text-[var(--text-color)]/75 border-transparent hover:border-[var(--primary-color)]"
+                                            }"
+                                        >
+                                            ${isChecked ? "✓ " : ""}${lvl}
+                                        </button>
+                                    </td>
+                                `;
+                            }).join("")}
+                        </tr>
+                    `;
+                }).join("");
+            }
 
-        function chooseQuizOption(optIdx) {
-            STATE.quizAnswers[STATE.quizIndex] = optIdx;
-            renderQuizStep();
-        }
+            // ثالثاً: خلاصتي
+            const sumSel = document.getElementById("summaryFieldSelect");
+            const sumBec = document.getElementById("summaryBecauseInput");
+            if (sumSel) sumSel.value = STATE.quizAnswers.summaryField || "";
+            if (sumBec) sumBec.value = STATE.quizAnswers.summaryBecause || "";
 
-        function prevQuizStep() {
-            if (STATE.quizIndex > 0) {
-                STATE.quizIndex--;
-                renderQuizStep();
+            // رابعاً: أداة سأجربها لاكتشاف ميولي بدقة أكبر
+            const p4Box = document.getElementById("partFourToolsBox");
+            if (p4Box) {
+                p4Box.innerHTML = PART_FOUR_TOOLS.map(tool => {
+                    const checked = STATE.quizAnswers.tools.includes(tool);
+                    return `
+                        <button
+                            type="button"
+                            onclick="toggleQuizTool('${tool}')"
+                            class="p-3.5 rounded-2xl border-2 text-right flex items-start gap-2.5 transition-all cursor-pointer ${
+                                checked
+                                ? "bg-[var(--tertiary-color)] border-[var(--text-color)] shadow-[3px_3px_0_var(--text-color)] font-black"
+                                : "bg-white border-[var(--text-color)]/25 hover:border-[var(--primary-color)] font-bold"
+                            }"
+                        >
+                            <span class="w-5 h-5 rounded-md border-2 border-[var(--text-color)] flex items-center justify-center text-xs shrink-0 mt-0.5 ${
+                                checked ? "bg-[var(--text-color)] text-white" : "bg-white"
+                            }">${checked ? "✓" : ""}</span>
+                            <span class="text-xs sm:text-sm leading-snug">${tool}</span>
+                        </button>
+                    `;
+                }).join("");
             }
         }
 
-        function nextQuizStep() {
-            if (STATE.quizAnswers[STATE.quizIndex] === undefined) {
-                showToast("فضلاً اختاري إحدى الإجابات للمتابعة", "ph-warning-circle");
+        function selectFieldLevel(fieldName, level) {
+            STATE.quizAnswers.partTwo[fieldName] = level;
+            renderInspiredQuizForm();
+        }
+
+        function toggleQuizTool(toolName) {
+            const idx = STATE.quizAnswers.tools.indexOf(toolName);
+            if (idx === -1) STATE.quizAnswers.tools.push(toolName);
+            else STATE.quizAnswers.tools.splice(idx, 1);
+            renderInspiredQuizForm();
+        }
+
+        function submitInspiredQuiz(e) {
+            e.preventDefault();
+            const user = getCurrentUser();
+            if (!user) {
+                requireLoginAction("يجب تسجيل الدخول لحفظ نتيجة الاختبار.", null);
                 return;
             }
-            if (STATE.quizIndex < APP_DATA.quizQuestions.length - 1) {
-                STATE.quizIndex++;
-                renderQuizStep();
-            } else {
-                computeQuizResult();
-            }
-        }
 
-        function computeQuizResult() {
-            const tally = {
-                "التقني والرقمي": 0,
-                "الهندسي والعلوم": 0,
-                "الصحي والطبي": 0,
-                "المالي والإداري": 0,
-                "الثقافي والسياحي": 0
-            };
-            const traits = [];
-
-            STATE.quizAnswers.forEach((ansIdx, qIdx) => {
-                const picked = APP_DATA.quizQuestions[qIdx].options[ansIdx];
-                if (picked) {
-                    tally[picked.track] = (tally[picked.track] || 0) + 1;
-                    if (!traits.includes(picked.skill)) traits.push(picked.skill);
-                }
+            // جمع إجابات أولاً
+            document.querySelectorAll("[data-p1]").forEach(inp => {
+                STATE.quizAnswers.partOne[inp.getAttribute("data-p1")] = inp.value.trim();
             });
 
-            const ranked = Object.entries(tally)
-                .sort((a, b) => b[1] - a[1])
-                .map(([track, count]) => ({
-                    track,
-                    percent: Math.round((count / APP_DATA.quizQuestions.length) * 100)
-                }));
+            // التحقق من اختيار درجة واحدة على الأقل في ثانياً
+            const ratedCount = Object.keys(STATE.quizAnswers.partTwo).length;
+            if (ratedCount < PART_TWO_FIELDS.length) {
+                showToast("يرجى تحديد درجة الميول لجميع المجالات في ثانياً", "ph-warning-circle");
+                return;
+            }
+
+            STATE.quizAnswers.summaryField = document.getElementById("summaryFieldSelect").value;
+            STATE.quizAnswers.summaryBecause = document.getElementById("summaryBecauseInput").value.trim();
+
+            if (STATE.quizAnswers.tools.length === 0) {
+                showToast("اختاري أداة واحدة على الأقل في رابعاً", "ph-warning-circle");
+                return;
+            }
+
+            const highInterestFields = PART_TWO_FIELDS
+                .filter(f => STATE.quizAnswers.partTwo[f.name] === "أميل إليه بدرجة كبيرة")
+                .map(f => f.name);
 
             const resultObj = {
                 id: "res_" + Date.now(),
-                top_track: ranked[0].track,
-                top_percent: ranked[0].percent,
-                second_track: ranked[1].track,
-                second_percent: ranked[1].percent,
-                skills: traits.slice(0, 5),
-                created_at: new Date().toLocaleDateString("ar-SA")
+                userId: user.id,
+                userName: user.realName,
+                userRole: user.role,
+                created_at: new Date().toLocaleDateString("ar-SA"),
+                partOne: { ...STATE.quizAnswers.partOne },
+                partTwo: { ...STATE.quizAnswers.partTwo },
+                highInterestFields,
+                summaryField: STATE.quizAnswers.summaryField,
+                summaryBecause: STATE.quizAnswers.summaryBecause,
+                tools: [...STATE.quizAnswers.tools]
             };
 
-            STATE.savedResults.unshift(resultObj);
+            user.savedResults.unshift(resultObj);
+            user.quizzesCount = (user.quizzesCount || 0) + 1;
+
             updateSavedCounters();
-            saveQuizResult(resultObj);
             renderResultsView(resultObj);
             navigateTo("results");
+            showToast("تم حفظ نتيجة اختباركِ في حسابكِ");
         }
 
         function renderResultsView(res) {
             const container = document.getElementById("resultsDisplayContainer");
-            const topField = APP_DATA.tracks.find(t => t.title === res.top_track);
-            const secondField = APP_DATA.tracks.find(t => t.title === res.second_track);
-            const suggestedSpecs = APP_DATA.specializations.filter(
-                s => s.track_name === res.top_track || (res.second_percent > 0 && s.track_name === res.second_track)
-            );
+            const suggestedSpecs = APP_DATA.specializations.slice(0, 6);
 
             container.innerHTML = `
-                <div class="bg-[var(--primary-color)] text-white rounded-3xl border-2 border-[var(--text-color)] p-7 sm:p-9 shadow-[6px_6px_0_var(--text-color)]">
-                    <span class="inline-block px-4 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black mb-3">
-                        نتيجة اختبار اكتشاف الذات والمسار المهني • ${res.created_at}
+                <div class="bg-[var(--primary-color)] text-white rounded-3xl border-2 border-[var(--text-color)] p-7 shadow-[6px_6px_0_var(--text-color)]">
+                    <span class="inline-block px-4 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black mb-2">
+                        نتيجة المقياس • ${res.userName} (${res.userRole}) • ${res.created_at}
                     </span>
-                    <h2 class="text-2xl sm:text-4xl font-black mb-2">
-                        المجال والمسار الأنسب لكِ: <span class="text-[var(--tertiary-color)]">${res.top_track}</span> (${res.top_percent}%)
+                    <h2 class="text-2xl sm:text-3xl font-black mb-2">
+                        خلاصتي: المجال الأنسب مبدئياً هو <span class="text-[var(--tertiary-color)]">${res.summaryField}</span>
                     </h2>
-                    <p class="text-sm sm:text-base text-white/95 font-medium">
-                        يليه في المرتبة الثانية مجال <strong>${res.second_track}</strong> بنسبة (${res.second_percent}%).
-                    </p>
+                    <p class="text-sm font-bold text-white/95">لأن: ${res.summaryBecause}</p>
                 </div>
 
-                <!-- أبرز الميول والمهارات التي ظهرت -->
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)]">
-                    <h3 class="text-lg font-black mb-3">أبرز الميول والمهارات وبيئات العمل التي ظهرت لديكِ:</h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${res.skills.map(sk => `
-                            <span class="px-4 py-1.5 rounded-full bg-[var(--bg-color)] border border-[var(--text-color)] text-xs sm:text-sm font-extrabold">
-                                ✨ ${sk}
-                            </span>
-                        `).join("")}
-                    </div>
-                </div>
-
-                <!-- سبب اقتراح كل مجال -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    ${topField ? `
-                        <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)]">
-                            <span class="px-3 py-1 rounded-full bg-[var(--accent-color)] text-white text-xs font-black">الترشيح الأول (${res.top_percent}%)</span>
-                            <h4 class="text-xl font-black mt-3 mb-2">${topField.title}</h4>
-                            <p class="text-sm font-medium leading-relaxed mb-2"><strong>سبب الترشيح:</strong> لأن إجاباتكِ أظهرت توافقاً عالياً مع مجال ${topField.nature}</p>
-                            <p class="text-xs font-bold text-[var(--primary-color)] mb-1">المواد المرتبطة: ${topField.subjects}</p>
-                            <p class="text-xs font-bold text-[var(--text-color)]/85">الوظائف والفرص: ${topField.careers_list}</p>
-                        </div>
-                    ` : ""}
-                    ${secondField && res.second_percent > 0 ? `
-                        <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)]">
-                            <span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black">الترشيح الثاني (${res.second_percent}%)</span>
-                            <h4 class="text-xl font-black mt-3 mb-2">${secondField.title}</h4>
-                            <p class="text-sm font-medium leading-relaxed mb-2"><strong>سبب الترشيح:</strong> يمثل خياراً داعماً أو بديلاً مناسباً لقدراتكِ في ${secondField.nature}</p>
-                            <p class="text-xs font-bold text-[var(--primary-color)] mb-1">المواد المرتبطة: ${secondField.subjects}</p>
-                            <p class="text-xs font-bold text-[var(--text-color)]/85">الوظائف والفرص: ${secondField.careers_list}</p>
-                        </div>
-                    ` : ""}
-                </div>
+                    <div class="bg-white p-6 rounded-3xl card-neo space-y-2.5">
+                        <h3 class="text-base font-black text-[var(--primary-color)]">أولاً: ما أحبه وأتميز به</h3>
+                        <p class="text-xs sm:text-sm font-bold"><strong>المواد التي أحبها:</strong> ${res.partOne.loved_subjects}</p>
+                        <p class="text-xs sm:text-sm font-bold"><strong>المواد التي أتفوق فيها:</strong> ${res.partOne.excel_subjects}</p>
+                        <p class="text-xs sm:text-sm font-bold"><strong>خارج الصف:</strong> ${res.partOne.out_of_class}</p>
+                        <p class="text-xs sm:text-sm font-bold"><strong>مهاراتي:</strong> ${res.partOne.my_skills}</p>
+                        <p class="text-xs sm:text-sm font-bold"><strong>مهارات أريد تطويرها:</strong> ${res.partOne.skills_to_develop}</p>
+                        <p class="text-xs sm:text-sm font-bold"><strong>قيمي:</strong> ${res.partOne.my_values}</p>
+                    </div>
 
-                <!-- خطوات عملية للوصول إلى المسار -->
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)]">
-                    <h3 class="text-lg font-black mb-3 flex items-center gap-2">
-                        <i class="ph-fill ph-stairs text-xl text-[var(--primary-color)]"></i>
-                        <span>خطوات عملية للوصول إلى المسار المناسب</span>
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs sm:text-sm">
-                        <div class="p-4 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/20">
-                            <p class="font-black text-[var(--primary-color)] mb-1">الخطوة 1: استكشاف التخصصات والمسارات</p>
-                            <p class="font-bold leading-relaxed">اطّلعي على التخصصات والوظائف المقترحة أدناه وقارني بين المسار الجامعي والتقني والتدريب التأهيلي.</p>
+                    <div class="bg-white p-6 rounded-3xl card-neo space-y-3">
+                        <h3 class="text-base font-black text-[var(--accent-color)]">ثانياً ورابعاً: الميول العالية والأداة المختارة</h3>
+                        <div>
+                            <p class="text-xs font-extrabold mb-1.5">مجالات أميل إليها بدرجة كبيرة:</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${res.highInterestFields.length
+                                    ? res.highInterestFields.map(h => `<span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">${h}</span>`).join("")
+                                    : `<span class="text-xs font-bold text-[var(--text-color)]/75">لم يتم اختيار درجة كبيرة؛ راجعي الدرجات المتوسطة</span>`
+                                }
+                            </div>
                         </div>
-                        <div class="p-4 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/20">
-                            <p class="font-black text-[var(--accent-color)] mb-1">الخطوة 2: بناء مهارة أو نموذج عملي</p>
-                            <p class="font-bold leading-relaxed">ابدئي بتعلم مهارة أساسية أو قراءة كتاب/دورة تمهيدية أو تنفيذ مشروع بسيط في المجال.</p>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/20">
-                            <p class="font-black text-[var(--text-color)] mb-1">الخطوة 3: التخطيط للالتحاق</p>
-                            <p class="font-bold leading-relaxed">احفظي التخصصات التي تهمكِ في حسابكِ وتابعي متطلبات القبول والاختبارات والمنح أو التدريب.</p>
+                        <div>
+                            <p class="text-xs font-extrabold mb-1.5">أدوات سأجربها لاكتشاف ميولي بدقة أكبر:</p>
+                            <ul class="list-disc list-inside text-xs sm:text-sm font-bold space-y-1">
+                                ${res.tools.map(t => `<li>${t}</li>`).join("")}
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- التخصصات والوظائف المقترحة -->
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)]">
+                <div class="bg-white p-6 rounded-3xl card-neo">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-black">التخصصات والوظائف المقترحة لكِ:</h3>
-                        <button onclick="resetQuiz()" class="text-xs font-extrabold text-[var(--accent-color)] hover:underline cursor-pointer">إعادة الاختبار</button>
+                        <h3 class="text-lg font-black">تخصصات ووظائف مقترحة للاستكشاف:</h3>
+                        <button onclick="navigateTo('quiz')" class="text-xs font-extrabold text-[var(--accent-color)] hover:underline cursor-pointer">تعديل الإجابات</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         ${suggestedSpecs.map(sp => `
@@ -1561,23 +1471,16 @@
             `;
         }
 
-        function resetQuiz() {
-            STATE.quizIndex = 0;
-            STATE.quizAnswers = [];
-            renderQuizStep();
-            navigateTo("quiz");
-        }
-
         /**
          * ===================================================================
-         * 5. عرض المسارات التعليمية والمهنية والمجالات والتخصصات والوظائف والمهارات والمقالات
+         * 7. المسارات، المجالات، التخصصات والوظائف، المهارات، والمقالات
          * ===================================================================
          */
         function renderPathwaysGrid() {
             const grid = document.getElementById("pathwaysFullGrid");
             if (!grid) return;
             grid.innerHTML = APP_DATA.pathways.map(pw => `
-                <article class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] flex flex-col justify-between space-y-4">
+                <article class="bg-white p-6 rounded-3xl card-neo flex flex-col justify-between space-y-4">
                     <div>
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-12 h-12 rounded-2xl ${pw.badgeColor} border border-[var(--text-color)] flex items-center justify-center shrink-0">
@@ -1601,7 +1504,7 @@
             grid.innerHTML = APP_DATA.tracks.map(tr => {
                 const examples = APP_DATA.specializations.filter(s => s.track_id === tr.id);
                 return `
-                    <article class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] flex flex-col justify-between space-y-4">
+                    <article class="bg-white p-6 rounded-3xl card-neo flex flex-col justify-between space-y-4">
                         <div>
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-12 h-12 rounded-2xl bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] flex items-center justify-center shrink-0">
@@ -1648,16 +1551,9 @@
             bar.innerHTML = tracks.map(t => {
                 const active = STATE.filterTrack === t;
                 return `
-                    <button
-                        onclick="setMajorsTrackFilter('${t}')"
-                        class="px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold whitespace-nowrap border-2 transition-all cursor-pointer ${
-                            active
-                            ? "bg-[var(--primary-color)] text-white border-[var(--text-color)]"
-                            : "bg-[var(--bg-color)] text-[var(--text-color)] border-transparent hover:border-[var(--text-color)]"
-                        }"
-                    >
-                        ${t}
-                    </button>
+                    <button onclick="setMajorsTrackFilter('${t}')" class="px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold whitespace-nowrap border-2 transition-all cursor-pointer ${
+                        active ? "bg-[var(--primary-color)] text-white border-[var(--text-color)]" : "bg-[var(--bg-color)] text-[var(--text-color)] border-transparent hover:border-[var(--text-color)]"
+                    }">${t}</button>
                 `;
             }).join("");
 
@@ -1692,6 +1588,8 @@
             const grid = document.getElementById("majorsCardsGrid");
             const noRes = document.getElementById("majorsNoResults");
             const pill = document.getElementById("majorsCountPill");
+            const user = getCurrentUser();
+            const favList = user ? user.favoriteSpecs : [];
 
             const list = APP_DATA.specializations.filter(s => {
                 const byTrack = STATE.filterTrack === "الكل" || s.track_name === STATE.filterTrack;
@@ -1712,14 +1610,12 @@
             noRes.classList.add("hidden");
 
             grid.innerHTML = list.map(sp => {
-                const isFav = STATE.favoriteSpecs.includes(sp.id);
+                const isFav = favList.includes(sp.id);
                 return `
-                    <article onclick="openSpecModal('${sp.id}')" class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
+                    <article onclick="openSpecModal('${sp.id}')" class="bg-white p-6 rounded-3xl card-neo hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">
-                                    ${sp.track_name}
-                                </span>
+                                <span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">${sp.track_name}</span>
                                 <button onclick="toggleSpecFav(event, '${sp.id}')" class="w-9 h-9 rounded-full bg-[var(--bg-color)] flex items-center justify-center text-[var(--accent-color)] cursor-pointer" title="حفظ في المفضلة">
                                     <i class="${isFav ? "ph-fill" : "ph-bold"} ph-heart text-lg"></i>
                                 </button>
@@ -1740,8 +1636,8 @@
         function openSpecModal(specId) {
             const sp = APP_DATA.specializations.find(s => s.id === specId);
             if (!sp) return;
-
-            const isFav = STATE.favoriteSpecs.includes(sp.id);
+            const user = getCurrentUser();
+            const isFav = user ? user.favoriteSpecs.includes(sp.id) : false;
 
             document.getElementById("modalCategoryBadge").textContent = `${sp.track_name} • ${sp.job_title}`;
             document.getElementById("modalHeadingTitle").textContent = sp.title;
@@ -1774,7 +1670,6 @@
                 </button>
                 <button onclick="closeInfoModal()" class="btn-neo px-6 py-2.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm cursor-pointer">إغلاق</button>
             `;
-
             const modal = document.getElementById("infoModal");
             modal.classList.remove("hidden");
             modal.classList.add("flex");
@@ -1782,15 +1677,20 @@
 
         function toggleSpecFav(event, specId, refreshModal = false) {
             if (event) event.stopPropagation();
-            const idx = STATE.favoriteSpecs.indexOf(specId);
+            const user = getCurrentUser();
+            if (!user) {
+                if (refreshModal) closeInfoModal();
+                requireLoginAction("سجّلي الدخول لحفظ التخصصات في صفحتكِ.", null);
+                return;
+            }
+            const idx = user.favoriteSpecs.indexOf(specId);
             if (idx === -1) {
-                STATE.favoriteSpecs.push(specId);
-                showToast("تم حفظ التخصص والوظيفة في المفضلة");
+                user.favoriteSpecs.push(specId);
+                showToast("تم حفظ التخصص في صفحتكِ");
             } else {
-                STATE.favoriteSpecs.splice(idx, 1);
+                user.favoriteSpecs.splice(idx, 1);
                 showToast("تمت الإزالة من المفضلة", "ph-trash");
             }
-            toggleBookmark("specialization", specId);
             updateSavedCounters();
             renderMajorsCards();
             if (STATE.activeSection === "profile") renderProfileView();
@@ -1800,7 +1700,7 @@
         function renderSkillsGrid() {
             const grid = document.getElementById("skillsCardsGrid");
             grid.innerHTML = APP_DATA.skills.map(sk => `
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] space-y-2.5">
+                <div class="bg-white p-6 rounded-3xl card-neo space-y-2.5">
                     <span class="inline-block px-3 py-1 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">${sk.category}</span>
                     <h3 class="text-lg font-black">${sk.title}</h3>
                     <p class="text-xs sm:text-sm font-medium leading-relaxed"><strong>أهميتها:</strong> ${sk.importance}</p>
@@ -1811,30 +1711,24 @@
             `).join("");
         }
 
-        /**
-         * عرض قسم "مقالات ونصائح" في الصفحة الرئيسية بتصميم Bento Grid المطابق للصورة
-         */
         function renderHomeArticlesPreview() {
             const container = document.getElementById("homeArticlesPreview");
             if (!container || APP_DATA.articles.length < 3) return;
             const [art1, art2, art3] = APP_DATA.articles;
 
             container.innerHTML = `
-                <!-- البطاقة اليمنى العلوية (أعرض: 7 أعمدة، خلفية بيضاء فاتحة) -->
                 <article onclick="openArticleModal('${art1.id}')" class="bento-article-card md:col-span-7 bg-[#F5FCFB] p-6 sm:p-7 rounded-3xl cursor-pointer flex flex-col justify-center text-right">
                     <span class="text-xs sm:text-sm font-black text-[var(--accent-color)] mb-1.5 block">${art1.category}</span>
                     <h4 class="font-black text-lg sm:text-xl text-[var(--text-color)] leading-snug mb-1.5">${art1.title}</h4>
                     <span class="text-xs sm:text-sm font-bold text-[var(--text-color)]/75">${art1.read_time}</span>
                 </article>
 
-                <!-- البطاقة اليسرى العلوية (أضيق: 5 أعمدة، خلفية صفراء #FFD166) -->
                 <article onclick="openArticleModal('${art2.id}')" class="bento-article-card md:col-span-5 bg-[var(--tertiary-color)] p-6 sm:p-7 rounded-3xl cursor-pointer flex flex-col justify-center text-right">
                     <span class="text-xs sm:text-sm font-black text-[var(--text-color)]/85 mb-1.5 block">${art2.category}</span>
                     <h4 class="font-black text-lg sm:text-xl text-[var(--text-color)] leading-snug mb-1.5">${art2.title}</h4>
                     <span class="text-xs sm:text-sm font-bold text-[var(--text-color)]/85">${art2.read_time}</span>
                 </article>
 
-                <!-- البطاقة السفلية العريضة بعرض كامل (12 عموداً، خلفية بيضاء فاتحة) -->
                 <article onclick="openArticleModal('${art3.id}')" class="bento-article-card md:col-span-12 bg-[#F5FCFB] p-6 sm:p-7 rounded-3xl cursor-pointer flex flex-col justify-center text-right">
                     <span class="text-xs sm:text-sm font-black text-[var(--accent-color)] mb-1.5 block">${art3.category}</span>
                     <h4 class="font-black text-lg sm:text-xl text-[var(--text-color)] leading-snug mb-1.5">${art3.title}</h4>
@@ -1845,10 +1739,13 @@
 
         function renderArticlesFullGrid() {
             const grid = document.getElementById("articlesFullGrid");
+            const user = getCurrentUser();
+            const favArts = user ? user.favoriteArticles : [];
+
             grid.innerHTML = APP_DATA.articles.map(art => {
-                const isFav = STATE.favoriteArticles.includes(art.id);
+                const isFav = favArts.includes(art.id);
                 return `
-                    <article onclick="openArticleModal('${art.id}')" class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
+                    <article onclick="openArticleModal('${art.id}')" class="bg-white p-6 rounded-3xl card-neo hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="px-3 py-1 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">${art.category}</span>
@@ -1871,7 +1768,8 @@
         function openArticleModal(artId) {
             const art = APP_DATA.articles.find(a => a.id === artId);
             if (!art) return;
-            const isFav = STATE.favoriteArticles.includes(art.id);
+            const user = getCurrentUser();
+            const isFav = user ? user.favoriteArticles.includes(art.id) : false;
 
             document.getElementById("modalCategoryBadge").textContent = `${art.category} • ${art.read_time}`;
             document.getElementById("modalHeadingTitle").textContent = art.title;
@@ -1880,36 +1778,46 @@
                     ${art.content}
                 </div>
 
-                <!-- التفاعل: إعجاب / عدم إعجاب -->
                 <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                    <button onclick="voteArticle('${art.id}', 'like')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer ${art.userVote === 'like' ? 'bg-[var(--primary-color)] text-white' : 'bg-white text-[var(--text-color)]'}">
+                    <button onclick="voteArticle('${art.id}', 'like')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer bg-white text-[var(--text-color)] hover:bg-[var(--bg-color)]">
                         <i class="ph-bold ph-thumbs-up text-base"></i>
                         <span>إعجاب (${art.likes})</span>
                     </button>
-                    <button onclick="voteArticle('${art.id}', 'dislike')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer ${art.userVote === 'dislike' ? 'bg-[var(--accent-color)] text-white' : 'bg-white text-[var(--text-color)]'}">
+                    <button onclick="voteArticle('${art.id}', 'dislike')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer bg-white text-[var(--text-color)] hover:bg-[var(--bg-color)]">
                         <i class="ph-bold ph-thumbs-down text-base"></i>
                         <span>لم يعجبني (${art.dislikes})</span>
                     </button>
                 </div>
 
-                <!-- التعليقات ومناقشة الموضوع -->
                 <div class="p-4 rounded-2xl bg-[var(--bg-color)] space-y-3">
                     <h4 class="font-black text-sm text-[var(--text-color)]">التعليقات والمناقشة (${art.comments.length})</h4>
                     <div id="articleCommentsList" class="space-y-2">
                         ${art.comments.length === 0
-                            ? `<p class="text-xs font-bold text-[var(--text-color)]/70">لا توجد تعليقات بعد؛ شاركي رأيكِ أو تجربتكِ.</p>`
+                            ? `<p class="text-xs font-bold text-[var(--text-color)]/70">لا توجد تعليقات بعد؛ سجّلي الدخول لمشاركة رأيكِ.</p>`
                             : art.comments.map(c => `
                                 <div class="p-3 rounded-xl bg-white border border-[var(--text-color)]/15 text-xs">
-                                    <span class="font-black text-[var(--primary-color)]">${c.author}:</span>
-                                    <span class="font-bold text-[var(--text-color)] mr-1">${c.text}</span>
+                                    <span class="font-black text-[var(--primary-color)]">${c.author}</span>
+                                    ${c.role ? `<span class="px-2 py-0.5 rounded-full bg-[var(--tertiary-color)] text-[10px] font-black mx-1">${c.role}</span>` : ""}
+                                    <span class="font-bold text-[var(--text-color)]">: ${c.text}</span>
                                 </div>
                             `).join("")
                         }
                     </div>
-                    <form onsubmit="addArticleComment(event, '${art.id}')" class="flex gap-2 pt-1">
-                        <input type="text" id="newCommentInput" required placeholder="أضيفي تعليقاً أو سؤالاً..." class="flex-grow px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold focus:outline-none focus:border-[var(--primary-color)]">
-                        <button type="submit" class="px-4 py-2 rounded-xl bg-[var(--primary-color)] text-white text-xs font-black cursor-pointer">إرسال</button>
-                    </form>
+
+                    ${user
+                        ? `
+                            <form onsubmit="addArticleComment(event, '${art.id}')" class="flex gap-2 pt-1">
+                                <input type="text" id="newCommentInput" required placeholder="أضيفي تعليقاً باسم ${user.realName}..." class="flex-grow px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                <button type="submit" class="px-4 py-2 rounded-xl bg-[var(--primary-color)] text-white text-xs font-black cursor-pointer">إرسال</button>
+                            </form>
+                        `
+                        : `
+                            <div class="p-3 rounded-xl bg-white border border-dashed border-[var(--accent-color)] flex items-center justify-between gap-2 text-xs">
+                                <span class="font-extrabold text-[var(--accent-color)]">لا يمكنكِ التعليق إلا بعد تسجيل الدخول.</span>
+                                <button type="button" onclick="closeInfoModal(); navigateTo('profile');" class="px-3 py-1.5 rounded-full bg-[var(--primary-color)] text-white font-black cursor-pointer">تسجيل الدخول</button>
+                            </div>
+                        `
+                    }
                 </div>
             `;
             document.getElementById("modalActionsArea").innerHTML = `
@@ -1917,59 +1825,76 @@
                     isFav ? "bg-[var(--primary-color)] text-white" : "bg-white text-[var(--text-color)]"
                 }">
                     <i class="${isFav ? "ph-fill" : "ph-bold"} ph-bookmark-simple text-base"></i>
-                    <span>${isFav ? "محفوظ في حسابي" : "حفظ المقال"}</span>
+                    <span>${isFav ? "محفوظ في صفحتي" : "حفظ المقال"}</span>
                 </button>
                 <button onclick="closeInfoModal()" class="btn-neo px-6 py-2.5 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm cursor-pointer">إغلاق</button>
             `;
-
             const modal = document.getElementById("infoModal");
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
 
         function voteArticle(artId, type) {
+            const user = getCurrentUser();
+            if (!user) {
+                closeInfoModal();
+                requireLoginAction("سجّلي الدخول للتفاعل مع المقالات.", null);
+                return;
+            }
             const art = APP_DATA.articles.find(a => a.id === artId);
             if (!art) return;
-            if (art.userVote === type) {
-                if (type === "like") art.likes--;
-                if (type === "dislike") art.dislikes--;
-                art.userVote = null;
+            if (type === "like") {
+                art.likes++;
+                user.likesCount = (user.likesCount || 0) + 1;
             } else {
-                if (art.userVote === "like") art.likes--;
-                if (art.userVote === "dislike") art.dislikes--;
-                if (type === "like") art.likes++;
-                if (type === "dislike") art.dislikes++;
-                art.userVote = type;
+                art.dislikes++;
             }
             renderArticlesFullGrid();
+            renderProfileView();
             openArticleModal(artId);
         }
 
         function addArticleComment(e, artId) {
             e.preventDefault();
+            const user = getCurrentUser();
+            if (!user) {
+                closeInfoModal();
+                requireLoginAction("لا يمكنكِ التعليق على المقالات إلا بعد تسجيل الدخول.", null);
+                return;
+            }
             const input = document.getElementById("newCommentInput");
             const art = APP_DATA.articles.find(a => a.id === artId);
             if (!art || !input || !input.value.trim()) return;
+
             art.comments.push({
-                author: STATE.user.name || "زائرة",
+                author: user.realName,
+                role: user.role,
                 text: input.value.trim()
             });
-            showToast("تمت إضافة تعليقكِ بنجاح");
+            user.commentsCount = (user.commentsCount || 0) + 1;
+
+            showToast("تم نشر تعليقكِ بنجاح");
             renderArticlesFullGrid();
+            renderProfileView();
             openArticleModal(artId);
         }
 
         function toggleArticleFav(event, artId, refreshModal = false) {
             if (event) event.stopPropagation();
-            const idx = STATE.favoriteArticles.indexOf(artId);
+            const user = getCurrentUser();
+            if (!user) {
+                if (refreshModal) closeInfoModal();
+                requireLoginAction("سجّلي الدخول لحفظ المقالات في صفحتكِ.", null);
+                return;
+            }
+            const idx = user.favoriteArticles.indexOf(artId);
             if (idx === -1) {
-                STATE.favoriteArticles.push(artId);
-                showToast("تم حفظ المقال في حسابكِ");
+                user.favoriteArticles.push(artId);
+                showToast("تم حفظ المقال في صفحتكِ");
             } else {
-                STATE.favoriteArticles.splice(idx, 1);
+                user.favoriteArticles.splice(idx, 1);
                 showToast("تمت إزالة المقال من المحفوظات", "ph-trash");
             }
-            toggleBookmark("article", artId);
             updateSavedCounters();
             renderArticlesFullGrid();
             if (STATE.activeSection === "profile") renderProfileView();
@@ -1978,67 +1903,215 @@
 
         /**
          * ===================================================================
-         * 6. حسابي الشخصي والنوافذ (Profile & Modals)
+         * 8. صفحتي: تسجيل الدخول/الإنشاء + الحسابات التي دخلت + الأكثر تفاعلاً
          * ===================================================================
          */
-        function handleProfileSave(e) {
-            e.preventDefault();
-            STATE.user.name = document.getElementById("inputUserName").value.trim() || "طالبة طموحة";
-            STATE.user.grade = document.getElementById("inputUserGrade").value;
-            STATE.user.email = document.getElementById("inputUserEmail").value.trim();
-            renderProfileView();
-            showToast("تم تحديث بياناتكِ في الجلسة الحالية");
-        }
-
         function renderProfileView() {
-            document.getElementById("profileNameTitle").textContent = STATE.user.name;
-            document.getElementById("profileGradeSubtitle").textContent = STATE.user.grade;
+            const authCard = document.getElementById("authGateCard");
+            const user = getCurrentUser();
 
-            const resBox = document.getElementById("profileSavedResults");
-            if (STATE.savedResults.length === 0) {
-                resBox.innerHTML = `<p class="text-xs sm:text-sm font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-4 rounded-2xl text-center">لم تقومي بإجراء الاختبار بعد.</p>`;
-            } else {
-                resBox.innerHTML = STATE.savedResults.map(r => `
-                    <div class="p-3.5 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between">
-                        <div>
-                            <span class="font-black text-sm text-[var(--primary-color)]">${r.top_track} (${r.top_percent}%)</span>
-                            <span class="block text-xs font-bold">${r.created_at}</span>
+            if (authCard) {
+                if (user) {
+                    authCard.innerHTML = `
+                        <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-[var(--primary-color)] text-white flex items-center justify-center">
+                                    <i class="ph-fill ph-identification-badge text-2xl"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-xl font-black">${user.realName}</h3>
+                                        <span class="px-3 py-0.5 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">${user.role}</span>
+                                    </div>
+                                    <p class="text-xs font-bold text-[var(--text-color)]/75">اسم المستخدم: @${user.username} • نقاط التفاعل: ${getAccountEngagementScore(user)}</p>
+                                </div>
+                            </div>
+                            <button onclick="logoutCurrentUser()" class="btn-neo px-5 py-2 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer">
+                                تسجيل الخروج
+                            </button>
                         </div>
-                        <button onclick='renderResultsView(${JSON.stringify(r)}); navigateTo("results");' class="px-4 py-1.5 rounded-full bg-white border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">عرض</button>
-                    </div>
-                `).join("");
+                        <div class="grid grid-cols-3 gap-3 pt-4 text-center">
+                            <div class="p-3 rounded-2xl bg-[var(--bg-color)]">
+                                <span class="block text-lg font-black text-[var(--primary-color)]">${user.quizzesCount || 0}</span>
+                                <span class="text-xs font-bold">اختبارات منجزة</span>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-[var(--bg-color)]">
+                                <span class="block text-lg font-black text-[var(--accent-color)]">${user.commentsCount || 0}</span>
+                                <span class="text-xs font-bold">تعليقات</span>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-[var(--bg-color)]">
+                                <span class="block text-lg font-black text-[var(--text-color)]">${(user.favoriteSpecs?.length || 0) + (user.favoriteArticles?.length || 0)}</span>
+                                <span class="text-xs font-bold">عناصر محفوظة</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const isLogin = STATE.authTab === "login";
+                    authCard.innerHTML = `
+                        <div class="flex items-center gap-2 mb-5">
+                            <button onclick="STATE.authTab='login'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer ${
+                                isLogin ? "bg-[var(--primary-color)] text-white" : "bg-[var(--bg-color)] text-[var(--text-color)]"
+                            }">تسجيل الدخول</button>
+                            <button onclick="STATE.authTab='register'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer ${
+                                !isLogin ? "bg-[var(--accent-color)] text-white" : "bg-[var(--bg-color)] text-[var(--text-color)]"
+                            }">إنشاء حساب جديد</button>
+                        </div>
+
+                        ${isLogin
+                            ? `
+                                <form onsubmit="handleLoginSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">اسم المستخدم</label>
+                                        <input type="text" id="loginUsername" required placeholder="مثال: sara_student" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">كلمة السر</label>
+                                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                    </div>
+                                    <button type="submit" class="btn-neo py-2.5 px-6 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer">
+                                        دخول
+                                    </button>
+                                </form>
+                                <p class="text-xs font-bold text-[var(--text-color)]/75 mt-3">
+                                    حسابات جاهزة للتجربة (كلمة السر: <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">123</code>): طالب <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">sara_student</code> أو معلم <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">noura_teacher</code>
+                                </p>
+                            `
+                            : `
+                                <form onsubmit="handleRegisterSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">الاسم الحقيقي *</label>
+                                        <input type="text" id="regRealName" required placeholder="الاسم الثلاثي أو الكامل" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">اسم المستخدم *</label>
+                                        <input type="text" id="regUsername" required placeholder="مثال: rama_16" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">كلمة السر *</label>
+                                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-extrabold mb-1">الصفة *</label>
+                                        <select id="regRole" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold focus:outline-none focus:border-[var(--primary-color)]">
+                                            <option value="طالب">طالب</option>
+                                            <option value="معلم">معلم</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn-neo py-2.5 px-5 rounded-full bg-[var(--accent-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer">
+                                        تسجيل الحساب
+                                    </button>
+                                </form>
+                            `
+                        }
+                    `;
+                }
             }
 
-            const majBox = document.getElementById("profileSavedMajors");
-            if (STATE.favoriteSpecs.length === 0) {
-                majBox.innerHTML = `<p class="text-xs sm:text-sm font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-4 rounded-2xl text-center col-span-2">لا توجد تخصصات أو وظائف مفضلة حالياً.</p>`;
-            } else {
-                majBox.innerHTML = STATE.favoriteSpecs.map(id => {
-                    const sp = APP_DATA.specializations.find(s => s.id === id);
-                    if (!sp) return "";
+            // الحسابات التي دخلت
+            const visited = STATE.accounts.filter(a => a.hasVisited);
+            const visitedBox = document.getElementById("visitedAccountsList");
+            const visitedCount = document.getElementById("visitedAccountsCount");
+            if (visitedCount) visitedCount.textContent = visited.length;
+            if (visitedBox) {
+                visitedBox.innerHTML = visited.map(acc => {
+                    const isCurrent = user && user.id === acc.id;
                     return `
-                        <div onclick="openSpecModal('${sp.id}')" class="p-3.5 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between cursor-pointer">
+                        <div class="p-3.5 rounded-2xl bg-[var(--bg-color)] border ${isCurrent ? "border-2 border-[var(--primary-color)]" : "border-[var(--text-color)]/15"} flex items-center justify-between gap-2">
                             <div>
-                                <span class="font-black text-sm block">${sp.title}</span>
-                                <span class="text-[11px] font-bold text-[var(--primary-color)]">${sp.job_title}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-black text-sm">${acc.realName}</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-white border border-[var(--text-color)] text-[10px] font-black">${acc.role}</span>
+                                    ${isCurrent ? `<span class="px-2 py-0.5 rounded-full bg-[var(--primary-color)] text-white text-[10px] font-black">الحالي</span>` : ""}
+                                </div>
+                                <span class="text-xs font-bold text-[var(--text-color)]/70">@${acc.username}</span>
                             </div>
-                            <button onclick="toggleSpecFav(event, '${sp.id}')" class="text-[var(--accent-color)] cursor-pointer"><i class="ph-fill ph-heart text-lg"></i></button>
+                            ${!isCurrent
+                                ? `<button onclick="switchToAccount('${acc.id}')" class="px-3.5 py-1.5 rounded-full bg-white border border-[var(--text-color)] text-xs font-extrabold hover:bg-[var(--tertiary-color)] cursor-pointer">دخول</button>`
+                                : ""
+                            }
                         </div>
                     `;
                 }).join("");
             }
 
+            // الحسابات الأكثر تفاعلاً
+            const activeRanked = [...STATE.accounts].sort((a, b) => getAccountEngagementScore(b) - getAccountEngagementScore(a));
+            const activeBox = document.getElementById("mostActiveAccountsList");
+            if (activeBox) {
+                activeBox.innerHTML = activeRanked.map((acc, idx) => {
+                    const score = getAccountEngagementScore(acc);
+                    return `
+                        <div class="p-3.5 rounded-2xl bg-[var(--bg-color)] border border-[var(--text-color)]/15 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-3">
+                                <span class="w-7 h-7 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] flex items-center justify-center text-xs font-black">${idx + 1}</span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-black text-sm">${acc.realName}</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-white border border-[var(--text-color)] text-[10px] font-black">${acc.role}</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-[var(--text-color)]/75">اختبارات: ${acc.quizzesCount || 0} • تعليقات: ${acc.commentsCount || 0} • تفاعلات: ${acc.likesCount || 0}</span>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-[var(--primary-color)] text-white text-xs font-black">${score} نقطة</span>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            // المحفوظات والنتائج للحساب الحالي
+            const resBox = document.getElementById("profileSavedResults");
+            const majBox = document.getElementById("profileSavedMajors");
             const artBox = document.getElementById("profileSavedArticles");
-            if (STATE.favoriteArticles.length === 0) {
-                artBox.innerHTML = `<p class="text-xs sm:text-sm font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-4 rounded-2xl text-center">لا توجد مقالات محفوظة حالياً.</p>`;
+
+            if (!user) {
+                resBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">سجّلي الدخول لعرض نتائجكِ.</p>`;
+                majBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">سجّلي الدخول لعرض التخصصات المفضلة.</p>`;
+                artBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">سجّلي الدخول لعرض المقالات المحفوظة.</p>`;
+                return;
+            }
+
+            if (!user.savedResults.length) {
+                resBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">لم تجري الاختبار بعد.</p>`;
             } else {
-                artBox.innerHTML = STATE.favoriteArticles.map(id => {
+                resBox.innerHTML = user.savedResults.map(r => `
+                    <div class="p-3 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between gap-2">
+                        <div>
+                            <span class="font-black text-xs sm:text-sm text-[var(--primary-color)] block">${r.summaryField}</span>
+                            <span class="text-[11px] font-bold">${r.created_at}</span>
+                        </div>
+                        <button onclick='renderResultsView(${JSON.stringify(r)}); navigateTo("results");' class="px-3.5 py-1 rounded-full bg-white border border-[var(--text-color)] text-xs font-extrabold cursor-pointer">عرض</button>
+                    </div>
+                `).join("");
+            }
+
+            if (!user.favoriteSpecs.length) {
+                majBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">لا توجد تخصصات مفضلة.</p>`;
+            } else {
+                majBox.innerHTML = user.favoriteSpecs.map(id => {
+                    const sp = APP_DATA.specializations.find(s => s.id === id);
+                    if (!sp) return "";
+                    return `
+                        <div onclick="openSpecModal('${sp.id}')" class="p-3 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between cursor-pointer">
+                            <div>
+                                <span class="font-black text-xs sm:text-sm block">${sp.title}</span>
+                                <span class="text-[11px] font-bold text-[var(--primary-color)]">${sp.job_title}</span>
+                            </div>
+                            <button onclick="toggleSpecFav(event, '${sp.id}')" class="text-[var(--accent-color)] cursor-pointer"><i class="ph-fill ph-heart text-base"></i></button>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            if (!user.favoriteArticles.length) {
+                artBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">لا توجد مقالات محفوظة.</p>`;
+            } else {
+                artBox.innerHTML = user.favoriteArticles.map(id => {
                     const art = APP_DATA.articles.find(a => a.id === id);
                     if (!art) return "";
                     return `
-                        <div onclick="openArticleModal('${art.id}')" class="p-3.5 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between cursor-pointer">
-                            <span class="font-black text-sm">${art.title}</span>
-                            <button onclick="toggleArticleFav(event, '${art.id}')" class="text-[var(--primary-color)] cursor-pointer"><i class="ph-fill ph-bookmark-simple text-lg"></i></button>
+                        <div onclick="openArticleModal('${art.id}')" class="p-3 rounded-2xl bg-[var(--bg-color)] flex items-center justify-between cursor-pointer">
+                            <span class="font-black text-xs sm:text-sm">${art.title}</span>
+                            <button onclick="toggleArticleFav(event, '${art.id}')" class="text-[var(--primary-color)] cursor-pointer"><i class="ph-fill ph-bookmark-simple text-base"></i></button>
                         </div>
                     `;
                 }).join("");
@@ -2046,7 +2119,10 @@
         }
 
         function updateSavedCounters() {
-            const count = STATE.savedResults.length + STATE.favoriteSpecs.length + STATE.favoriteArticles.length;
+            const user = getCurrentUser();
+            const count = user
+                ? (user.savedResults?.length || 0) + (user.favoriteSpecs?.length || 0) + (user.favoriteArticles?.length || 0)
+                : 0;
             const sidebarBadge = document.getElementById("sidebarSavedBadge");
             const mobileBadge = document.getElementById("mobileSavedBadge");
             if (sidebarBadge) sidebarBadge.textContent = count;
@@ -2072,14 +2148,9 @@
             }, 2800);
         }
 
-        /**
-         * ===================================================================
-         * 7. تهيئة التشغيل عند تحميل الصفحة (Bootstrap)
-         * ===================================================================
-         */
-        document.addEventListener("DOMContentLoaded", async () => {
-            await fetchSpecializations();
+        document.addEventListener("DOMContentLoaded", () => {
             renderNavMenus();
+            updateAuthUI();
             renderHomeArticlesPreview();
             renderPathwaysGrid();
             renderFieldsFullGrid();
@@ -2087,7 +2158,6 @@
             renderSkillsGrid();
             renderArticlesFullGrid();
             renderProfileView();
-            updateSavedCounters();
 
             const searchInput = document.getElementById("majorSearchInput");
             if (searchInput) {
