@@ -3,469 +3,1397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اكتشاف | منصة المسار الدراسي</title>
-
+    <title>اكتشفي مسارك | مسارك الدراسي والمهني</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- لوحة ألوان اكتشاف: وردي وفستقي -->
     <style>
         :root {
-            --bg-color: #FFF5F7;
-            --text-color: #3A1C3F;
-            --primary-color: #E8508A;
-            --accent-color: #7ED6B5;
-            --tertiary-color: #FFD98E;
-            --surface-color: #FFFFFF;
-            --font-family: 'Tajawal', sans-serif;
+            --bg-color:#E8F7F5; --text-color:#073B4C; --primary-color:#118AB2;
+            --accent-color:#EF476F; --tertiary-color:#FFD166; --surface-color:#FFFFFF;
+            --on-primary:#ffffff; --on-accent:#ffffff; --on-tertiary:#073B4C; --on-surface:#073B4C;
         }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow-x: hidden;
-        }
-
-        .btn-neo {
-            box-shadow: 0 5px 0 var(--text-color);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .btn-neo:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 0 var(--text-color);
-        }
-        .btn-neo:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 var(--text-color);
-        }
-
-        .field-card-shape {
-            border-radius: 34px 12px 34px 34px;
-            box-shadow: 0 6px 0 var(--text-color);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .field-card-shape:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 0 var(--text-color);
-        }
-
-        .quiz-oval-banner {
-            border-radius: 50% 45% 48% 52% / 55% 48% 52% 45%;
-            border: 3px dashed var(--text-color);
-            transform: rotate(-3deg);
-            transition: transform 0.25s ease;
-        }
-        .quiz-oval-banner:hover {
-            transform: rotate(0deg) scale(1.02);
-        }
-
-        .bento-article-card {
-            border: 2px solid var(--text-color);
-            box-shadow: 4px 4px 0 var(--text-color);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .bento-article-card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 var(--text-color);
-        }
-
-        .page-section { display: none; animation: fadeSlide 0.25s ease-out forwards; }
-        .page-section.active { display: block; }
-
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { font-family:'Tajawal',sans-serif; background:var(--bg-color); color:var(--text-color); overflow-x:hidden; }
+        .btn-neo { box-shadow:0 4px 0 var(--text-color); transition:transform .15s ease, box-shadow .15s ease; }
+        .btn-neo:hover { transform:translateY(-2px); box-shadow:0 6px 0 var(--text-color); }
+        .btn-neo:active { transform:translateY(2px); box-shadow:0 2px 0 var(--text-color); }
+        .card-neo { border:2px solid var(--text-color); box-shadow:4px 4px 0 var(--text-color); background:var(--surface-color); }
+        .field-card-shape { border-radius:34px 12px 34px 34px; box-shadow:0 6px 0 var(--text-color); transition:transform .2s ease, box-shadow .2s ease; }
+        .field-card-shape:hover { transform:translateY(-4px); box-shadow:0 10px 0 var(--text-color); }
+        .quiz-oval-banner { border-radius:50% 45% 48% 52%/55% 48% 52% 45%; border:3px dashed var(--text-color); transform:rotate(-3deg); transition:transform .25s ease; }
+        .quiz-oval-banner:hover { transform:rotate(0deg) scale(1.02); }
+        .bento-article-card { border:2px solid var(--text-color); box-shadow:4px 4px 0 var(--text-color); transition:transform .2s ease, box-shadow .2s ease; }
+        .bento-article-card:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--text-color); }
+        .page-section { display:none; animation:fadeSlide .22s ease-out forwards; }
+        .page-section.active { display:block; }
+        @keyframes fadeSlide { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+        /* لوحة التحكم */
+        .admin-tab { padding:8px 16px; border-radius:99px; border:2px solid var(--text-color); font-weight:800; font-size:12px; cursor:pointer; background:var(--surface-color); white-space:nowrap; }
+        .admin-tab.on { background:var(--primary-color); color:var(--on-primary); }
+        .admin-list-row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; border:2px solid var(--text-color); border-radius:14px; background:var(--surface-color); }
+        .fld { display:flex; flex-direction:column; gap:4px; }
+        .fld input, .fld textarea, .fld select { padding:9px 12px; border-radius:12px; border:2px solid color-mix(in srgb, var(--text-color) 30%, transparent); background:var(--surface-color); color:var(--on-surface); font-family:inherit; font-weight:700; font-size:13px; }
+        .fld textarea { min-height:80px; }
+        .palette-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+        .palette-card { border:2px solid var(--text-color); border-radius:14px; padding:10px; cursor:pointer; background:var(--surface-color); text-align:right; }
+        .palette-card.on { outline:3px solid var(--accent-color); }
+        .palette-card b { display:block; font-size:12px; margin-bottom:6px; }
+        .swatches { display:flex; gap:4px; direction:ltr; }
+        .swatches i { flex:1; height:24px; border-radius:6px; border:1px solid rgba(0,0,0,.15); }
+        .adm-badge { font-size:10px; font-weight:900; padding:2px 8px; border-radius:99px; background:var(--tertiary-color); color:var(--on-tertiary); border:1px solid var(--text-color); }
     </style>
+<base target="_blank">
 </head>
 <body class="min-h-screen flex flex-col md:flex-row selection:bg-[var(--tertiary-color)] selection:text-[var(--text-color)]">
 
     <!-- شريط علوي للجوال -->
-    <header class="md:hidden sticky top-0 z-40 bg-[var(--primary-color)] text-white px-4 py-3.5 flex items-center justify-between shadow-md">
-        <button onclick="navigateTo('home')" class="text-right focus:outline-none">
-            <span class="font-black text-xl block leading-none">اكتشاف</span>
-            <span class="text-[11px] text-white/90 font-medium">المسار الدراسي</span>
+    <header class="md:hidden sticky top-0 z-40 bg-[var(--primary-color)] px-4 py-3 flex items-center justify-between shadow-md" style="color:var(--on-primary)">
+        <button onclick="navigateTo('home')" class="text-right focus:outline-none cursor-pointer">
+            <span class="font-black text-xl block leading-none">اكتشفي مسارك</span>
+            <span class="text-[11px] font-medium" style="color:var(--on-primary);opacity:.9">مسارك الدراسي والمهني</span>
         </button>
-
         <div class="flex items-center gap-2">
-            <a href="#" class="tamkeen-link px-2.5 py-1.5 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] text-xs font-black">تمكين ←</a>
-            <button onclick="openAuthModal()" class="px-3 py-1.5 rounded-full bg-white text-[var(--text-color)] text-xs font-extrabold">
-                <span id="mobileAuthLabel">دخول</span>
+            <button onclick="navigateTo('profile')" class="px-3 py-1.5 rounded-full bg-[var(--surface-color)] text-xs font-extrabold flex items-center gap-1.5 cursor-pointer" style="color:var(--on-surface)">
+                <i class="ph-fill ph-user-circle text-base" style="color:var(--accent-color)"></i>
+                <span id="mobileAuthLabel">دخول / حسابي</span>
             </button>
-            <button onclick="toggleMobileDrawer()" class="p-2 rounded-xl bg-white/15 text-white">
+            <button onclick="toggleMobileDrawer()" class="p-2 rounded-xl cursor-pointer" style="background:color-mix(in srgb, var(--on-primary) 18%, transparent); color:var(--on-primary)" aria-label="القائمة">
                 <i id="mobileDrawerIcon" class="ph ph-list text-2xl"></i>
             </button>
         </div>
     </header>
 
-    <div id="mobileDrawer" class="hidden md:hidden fixed inset-x-0 top-[60px] z-30 bg-[var(--primary-color)] text-white px-5 py-4 shadow-2xl border-t border-white/15 space-y-2"></div>
+    <div id="mobileDrawer" class="hidden md:hidden fixed inset-x-0 top-[58px] z-30 px-5 py-4 shadow-2xl space-y-1.5 max-h-[80vh] overflow-y-auto" style="background:var(--primary-color); color:var(--on-primary); border-top:1px solid color-mix(in srgb, var(--on-primary) 20%, transparent)"></div>
 
-    <!-- القائمة الجانبية اليمنى الثابتة -->
-    <aside class="hidden md:flex md:w-64 shrink-0 bg-[var(--primary-color)] text-white flex-col justify-between sticky top-0 h-screen p-6 z-30">
+    <!-- القائمة الجانبية -->
+    <aside class="hidden md:flex md:w-64 shrink-0 flex-col justify-between sticky top-0 h-screen p-5 z-30" style="background:var(--primary-color); color:var(--on-primary)">
         <div class="overflow-y-auto no-scrollbar">
-            <button onclick="navigateTo('home')" class="text-right block w-full mb-5 group focus:outline-none">
-                <h1 class="font-black text-3xl tracking-tight leading-tight">اكتشاف</h1>
-                <p class="text-xs text-white/90 font-medium mt-1">منصة المسار الدراسي</p>
+            <button onclick="navigateTo('home')" class="text-right block w-full mb-4 group focus:outline-none cursor-pointer">
+                <h1 class="font-black text-3xl tracking-tight leading-tight group-hover:scale-[1.02] transition-transform">اكتشفي مسارك</h1>
+                <p class="text-xs font-medium mt-1" style="color:var(--on-primary);opacity:.85">مسارك الدراسي والمهني</p>
             </button>
-
-            <a href="#" class="tamkeen-link w-full mb-4 py-2 px-4 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] border-2 border-[var(--text-color)] text-xs font-black flex items-center justify-between shadow-[0_3px_0_var(--text-color)]">
-                <span>الانتقال إلى تمكين</span>
-                <i class="ph-bold ph-arrow-left"></i>
-            </a>
-
-            <nav id="sidebarNav" class="space-y-1.5"></nav>
+            <div id="sidebarAccountCard" class="mb-4 p-3 rounded-2xl border text-xs" style="background:color-mix(in srgb, var(--on-primary) 12%, transparent); border-color:color-mix(in srgb, var(--on-primary) 25%, transparent)"></div>
+            <nav id="sidebarNav" class="space-y-1"></nav>
         </div>
-
-        <div class="pt-4 border-t border-white/20 space-y-2.5 shrink-0">
-            <button onclick="openAuthModal()" id="sidebarAuthBtn" class="w-full py-2 px-4 rounded-full bg-white text-[var(--text-color)] text-xs font-black flex items-center justify-between cursor-pointer">
-                <span id="sidebarAuthText">تسجيل الدخول / حساب</span>
-                <i class="ph-fill ph-user-circle text-base text-[var(--primary-color)]"></i>
-            </button>
-            <button onclick="navigateTo('profile')" class="w-full py-2 px-4 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer">
+        <div class="pt-3 space-y-2 shrink-0" style="border-top:1px solid color-mix(in srgb, var(--on-primary) 25%, transparent)">
+            <div class="text-[11px] font-bold text-center" style="color:var(--on-primary);opacity:.9">
+                <i class="ph-fill ph-eye"></i> زيارات الموقع: <span id="sidebarVisitCount" class="font-black">0</span>
+            </div>
+            <button onclick="navigateTo('profile')" class="w-full py-2.5 px-4 rounded-full text-xs font-extrabold flex items-center justify-between transition-colors cursor-pointer" style="background:color-mix(in srgb, var(--on-primary) 15%, transparent); color:var(--on-primary)">
                 <span class="flex items-center gap-2">
-                    <i class="ph-fill ph-bookmark-simple text-base text-[var(--tertiary-color)]"></i>
-                    <span>المفضلة والنتائج</span>
+                    <i class="ph-fill ph-user-circle text-base" style="color:var(--tertiary-color)"></i>
+                    <span>صفحتي والحسابات</span>
                 </span>
-                <span id="sidebarSavedBadge" class="px-2 py-0.5 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] font-black">0</span>
+                <span id="sidebarSavedBadge" class="px-2 py-0.5 rounded-full font-black text-[10px]" style="background:var(--tertiary-color); color:var(--on-tertiary)">0</span>
             </button>
         </div>
     </aside>
 
     <!-- المحتوى الرئيسي -->
     <main class="flex-grow relative overflow-hidden">
-        <div class="w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[var(--tertiary-color)] absolute -top-20 -left-20 pointer-events-none opacity-95"></div>
+        <div class="w-56 h-56 sm:w-72 sm:h-72 rounded-full absolute -top-20 -left-20 pointer-events-none opacity-95" style="background:var(--tertiary-color)"></div>
+        <div class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 lg:px-10 py-6 sm:py-9">
 
-        <div class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 py-8 sm:py-12">
+            <!-- شريط الحالة -->
+            <div class="mb-7 rounded-2xl border-2 border-[var(--text-color)] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-[3px_3px_0_var(--text-color)]" style="background:color-mix(in srgb, var(--surface-color) 92%, transparent)">
+                <span class="px-3 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-black flex items-center gap-1.5" style="background:var(--tertiary-color); color:var(--on-tertiary)">
+                    <i class="ph-fill ph-eye"></i> عدد الزيارات: <b id="visitCountNum">0</b>
+                </span>
+                <div id="topAuthStatusBar" class="flex items-center gap-2.5 text-xs sm:text-sm font-bold"></div>
+                <div id="topAuthActionsBar" class="flex items-center gap-2"></div>
+            </div>
 
-            <!-- 1. الرئيسية -->
-            <section id="section-home" class="page-section active space-y-14">
-                <div class="pt-2 sm:pt-4 max-w-2xl">
-                    <h2 class="text-3xl sm:text-5xl font-black text-[var(--text-color)] leading-snug mb-5">
+            <!-- الرئيسية -->
+            <section id="section-home" class="page-section active space-y-12">
+                <div class="max-w-2xl">
+                    <h2 class="text-3xl sm:text-5xl font-black leading-snug mb-4">
                         اكتشفي وجهتكِ
-                        <span class="inline-block bg-[var(--accent-color)] text-[var(--text-color)] px-5 py-1.5 rounded-2xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] transform -rotate-1">
-                            الدراسية
-                        </span>
+                        <span class="inline-block px-5 py-1 rounded-2xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] transform -rotate-1" style="background:var(--accent-color); color:var(--on-accent)">القادمة</span>
                     </h2>
-                    <p class="text-base sm:text-lg text-[var(--text-color)]/90 font-medium leading-relaxed mb-7">
-                        منصة إرشادية تساعدكِ على فهم نفسكِ واكتشاف ميولكِ وقدراتكِ، والتعرف على المجالات والتخصصات الجامعية، ثم الانتقال إلى <strong>تمكين</strong> للمسار المهني.
+                    <p class="text-base sm:text-lg font-medium leading-relaxed mb-6 opacity-90">
+                        منصة متكاملة تجمع بين المسار الدراسي والمهني؛ تساعدكِ على فهم نفسكِ واكتشاف ميولكِ وقدراتكِ وقيمكِ، والتعرف على المجالات والتخصصات والوظائف والمسارات التعليمية والمهنية بعد الثانوية.
                     </p>
-                    <div class="flex flex-wrap items-center gap-4">
-                        <button onclick="navigateTo('quiz')" class="btn-neo px-8 py-3.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-base cursor-pointer">
-                            ابدئي رحلتكِ
-                        </button>
-                        <a href="#" class="tamkeen-link px-6 py-3.5 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer">
-                            الانتقال إلى تمكين ←
-                        </a>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="startQuizGuarded()" class="btn-neo px-7 py-3 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">ابدئي رحلتكِ والاختبار</button>
+                        <button onclick="navigateTo('majors')" class="px-5 py-3 rounded-full border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80" style="background:var(--surface-color)">استكشفي التخصصات والوظائف</button>
+                        <button onclick="navigateTo('pathways')" class="px-5 py-3 rounded-full border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80" style="background:var(--surface-color)">المسارات التعليمية والمهنية</button>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">المجالات</h3>
-                        <button onclick="navigateTo('fields')" class="text-sm font-extrabold text-[var(--primary-color)] hover:underline cursor-pointer">عرض جميع المجالات</button>
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-2xl sm:text-3xl font-black">المجالات</h3>
+                        <button onclick="navigateTo('fields')" class="text-xs sm:text-sm font-extrabold hover:underline flex items-center gap-1 cursor-pointer" style="color:var(--primary-color)">
+                            <span>عرض جميع المجالات</span><i class="ph-bold ph-arrow-left"></i>
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-                        <div onclick="filterMajorsByTrack('الصحي والطبي')" class="field-card-shape bg-[var(--primary-color)] text-white p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
-                            <i class="ph-duotone ph-stethoscope text-5xl mb-3"></i>
-                            <h4 class="text-xl font-black mb-1">الصحي والطبي</h4>
-                            <p class="text-xs sm:text-sm text-white/95 font-medium">علاج وظيفي، سمعيات، وتغذية علاجية</p>
-                        </div>
-
-                        <div onclick="filterMajorsByTrack('التقني والرقمي')" class="field-card-shape bg-[var(--tertiary-color)] text-[var(--text-color)] p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
-                            <i class="ph-duotone ph-laptop text-5xl mb-3"></i>
-                            <h4 class="text-xl font-black mb-1">التقني والرقمي</h4>
-                            <p class="text-xs sm:text-sm font-bold">برمجة، ذكاء اصطناعي، وأدلة رقمية</p>
-                        </div>
-
-                        <div onclick="filterMajorsByTrack('الهندسي والعلوم')" class="field-card-shape bg-[var(--accent-color)] text-[var(--text-color)] p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
-                            <i class="ph-duotone ph-compass-tool text-5xl mb-3"></i>
-                            <h4 class="text-xl font-black mb-1">الهندسي والعلوم</h4>
-                            <p class="text-xs sm:text-sm font-bold">طيران وفضاء، طاقة متجددة، وهندسة طبية</p>
-                        </div>
-
-                        <div onclick="navigateTo('fields')" class="field-card-shape bg-[var(--text-color)] text-white p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]">
-                            <i class="ph-duotone ph-chart-bar text-5xl mb-3 text-[var(--tertiary-color)]"></i>
-                            <h4 class="text-xl font-black mb-1">المالي والثقافي</h4>
-                            <p class="text-xs sm:text-sm text-white/90 font-medium">علوم اكتوارية، تقنية مالية، وتراث ومتاحف</p>
-                        </div>
-                    </div>
+                    <div id="homeFieldsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 py-3">
                     <div class="text-right space-y-3">
-                        <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">جرّبي الآن</h3>
-                        <p class="text-sm sm:text-base text-[var(--text-color)]/85 font-bold">
-                            أسئلة تفاعلية • نتيجة فورية بالتخصصات الأنسب لكِ • رابط مباشر لتمكين
-                        </p>
-                        <div class="pt-2">
-                            <button onclick="navigateTo('quiz')" class="btn-neo px-8 py-3 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] font-extrabold text-base cursor-pointer">
-                                ابدئي الاختبار
-                            </button>
+                        <h3 class="text-2xl sm:text-3xl font-black">جرّبي الآن</h3>
+                        <p class="text-sm sm:text-base font-bold opacity-85">ماذا أحب وبماذا أتميز • ميولي المبدئية • خلاصتي وأداة القياس (يتطلب تسجيل الدخول)</p>
+                        <div class="pt-1">
+                            <button onclick="startQuizGuarded()" class="btn-neo px-8 py-3 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">ابدئي الاختبار</button>
                         </div>
                     </div>
-
-                    <div onclick="navigateTo('quiz')" class="quiz-oval-banner bg-[var(--accent-color)] text-[var(--text-color)] py-12 px-8 text-center cursor-pointer shadow-lg">
-                        <span class="block text-xl sm:text-2xl font-black tracking-wide">اختبار الاهتمامات والقدرات</span>
-                        <span class="inline-block mt-2 text-xs font-extrabold bg-white/70 px-3.5 py-1 rounded-full">اكتشفي ميولكِ ومهاراتكِ الآن</span>
+                    <div onclick="startQuizGuarded()" class="quiz-oval-banner py-11 px-8 text-center cursor-pointer shadow-lg" style="background:var(--accent-color); color:var(--on-accent)">
+                        <span class="block text-xl sm:text-2xl font-black tracking-wide">مقياس الميول والتميز الذاتي</span>
+                        <span class="inline-block mt-2 text-xs font-bold px-3.5 py-1 rounded-full" style="background:color-mix(in srgb, var(--on-accent) 20%, transparent)">أربعة محاور لاكتشاف ذاتكِ</span>
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl sm:text-3xl font-black text-[var(--text-color)]">مقالات ونصائح</h3>
-                        <button onclick="navigateTo('articles')" class="text-sm font-extrabold text-[var(--primary-color)] hover:underline cursor-pointer">عرض الكل</button>
+                <div>
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-2xl sm:text-3xl font-black">مقالات ونصائح</h3>
+                        <button onclick="navigateTo('articles')" class="text-xs sm:text-sm font-extrabold hover:underline cursor-pointer" style="color:var(--primary-color)">عرض الكل</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch" id="homeArticlesPreview"></div>
                 </div>
             </section>
 
-            <!-- 2. الاختبار -->
-            <section id="section-quiz" class="page-section max-w-3xl mx-auto">
-                <div class="bg-white rounded-3xl border-2 border-[var(--text-color)] shadow-[6px_6px_0_var(--text-color)] overflow-hidden">
-                    <div class="p-6 sm:p-8 bg-[var(--primary-color)] text-white">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="px-3.5 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black">اختبار اكتشاف الذات</span>
-                            <span id="quizStepLabel" class="text-sm font-extrabold">السؤال 1 من 5</span>
+            <!-- الاختبار -->
+            <section id="section-quiz" class="page-section max-w-4xl mx-auto space-y-6">
+                <div class="rounded-3xl card-neo overflow-hidden">
+                    <div class="p-6 sm:p-7" style="background:var(--primary-color); color:var(--on-primary)">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <span class="px-3.5 py-1 rounded-full text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">مقياس اكتشاف الذات والميول (4 محاور)</span>
+                            <span id="quizCurrentUserBadge" class="text-xs font-extrabold px-3 py-1 rounded-full" style="background:color-mix(in srgb, var(--on-primary) 15%, transparent)"></span>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-black mb-4">اكتشفي ميولكِ ومهاراتكِ الدراسية</h2>
-                        <div class="w-full h-3 bg-white/25 rounded-full overflow-hidden">
-                            <div id="quizProgressFill" class="h-full bg-[var(--tertiary-color)] transition-all duration-300" style="width: 20%;"></div>
-                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black">اكتشفي ميولكِ وتميزكِ وخلاصتكِ</h2>
+                        <p class="text-xs sm:text-sm font-medium mt-1 opacity-90">أولاً: ماذا أحب وبماذا أتميز • ثانياً: ميولي المبدئية • ثالثاً: خلاصتي • رابعاً: أداة القياس الأدق</p>
                     </div>
-                    <div id="quizBodyContainer" class="p-6 sm:p-8"></div>
+                    <form onsubmit="submitInspiredQuiz(event)" class="p-6 sm:p-7 space-y-8">
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black border-r-4 border-[var(--accent-color)] pr-3" style="color:var(--primary-color)">أولاً: ماذا أحب؟ وبماذا أتميز؟</h3>
+                            <div class="overflow-x-auto rounded-2xl border-2 border-[var(--text-color)]">
+                                <table class="w-full text-right border-collapse text-xs sm:text-sm">
+                                    <thead><tr style="background:var(--bg-color); border-bottom:2px solid var(--text-color)"><th class="p-3.5 font-black w-2/5 border-l border-[var(--text-color)]/30">السؤال</th><th class="p-3.5 font-black">إجابتي</th></tr></thead>
+                                    <tbody id="partOneTableBody" class="divide-y divide-[var(--text-color)]/20" style="background:var(--surface-color)"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black border-r-4 border-[var(--accent-color)] pr-3" style="color:var(--primary-color)">ثانياً: ميولي المبدئية. اختاري الدرجة المناسبة لكل مجال</h3>
+                            <div class="overflow-x-auto rounded-2xl border-2 border-[var(--text-color)]">
+                                <table class="w-full text-right border-collapse text-xs sm:text-sm">
+                                    <thead><tr style="background:var(--bg-color); border-bottom:2px solid var(--text-color)"><th class="p-3.5 font-black border-l border-[var(--text-color)]/30">المجال</th><th class="p-3.5 font-black text-center border-l border-[var(--text-color)]/30">بدرجة كبيرة</th><th class="p-3.5 font-black text-center border-l border-[var(--text-color)]/30">بدرجة متوسطة</th><th class="p-3.5 font-black text-center">بدرجة ضعيفة</th></tr></thead>
+                                    <tbody id="partTwoTableBody" class="divide-y divide-[var(--text-color)]/20" style="background:var(--surface-color)"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black border-r-4 border-[var(--accent-color)] pr-3" style="color:var(--primary-color)">ثالثاً: خلاصتي</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl border-2 border-[var(--text-color)]" style="background:var(--bg-color)">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-black mb-1.5">المجال الذي يناسبني مبدئياً</label>
+                                    <select id="summaryFieldSelect" required class="w-full px-3.5 py-2.5 rounded-xl border-2 focus:outline-none text-xs sm:text-sm font-bold" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 30%, transparent)"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-black mb-1.5">لأن...</label>
+                                    <input type="text" id="summaryBecauseInput" required placeholder="اذكري السبب باختصار..." class="w-full px-3.5 py-2.5 rounded-xl border-2 focus:outline-none text-xs sm:text-sm font-bold" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 30%, transparent)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="text-lg sm:text-xl font-black border-r-4 border-[var(--accent-color)] pr-3" style="color:var(--primary-color)">رابعاً: أداة سأجربها لاكتشاف ميولي بدقة أكبر</h3>
+                            <div id="partFourToolsBox" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+                        </div>
+                        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-200">
+                            <button type="submit" class="btn-neo px-8 py-3 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm sm:text-base cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حفظ وعرض النتيجة</button>
+                        </div>
+                    </form>
                 </div>
             </section>
 
-            <!-- 3. النتائج -->
+            <!-- النتائج -->
             <section id="section-results" class="page-section max-w-4xl mx-auto space-y-6">
                 <div id="resultsDisplayContainer"></div>
             </section>
 
-            <!-- 4. المجالات -->
+            <!-- المسارات -->
+            <section id="section-pathways" class="page-section space-y-6">
+                <div>
+                    <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">طرق الوصول والالتحاق</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-2">دليل المسارات التعليمية والتأهيلية</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">تعرّفي على المسارات المتاحة للوصول إلى الدراسة والعمل مع شروط الالتحاق والجهات المقدمة لها.</p>
+                </div>
+                <div id="pathwaysFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </section>
+
+            <!-- المجالات -->
             <section id="section-fields" class="page-section space-y-6">
                 <div>
-                    <span class="px-3.5 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">القطاعات الأكاديمية</span>
-                    <h2 class="text-2xl sm:text-3xl font-black mt-2">دليل المجالات الدراسية</h2>
+                    <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">القطاعات الأكاديمية والمهنية</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-2">دليل المجالات الدراسية والمهنية</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">تعرّفي على طبيعة العمل في كل مجال، المواد والموضوعات، المهارات المطلوبة، والتخصصات والوظائف التابعة له.</p>
                 </div>
                 <div id="fieldsFullGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </section>
 
-            <!-- 5. التخصصات -->
+            <!-- التخصصات -->
             <section id="section-majors" class="page-section space-y-6">
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)]">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div class="p-6 rounded-3xl card-neo">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
-                            <h2 class="text-2xl sm:text-3xl font-black">دليل التخصصات الجامعية</h2>
-                            <p class="text-sm text-[var(--text-color)]/80 font-medium">استعرضي التخصصات وطبيعتها والمواد والمهارات المطلوبة.</p>
+                            <h2 class="text-2xl sm:text-3xl font-black">دليل التخصصات والوظائف</h2>
+                            <p class="text-sm font-medium opacity-80">تخصصات ووظائف نوعية مع شرح مبسط، المواد، المهارات، بيئة العمل، والربط بين الدراسة والمهنة.</p>
                         </div>
-                        <span id="majorsCountPill" class="self-start sm:self-center px-4 py-1.5 rounded-full bg-[var(--tertiary-color)] border border-[var(--text-color)] text-xs font-black">0 تخصص</span>
+                        <span id="majorsCountPill" class="self-start sm:self-center px-4 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)"></span>
                     </div>
                     <div class="relative mb-4">
-                        <i class="ph-bold ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-color)]/60 text-lg"></i>
-                        <input type="text" id="majorSearchInput" placeholder="ابحثي باسم التخصص أو مادة أو مهارة..." class="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg-color)] border-2 border-transparent focus:border-[var(--primary-color)] focus:bg-white focus:outline-none text-sm font-bold">
+                        <i class="ph-bold ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-lg opacity-60"></i>
+                        <input type="text" id="majorSearchInput" placeholder="ابحثي باسم التخصص، وظيفة، مادة دراسية، أو مهارة..." class="w-full pr-11 pl-4 py-3 rounded-2xl border-2 border-transparent focus:outline-none text-sm font-bold" style="background:var(--bg-color)">
                     </div>
                     <div id="majorsFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
                 </div>
+                <div class="p-6 rounded-3xl card-neo">
+                    <h3 class="text-lg font-black mb-2 flex items-center gap-2"><i class="ph-fill ph-git-branch text-xl" style="color:var(--primary-color)"></i><span>وظائف متعددة التخصصات</span></h3>
+                    <p class="text-xs sm:text-sm font-medium opacity-85 mb-4">كثير من الوظائف الحديثة لا تقتصر على تخصص واحد؛ بل تجمع بين التقنية والعلوم والإدارة والمهارات الشخصية:</p>
+                    <div id="crossCareerMatrix" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
                 <div id="majorsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <div id="majorsNoResults" class="hidden p-10 rounded-3xl card-neo text-center">
+                    <p class="font-extrabold text-lg mb-2">لا توجد تخصصات أو وظائف مطابقة لبحثكِ</p>
+                    <button onclick="resetMajorsFilter()" class="btn-neo px-6 py-2 rounded-full border-2 border-[var(--text-color)] text-sm font-bold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">عرض الكل</button>
+                </div>
             </section>
 
-            <!-- 6. المهارات -->
+            <!-- المهارات -->
             <section id="section-skills" class="page-section space-y-6">
                 <div>
-                    <span class="px-3.5 py-1 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] border border-[var(--text-color)] text-xs font-black">الاستعداد للجامعة</span>
-                    <h2 class="text-2xl sm:text-3xl font-black mt-2">تطوير المهارات وتنظيم الدراسة</h2>
+                    <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--accent-color); color:var(--on-accent)">الاستعداد للجامعة وسوق العمل</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-2">تطوير المهارات والمعارف المهنية</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">المهارات الشخصية والتقنية المطلوبة في سوق العمل، المعارف والقيم المهنية، وطرق تطويرها وتنظيم الدراسة.</p>
                 </div>
                 <div id="skillsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                <div class="p-6 sm:p-7 rounded-3xl card-neo">
+                    <h3 class="text-xl font-black mb-4 flex items-center gap-2"><i class="ph-fill ph-shield-check text-2xl" style="color:var(--primary-color)"></i><span>المعارف والقيم المهمة في بيئة العمل</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1" style="color:var(--primary-color)">النزاهة والالتزام المهني</h4><p class="text-xs font-medium leading-relaxed">الصدق، احترام المواعيد، وتحمل المسؤولية في إنجاز المهام بدقة.</p></div>
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1" style="color:var(--accent-color)">أخلاقيات العمل والسرية</h4><p class="text-xs font-medium leading-relaxed">حماية بيانات المؤسسات والعملاء والالتزام بالمعايير المهنية.</p></div>
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1">الوعي الرقمي والمهني</h4><p class="text-xs font-medium leading-relaxed">فهم متغيرات سوق العمل، أدوات الذكاء الاصطناعي، والتعلم المستمر.</p></div>
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1" style="color:var(--primary-color)">المرونة والتكيف</h4><p class="text-xs font-medium leading-relaxed">القدرة على التعامل مع المشاريع المتغيرة والعمل ضمن فرق متنوعة.</p></div>
+                    </div>
+                </div>
+                <div class="p-6 sm:p-8 rounded-3xl card-neo">
+                    <h3 class="text-xl font-black mb-4 flex items-center gap-2"><i class="ph-fill ph-lightbulb text-2xl" style="color:var(--accent-color)"></i><span>نصائح عملية لتنظيم الدراسة والتعلم</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1" style="color:var(--primary-color)">1. قاعدة 25 دقيقة تركيز</h4><p class="text-xs font-medium leading-relaxed">ادرسِي بتركيز تام لمدة 25 دقيقة ثم ارتاحي 5 دقائق لتجديد نشاطكِ الذهني.</p></div>
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1" style="color:var(--accent-color)">2. الخرائط الذهنية</h4><p class="text-xs font-medium leading-relaxed">لخّصي الدروس على شكل مخططات ورسوم لربط المعلومات وتسهيل استرجاعها.</p></div>
+                        <div class="p-4 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)"><h4 class="font-black text-sm mb-1">3. التطبيق العملي</h4><p class="text-xs font-medium leading-relaxed">حوّلي كل معلومة نظرية إلى مثال عملي أو تجربة بسيطة لترسخ في ذهنكِ.</p></div>
+                    </div>
+                </div>
             </section>
 
-            <!-- 7. المقالات -->
+            <!-- المقالات -->
             <section id="section-articles" class="page-section space-y-6">
                 <div>
-                    <span class="px-3.5 py-1 rounded-full bg-[var(--primary-color)] text-white border border-[var(--text-color)] text-xs font-black">المعرفة والتجارب</span>
+                    <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--primary-color); color:var(--on-primary)">المعرفة والتجارب وسوق العمل</span>
                     <h2 class="text-2xl sm:text-3xl font-black mt-2">المقالات والموضوعات</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">مقالات حول اختيار التخصص، الحياة الجامعية، المقابلات الوظيفية والسيرة الذاتية، العمل الحر وريادة الأعمال (التعليق يتطلب تسجيل الدخول).</p>
                 </div>
-                <div id="articlesFullGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+                <div id="articlesFullGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
             </section>
 
-            <!-- 8. حسابي الشخصي -->
+            <!-- حسابي -->
             <section id="section-profile" class="page-section space-y-6">
-                <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] space-y-4">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <h2 id="profileNameTitle" class="text-2xl font-black">حسابي الشخصي</h2>
-                            <p id="profileUserMeta" class="text-xs font-bold text-[var(--primary-color)]">غير مسجلة دخول</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="openAuthModal()" class="btn-neo px-5 py-2 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] text-xs font-black cursor-pointer">تغيير الحساب / دخول</button>
-                            <a href="#" class="tamkeen-link px-5 py-2 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] border-2 border-[var(--text-color)] text-xs font-black">الانتقال إلى تمكين ←</a>
-                        </div>
+                <div id="authGateCard" class="rounded-3xl card-neo p-6 sm:p-8"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2"><i class="ph-fill ph-exam text-lg" style="color:var(--accent-color)"></i><span>نتائج الاختبارات المحفوظة</span></h3>
+                        <div id="profileSavedResults" class="space-y-2.5"></div>
                     </div>
-                    <div id="profileSavedResults" class="space-y-2.5 pt-2"></div>
-                    <div id="profileSavedMajors" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2"></div>
+                    <div class="p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2"><i class="ph-fill ph-heart text-lg" style="color:var(--accent-color)"></i><span>التخصصات والوظائف المفضلة</span></h3>
+                        <div id="profileSavedMajors" class="space-y-2.5"></div>
+                    </div>
+                    <div class="p-6 rounded-3xl card-neo">
+                        <h3 class="text-base font-black mb-3 flex items-center gap-2"><i class="ph-fill ph-bookmark-simple text-lg" style="color:var(--primary-color)"></i><span>المقالات المفضلة</span></h3>
+                        <div id="profileSavedArticles" class="space-y-2.5"></div>
+                    </div>
                 </div>
             </section>
 
-            <!-- 9. عن الموقع -->
+            <!-- عن الموقع -->
             <section id="section-about" class="page-section max-w-4xl mx-auto">
-                <div class="bg-white p-7 sm:p-10 rounded-3xl border-2 border-[var(--text-color)] space-y-4 shadow-[6px_6px_0_var(--text-color)]">
-                    <h2 class="text-2xl sm:text-3xl font-black">عن منصة اكتشاف</h2>
-                    <p class="text-sm sm:text-base font-medium leading-relaxed">
-                        منصة إرشادية للمسار الدراسي ضمن مشروع (اكتشاف وتمكين). بعد معرفة ميولكِ وتخصصاتكِ المقترحة، يمكنكِ الانتقال مباشرة إلى منصة <strong>تمكين</strong> لاستكشاف المسارات المهنية والوظائف.
-                    </p>
-                    <a href="#" class="tamkeen-link btn-neo px-6 py-3 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] text-sm font-black inline-block">
-                        الانتقال إلى موقع تمكين ←
-                    </a>
+                <div class="p-7 sm:p-10 rounded-3xl card-neo space-y-6">
+                    <div>
+                        <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">فكرة المشروع</span>
+                        <h2 class="text-2xl sm:text-3xl font-black mt-2 mb-3">عن منصة "اكتشفي مسارك"</h2>
+                        <p class="text-sm sm:text-base font-medium leading-relaxed opacity-90">منصة إرشادية تفاعلية متكاملة تجمع بين المسار الدراسي والمهني؛ تساعد على فهم الذات واكتشاف الميول والقدرات والقيم، والتعرف على المجالات، التخصصات والوظائف، المسارات التعليمية والمهنية، وتطوير المهارات بعد الثانوية بأسلوب مبسط وواضح.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-5 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)">
+                            <h3 class="font-black text-base mb-2" style="color:var(--primary-color)">أهداف الموقع</h3>
+                            <ul class="text-xs sm:text-sm font-bold space-y-2 list-disc list-inside">
+                                <li>مساعدة المستخدم على تحديد ميوله وقدراته وقيمه وبيئة العمل المناسبة.</li>
+                                <li>التعريف بالمسارات التعليمية والتأهيلية والمهنية وطرق الالتحاق بها.</li>
+                                <li>توضيح المواد الدراسية والوظائف والمهارات والعلاقة بين الدراسة والعمل.</li>
+                                <li>تنمية المهارات الشخصية والتقنية وتنظيم التعلم والاستعداد لسوق العمل.</li>
+                            </ul>
+                        </div>
+                        <div class="p-5 rounded-2xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)">
+                            <h3 class="font-black text-base mb-2" style="color:var(--accent-color)">طريقة استخدام الموقع</h3>
+                            <ol class="text-xs sm:text-sm font-bold space-y-2 list-decimal list-inside">
+                                <li>سجّلي الدخول بالاسم الحقيقي واسم المستخدم وكلمة السر كـ <strong>طالب</strong> أو <strong>معلم</strong>.</li>
+                                <li>أجري الاختبار المستوحى من بطاقات اكتشاف الميول والتميز واطّلعي على النتيجة.</li>
+                                <li>تصفحي <strong>المسارات</strong> و<strong>المجالات</strong> و<strong>التخصصات والوظائف</strong>.</li>
+                                <li>اقرئي المقالات وتفاعلي معها وعلّقي وتابعي الحياة الجامعية والنصائح من صفحتكِ.</li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- 10. صفحة الأدمن -->
+            <!-- لوحة التحكم (للأدمن فقط) -->
             <section id="section-admin" class="page-section space-y-6">
-                <h2 class="text-2xl sm:text-3xl font-black">لوحة إدارة المحتوى — اكتشاف (الأدمن)</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] space-y-3">
-                        <h3 class="text-lg font-black text-[var(--primary-color)]">إضافة مجال دراسي جديد</h3>
-                        <input type="text" id="admFieldTitle" placeholder="اسم المجال" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-                        <input type="text" id="admFieldDesc" placeholder="وصف المجال" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-                        <input type="text" id="admFieldSubjects" placeholder="المواد المرتبطة" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-                        <button onclick="adminAddField()" class="btn-neo px-6 py-2.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] text-sm font-black cursor-pointer">إضافة المجال</button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-3xl border-2 border-[var(--text-color)] shadow-[4px_4px_0_var(--text-color)] space-y-3">
-                        <h3 class="text-lg font-black text-[var(--primary-color)]">إضافة مقال جديد</h3>
-                        <input type="text" id="admArtTitle" placeholder="عنوان المقال" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-                        <input type="text" id="admArtCat" placeholder="التصنيف (مثال: نصائح)" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-                        <textarea id="admArtContent" rows="2" placeholder="محتوى المقال" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold"></textarea>
-                        <button onclick="adminAddArticle()" class="btn-neo px-6 py-2.5 rounded-full bg-[var(--accent-color)] text-[var(--text-color)] border-2 border-[var(--text-color)] text-sm font-black cursor-pointer">نشر المقال</button>
-                    </div>
+                <div>
+                    <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--accent-color); color:var(--on-accent)">لوحة التحكم</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-2">إدارة محتوى الموقع والتصميم</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">هذه اللوحة تظهر لحساب المديرة فقط: تغيير الألوان، إضافة وتعديل المقالات والمجالات والتخصصات والمسارات، إدارة الحسابات، وعرض الإحصائيات.</p>
                 </div>
+                <div id="adminTabsBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                <div id="adminPanelContent"></div>
             </section>
 
+            <footer class="mt-14 pt-6 border-t-2 border-dashed text-center text-xs font-bold opacity-75" style="border-color:color-mix(in srgb, var(--text-color) 30%, transparent)">
+                <p>منصة اكتشفي مسارك — مشروع توعوي لمساعدة الطالبات على اختيار مسارهن الدراسي والمهني</p>
+                <p class="mt-1"><i class="ph-fill ph-eye"></i> إجمالي الزيارات: <b id="footerVisitCount">0</b></p>
+            </footer>
         </div>
     </main>
 
-    <!-- نافذة التفاصيل -->
-    <div id="infoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-[#3A1C3F]/65" onclick="closeInfoModal(event)">
-        <div class="bg-white w-full max-w-2xl rounded-3xl border-2 border-[var(--text-color)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-            <div class="p-6 bg-[var(--primary-color)] text-white relative">
-                <button onclick="closeInfoModal()" class="absolute top-5 left-5 w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold cursor-pointer">
-                    <i class="ph-bold ph-x text-lg"></i>
-                </button>
-                <span id="modalCategoryBadge" class="inline-block px-3 py-1 rounded-full bg-[var(--tertiary-color)] text-[var(--text-color)] text-xs font-black mb-2"></span>
-                <h3 id="modalHeadingTitle" class="text-xl sm:text-2xl font-black"></h3>
+    <!-- نافذة منبثقة -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 backdrop-blur-xs" style="background:color-mix(in srgb, var(--text-color) 65%, transparent)" onclick="closeInfoModal(event)">
+        <div class="rounded-3xl border-2 border-[var(--text-color)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col w-full max-w-2xl" style="background:var(--surface-color)" onclick="event.stopPropagation()">
+            <div class="p-6 relative" style="background:var(--primary-color); color:var(--on-primary)">
+                <button onclick="closeInfoModal()" class="absolute top-5 left-5 w-9 h-9 rounded-full flex items-center justify-center font-bold cursor-pointer" style="background:color-mix(in srgb, var(--on-primary) 20%, transparent); color:var(--on-primary)" aria-label="إغلاق"><i class="ph-bold ph-x text-lg"></i></button>
+                <span id="modalCategoryBadge" class="inline-block px-3 py-1 rounded-full text-xs font-black mb-2" style="background:var(--tertiary-color); color:var(--on-tertiary)">التصنيف</span>
+                <h3 id="modalHeadingTitle" class="text-xl sm:text-2xl font-black">العنوان</h3>
             </div>
-            <div id="modalContentArea" class="p-6 overflow-y-auto space-y-3 text-sm"></div>
-            <div id="modalActionsArea" class="p-4 px-6 bg-[var(--bg-color)] border-t border-slate-200 flex items-center justify-between"></div>
+            <div id="modalContentArea" class="p-6 overflow-y-auto space-y-3.5 text-sm" style="color:var(--on-surface)"></div>
+            <div id="modalActionsArea" class="p-4 px-6 border-t border-slate-200 flex items-center justify-between gap-3" style="background:var(--bg-color)"></div>
         </div>
     </div>
 
-    <!-- نافذة الحساب (يوزر + اسم + رمز) -->
-    <div id="authModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-[#3A1C3F]/65" onclick="closeAuthModal(event)">
-        <div class="bg-white w-full max-w-md rounded-3xl border-2 border-[var(--text-color)] shadow-2xl p-6 space-y-3.5" onclick="event.stopPropagation()">
-            <h3 class="text-xl font-black text-[var(--primary-color)]">تسجيل الدخول / إنشاء حساب</h3>
-            <div>
-                <label class="block text-xs font-black mb-1">اسم المستخدم (Username)</label>
-                <input type="text" id="authUsername" placeholder="مثال: ramayan_122" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-            </div>
-            <div>
-                <label class="block text-xs font-black mb-1">الاسم</label>
-                <input type="text" id="authName" placeholder="اسمكِ" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-            </div>
-            <div>
-                <label class="block text-xs font-black mb-1">الرمز السري</label>
-                <input type="password" id="authPin" placeholder="********" class="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-color)] border border-slate-300 text-sm font-bold">
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="submitAuth()" class="btn-neo flex-1 py-2.5 rounded-full bg-[var(--primary-color)] text-white border-2 border-[var(--text-color)] text-sm font-black cursor-pointer">متابعة</button>
-                <button onclick="closeAuthModal()" class="px-5 py-2.5 rounded-full bg-[var(--bg-color)] text-sm font-bold cursor-pointer">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div id="toastBox" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-[var(--text-color)] text-white px-5 py-3 rounded-full shadow-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 translate-y-4">
-        <i id="toastBoxIcon" class="ph-fill ph-check-circle text-[var(--tertiary-color)] text-lg"></i>
-        <span id="toastBoxMessage"></span>
+    <div id="toastBox" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-full shadow-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 translate-y-4" style="background:var(--text-color); color:var(--bg-color)">
+        <i id="toastBoxIcon" class="ph-fill ph-check-circle text-lg" style="color:var(--tertiary-color)"></i>
+        <span id="toastBoxMessage">تمت العملية بنجاح</span>
     </div>
 
     <script>
-        /* ===================================================================
-           إعدادات الروابط و SUPABASE
-           =================================================================== */
-        const TAMKEEN_URL = "tamkeen.html"; // <-- ضعي رابط موقع تمكين هنا
-        const IKTISHAF_URL = "index.html"; // <-- رابط هذا الموقع (اكتشاف)
+    /* =================================================================
+       0. لوحات الألوان (من ملف التصميم الإبداعي - 9 لوحات)
+       ================================================================= */
+    const PALETTES = [
+        { n:'شاي بالنعناع',     bg:'#FFF6E5', tx:'#2B2D42', p:'#FF6B6B', a:'#4ECDC4', s:'#FFE66D' },
+        { n:'توت وليمون',       bg:'#FFF3F0', tx:'#2E1A47', p:'#9B5DE5', a:'#F15BB5', s:'#FEE440' },
+        { n:'بحر',              bg:'#E8F7F5', tx:'#073B4C', p:'#118AB2', a:'#EF476F', s:'#FFD166' },
+        { n:'خوخ',              bg:'#FFF0E6', tx:'#3D2B1F', p:'#F77F00', a:'#2A9D8F', s:'#FCBF49' },
+        { n:'ليل وردي',         bg:'#1B1035', tx:'#FDF0FF', p:'#FF7AC6', a:'#7AF0E0', s:'#3A1F6B' },
+        { n:'زيتوني',           bg:'#F3F1E3', tx:'#2C3318', p:'#6B8E23', a:'#E76F51', s:'#F4D35E' },
+        { n:'وردي وفستقي',      bg:'#FFF5F7', tx:'#3A1C3F', p:'#E8508A', a:'#7ED6B5', s:'#FFD98E' },
+        { n:'بنفسجي ومرجان',    bg:'#FBF7FF', tx:'#2A1B4D', p:'#7B4DFF', a:'#FF8A7A', s:'#FFE08A' },
+        { n:'أزرق دافئ',        bg:'#FFF9EE', tx:'#1E2A44', p:'#2F6FED', a:'#FFA94D', s:'#A5E3D0' }
+    ];
+    function luminance(h){ const n=parseInt(h.slice(1),16); const f=c=>{c/=255; return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)}; return .2126*f(n>>16)+.7152*f((n>>8)&255)+.0722*f(n&255); }
+    const onColor = h => luminance(h) > .35 ? '#111111' : '#ffffff';
 
-        const SUPABASE_URL = "";
-        const SUPABASE_ANON_KEY = "";
-        const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY)
-            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-            : null;
+    function applyPalette(idx, saveIt){
+        const p = PALETTES[idx]; if(!p) return;
+        const r = document.documentElement.style;
+        r.setProperty('--bg-color', p.bg);      r.setProperty('--text-color', p.tx);
+        r.setProperty('--primary-color', p.p);  r.setProperty('--accent-color', p.a);
+        r.setProperty('--tertiary-color', p.s); r.setProperty('--surface-color', '#ffffff');
+        r.setProperty('--on-primary', onColor(p.p)); r.setProperty('--on-accent', onColor(p.a));
+        r.setProperty('--on-tertiary', onColor(p.s)); r.setProperty('--on-surface', p.tx);
+        STORE.settings.palette = idx;
+        if(saveIt !== false) saveSettings();
+        document.querySelectorAll('.palette-card').forEach((e,i)=>e.classList.toggle('on', i===idx));
+    }
 
-        const ADMIN_USER = { username: "ramayan_122", pin: "12345678Rr", name: "راما (الأدمن)" };
+    /* =================================================================
+       1. المحتوى الافتراضي (يُحرّر من لوحة التحكم ويُحفظ في المتصفح)
+       ================================================================= */
+    const DEFAULT_CONTENT = {
+        tracks: [
+            { id:'track_tech', title:'التقني والرقمي', icon:'ph-laptop', description:'بناء البرمجيات والأنظمة الذكية وتحليل البيانات وحماية الفضاء السيبراني وتصميم تجربة المستخدم.', nature:'يعتمد على التفكير المنطقي، حل المشكلات التقنية، والتطور المستمر في بيئة رقمية سريعة.', subjects:'الحاسب الآلي، البرمجة، الرياضيات، والمنطق.', required_skills:'التفكير التحليلي، البرمجة وحل المشكلات، البحث الذاتي، والانتباه للتفاصيل.', careers_list:'مطورة برمجيات، عالمة بيانات ومهندسة ذكاء اصطناعي، محللة أدلة رقمية، مصممة UX/UI.' },
+            { id:'track_eng', title:'الهندسي والعلوم', icon:'ph-compass-tool', description:'توظيف العلوم والرياضيات لابتكار الحلول الهندسية في الطيران، الطاقة النظيفة، الطب، وتخطيط المدن وسلاسل الإمداد.', nature:'يجمع بين الفهم العلمي العميق والتطبيق العملي الميداني والمخبري وإدارة الأنظمة.', subjects:'الفيزياء، الرياضيات، الكيمياء، والتصميم الهندسي.', required_skills:'النمذجة والقياس، حل المشكلات الهندسية، العمل الجماعي، والدقة العالية.', careers_list:'مهندسة طيران وفضاء، مهندسة طاقة متجددة، مهندسة أجهزة طبية، أخصائية سلاسل إمداد وGIS.' },
+            { id:'track_health', title:'الصحي والطبي', icon:'ph-stethoscope', description:'الرعاية الصحية والتأهيل العلاجي والغذائي والسمعي لتحسين جودة حياة الأفراد في المجتمع.', nature:'يتطلب دقة عالية، صبراً، التزاماً بالأخلاقيات، وتواصلاً إنسانياً مباشراً مع المستفيدين.', subjects:'الأحياء، الكيمياء، التشريح، والعلوم الصحية.', required_skills:'التعاطف الإنساني، الصبر والهدوء، التواصل السريري، والدقة في المتابعة.', careers_list:'أخصائية علاج وظيفي، أخصائية نطق وتخاطب وسمعيات، أخصائية تغذية علاجية.' },
+            { id:'track_finance', title:'المالي والإداري', icon:'ph-chart-line-up', description:'دمج الرياضيات والمالية بالتقنية الحديثة لإدارة المخاطر وتطوير الحلول المالية الرقمية والقرارات الاقتصادية.', nature:'يقوم على تحليل الأرقام، التنبؤ الاقتصادي، إدارة المخاطر، والابتكار في عالم الأعمال.', subjects:'الرياضيات المالية، الإحصاء، الاقتصاد، والإدارة.', required_skills:'التحليل الكمي، تقييم المخاطر، التخطيط المالي، واتخاذ القرار.', careers_list:'محللة اكتوارية ومقيمة مخاطر مالية، مطورة حلول تقنية مالية (FinTech).' },
+            { id:'track_culture', title:'الثقافي والسياحي', icon:'ph-columns', description:'الحفاظ على التراث والآثار وتصميم المتاحف والتجارب السياحية والثقافية المتجددة.', nature:'يمزج بين الشغف بالتاريخ والفنون وبين التنظيم والتسويق وإدارة التجارب والتواصل.', subjects:'التاريخ، الجغرافيا، الفنون، ومهارات التواصل.', required_skills:'السرد الثقافي، تنظيم الفعاليات، الذائقة الفنية، والتواصل مع الجمهور.', careers_list:'أمينة متحف، منسقة برامج ثقافية وسياحية، مصممة تجارب ثقافية.' }
+        ],
+        specs: [
+            { id:'spec_01', track_id:'track_tech', title:'علوم الحاسب', job_title:'مطورة برمجيات ومهندسة أنظمة', description:'بناء البرمجيات والتطبيقات والأنظمة الذكية من الصفر وتطوير حلول تقنية موثوقة.', subjects:'البرمجة، الخوارزميات، قواعد البيانات، والشبكات.', skills:'التفكير المنطقي، حل المشكلات، والصبر.', work_env:'شركات التقنية، فرق تطوير المنتجات الرقمية، والعمل الهجين أو عن بُعد.', careers:'مطورة برمجيات، ومبرمجة تطبيقات ومواقع وهندسة أنظمة.', related_majors:'علوم الحاسب، هندسة البرمجيات، نظم المعلومات' },
+            { id:'spec_02', track_id:'track_tech', title:'علم البيانات والذكاء الاصطناعي', job_title:'عالمة بيانات ومهندسة ذكاء اصطناعي', description:'تحليل البيانات الضخمة لبناء أنظمة ذكية ونماذج تعلم آلي تحاكي الاستنتاج والتنبؤ.', subjects:'الإحصاء، تعلم الآلة، تحليل البيانات، ولغة Python.', skills:'الفضول التحليلي، وحب التعامل مع الأرقام.', work_env:'مختبرات البيانات، شركات التقنية، والقطاعات الصحية والمالية والحكومية.', careers:'عالمة بيانات، ومهندسة ذكاء اصطناعي ومحللة بيانات.', related_majors:'علم البيانات، الذكاء الاصطناعي، علوم الحاسب، الإحصاء' },
+            { id:'spec_03', track_id:'track_tech', title:'الأدلة الجنائية الرقمية', job_title:'محققة جرائم إلكترونية ومحللة أدلة رقمية', description:'تتبع الجرائم الإلكترونية واسترجاع الأدلة الرقمية لكشف الاختراقات وتحليل الحوادث الأمنية.', subjects:'أمن الشبكات، أنظمة التشغيل، والقوانين الرقمية.', skills:'قوة الملاحظة، التحليل المنطقي، وربط الخيوط.', work_env:'مراكز الاستجابة للحوادث الأمنية، الجهات الرقابية والأمنية، وشركات الأمن السيبراني.', careers:'محققة جرائم إلكترونية، ومحللة أدلة رقمية وأمن سيبراني.', related_majors:'الأدلة الجنائية الرقمية، الأمن السيبراني، علوم الحاسب' },
+            { id:'spec_04', track_id:'track_tech', title:'تصميم تجربة المستخدم (UX/UI)', job_title:'مصممة واجهات وتجربة مستخدم', description:'تصميم واجهات التطبيقات والمواقع وبناء رحلة مستخدم سهلة وواضحة وجذابة.', subjects:'سلوك المستخدم، التصميم البصري، والنماذج الأولية.', skills:'الحس الفني، فهم المستخدمين، والانتباه للتفاصيل.', work_env:'استوديوهات التصميم والمنتجات الرقمية، شركات التقنية، والعمل الحر.', careers:'مصممة واجهات وتجربة مستخدم وباحثة تجربة مستخدم.', related_majors:'تصميم تجربة المستخدم، التصميم الرقمي، علوم الحاسب' },
+            { id:'spec_05', track_id:'track_eng', title:'هندسة الطيران والفضاء', job_title:'مهندسة طيران وأنظمة فضائية', description:'تصميم وتطوير وصيانة الطائرات والمركبات الفضائية والأقمار الصناعية وأنظمة الملاحة.', subjects:'الديناميكا الهوائية، أنظمة الدفع، وهياكل الطائرات.', skills:'التفوق في الفيزياء والرياضيات، والدقة العالية.', work_env:'شركات الطيران والصناعات الجوية، مراكز الأبحاث، ومطارات الصيانة والاختبار.', careers:'مهندسة طيران، ومهندسة أنظمة فضائية وهياكل.', related_majors:'هندسة الطيران والفضاء، الهندسة الميكانيكية' },
+            { id:'spec_06', track_id:'track_eng', title:'هندسة الطاقة المتجددة', job_title:'مهندسة طاقة متجددة ومستشارة استدامة', description:'توليد الطاقة النظيفة من الطبيعة (كالشمس والرياح والهيدروجين) وتخزينها لحماية البيئة.', subjects:'الفيزياء، أنظمة الطاقة الشمسية والرياح، وتخزينها.', skills:'التفكير الهندسي، الابتكار، والاهتمام بالبيئة.', work_env:'محطات الطاقة النظيفة، مشاريع المدن المستدامة، وشركات الاستشارات البيئية.', careers:'مهندسة طاقة متجددة، ومستشارة استدامة وكفاءة طاقة.', related_majors:'هندسة الطاقة المتجددة، الهندسة الكهربائية، الهندسة الميكانيكية' },
+            { id:'spec_07', track_id:'track_eng', title:'الهندسة الطبية الحيوية', job_title:'مهندسة أجهزة طبية ومطورة تقنيات صحية', description:'دمج الهندسة بالطب لتصميم وتطوير وصيانة الأجهزة الطبية والأطراف الصناعية والمستشعرات الحيوية.', subjects:'علم التشريح، الإلكترونيات الطبية، والميكانيكا الحيوية.', skills:'حب الاختراع، والإلمام بالعلوم والهندسة.', work_env:'المستشفيات والمراكز الطبية، شركات الأجهزة الطبية، ومختبرات الابتكار الصحي.', careers:'مهندسة أجهزة طبية، ومطورة تقنيات طبية وأخصائية هندسة إكلينيكية.', related_majors:'الهندسة الطبية الحيوية، الهندسة الكهربائية، العلوم الطبية التطبيقية' },
+            { id:'spec_08', track_id:'track_eng', title:'الهندسة اللوجستية وسلاسل الإمداد', job_title:'أخصائية سلاسل إمداد ومديرة عمليات لوجستية', description:'إدارة حركة المواد والمنتجات من المصنع للمستهلك بأسرع وقت وأقل تكلفة وأعلى كفاءة.', subjects:'إدارة العمليات، تخطيط المخزون، والنقل الدولي.', skills:'التنظيم العالي، سرعة القرار، والتفاوض.', work_env:'المراكز اللوجستية، الموانئ والمطارات، وشركات التجارة والصناعة والتوزيع.', careers:'أخصائية سلاسل إمداد، ومديرة عمليات ومخططة مخزون.', related_majors:'الهندسة اللوجستية، الهندسة الصناعية، إدارة سلاسل الإمداد' },
+            { id:'spec_09', track_id:'track_eng', title:'نظم المعلومات الجغرافية (GIS)', job_title:'أخصائية نظم معلومات جغرافية وتحليل مكاني', description:'تحليل الخرائط الرقمية والبيانات المكانية لتخطيط المدن والمشاريع والبيئة والنقل.', subjects:'علم الخرائط، الاستشعار عن بعد، والبيانات المكانية.', skills:'دقة الملاحظة، التحليل البصري، وحب الخرائط.', work_env:'جهات التخطيط الحضري والبلدي، مراكز البيانات المكانية، وشركات البيئة والمشاريع.', careers:'أخصائية نظم معلومات جغرافية ومحللة بيانات مكانية.', related_majors:'نظم المعلومات الجغرافية، الجغرافيا التطبيقية، علوم البيانات المكانية' },
+            { id:'spec_10', track_id:'track_health', title:'العلاج الوظيفي', job_title:'أخصائية علاج وظيفي', description:'مساعدة المرضى وذوي الإعاقة على ممارسة أنشطة حياتهم اليومية والعملية باستقلالية.', subjects:'علم التشريح، التأهيل الحركي والنفسي، وتعديل البيئات.', skills:'الصبر، التعاطف الإنساني، وحب المساعدة.', work_env:'المستشفيات، مراكز التأهيل الطبي، المدارس الدامجة، والعيادات التخصصية.', careers:'أخصائية علاج وظيفي وتأهيل مجتمعي.', related_majors:'العلاج الوظيفي، العلوم الطبية التطبيقية' },
+            { id:'spec_11', track_id:'track_health', title:'السمعيات واضطرابات التخاطب', job_title:'أخصائية نطق وتخاطب وسمعيات', description:'تشخيص وتأهيل مشاكل النطق، اللغة، الصوت، البلع، وضعف السمع لدى الأطفال والكبار.', subjects:'علم الصوتيات، تشريح الجهاز السمعي، وتأهيل النطق.', skills:'حسن الاستماع، الصبر، والتواصل الفعال.', work_env:'مراكز السمع والنطق، المستشفيات، ومراكز الرعاية والتأهيل.', careers:'أخصائية نطق وتخاطب، وأخصائية سمعيات وتأهيل لغوي.', related_majors:'السمعيات واضطرابات التخاطب، العلوم الطبية التطبيقية' },
+            { id:'spec_12', track_id:'track_health', title:'التغذية العلاجية والحميات', job_title:'أخصائية تغذية علاجية وحميات', description:'تصميم خطط غذائية طبية مبنية على الأدلة لعلاج الحالات المرضية والوقاية وتعزيز الصحة.', subjects:'الكيمياء الحيوية، تغذية الأمراض، والتقييم الغذائي.', skills:'الدقة، مهارات الإقناع، والاهتمام بالصحة.', work_env:'المستشفيات والعيادات الطبية، مراكز الصحة الوقائية، والاستشارات الغذائية.', careers:'أخصائية تغذية علاجية ومستشارة تغذية إكلينيكية.', related_majors:'التغذية العلاجية، علوم الأغذية والتغذية' },
+            { id:'spec_13', track_id:'track_finance', title:'العلوم الاكتوارية', job_title:'محللة اكتوارية ومقيمة مخاطر مالية', description:'دمج الرياضيات والإحصاء والمالية لتوقع المخاطر المستقبلية وحساب احتمالاتها بدقة.', subjects:'الرياضيات المالية، الإحصاء المتقدم، ونظرية الاحتمالات.', skills:'شغف بالرياضيات، دقة التركيز، والتحليل المالي.', work_env:'شركات التأمين، البنوك والمؤسسات المالية، وهيئات التخطيط المالي.', careers:'محللة اكتوارية، ومقيمة مخاطر مالية ومحللة استثمار.', related_majors:'العلوم الاكتوارية، الرياضيات المالية، الإحصاء، المالية' },
+            { id:'spec_14', track_id:'track_finance', title:'التكنولوجيا المالية (FinTech)', job_title:'مطورة حلول مالية رقمية ومحللة تقنية مالية', description:'ابتكار حلول تقنية في عالم المال كالمحافظ الإلكترونية، المدفوعات الذكية، والخدمات الرقمية.', subjects:'الأسواق المالية، البرمجة، وأمن المعلومات المالية.', skills:'التفكير الابتكاري، فهم لغة المال، وحب التقنية.', work_env:'شركات التقنية المالية الناشئة، البنوك الرقمية، ومراكز الابتكار المالي.', careers:'مطورة حلول مالية رقمية، ومحللة تقنية مالية ومنتجات مالية.', related_majors:'التكنولوجيا المالية، المالية، نظم المعلومات، علوم الحاسب' },
+            { id:'spec_15', track_id:'track_culture', title:'إدارة التراث والمتاحف', job_title:'أمينة متحف ومنسقة برامج ثقافية وسياحية', description:'الحفاظ على التراث والآثار وتصميم المتاحف التفاعلية والمعارض والتجارب السياحية والثقافية.', subjects:'تاريخ الفنون والآثار، تنظيم المعارض، والتسويق السياحي.', skills:'الذائقة الفنية، الشغف بالتاريخ، والتنظيم.', work_env:'المتاحف والمواقع التراثية، الهيئات الثقافية والسياحية، ومراكز الفنون والمعارض.', careers:'أمينة متحف، ومنسقة برامج ثقافية وسياحية ومصممة تجارب ثقافية.', related_majors:'إدارة التراث والمتاحف، الآثار، السياحة وإدارة الفعاليات، الفنون' }
+        ],
+        pathways: [
+            { id:'pw_uni', title:'المسار الجامعي', icon:'ph-graduation-cap', description:'الدراسة الأكاديمية للحصول على درجة البكالوريوس في التخصصات النظرية، العلمية، الهندسية، الصحية، والإدارية.', requirements:'إتمام الثانوية العامة، اجتياز اختبارات القدرات والتحصيل الدراسي، واستيفاء النسبة الموزونة للكلية.', how_to_join:'التقديم عبر منصات القبول الجامعي الموحدة أو بوابات الجامعات الحكومية والأهلية وبرامج المنح الدراسية.', entities:'الجامعات الحكومية والأهلية، الكليات التخصصية، ومنصات القبول الجامعي.' },
+            { id:'pw_tech', title:'المسار التقني والمهني', icon:'ph-wrench', description:'إعداد كوادر فنية وتطبيقية متخصصة في المجالات التقنية، التشغيل، الصيانة، والإدارة التطبيقية.', requirements:'شهادة الثانوية العامة أو ما يعادلها، والرغبة في التطبيق العملي والمهارات التخصصية.', how_to_join:'التسجيل في الكليات التقنية والمعاهد المهنية عبر بوابات القبول التقني المباشر.', entities:'الكليات التقنية، المعاهد الصناعية والمهنية، وأكاديميات التدريب التطبيقي.' },
+            { id:'pw_mil', title:'المسار العسكري', icon:'ph-shield-star', description:'الالتحاق بالكليات والمعاهد العسكرية أو الدورات التخصصية والصحية والأمنية وفق الأنظمة المعتمدة.', requirements:'استيفاء الشروط النظامية والصحية والبدنية، واجتياز المقابلات الشخصية والفحوصات الطبية والاختبارات المقررة.', how_to_join:'التقديم عبر منصات التجنيد والقبول العسكري المعلنة خلال فترات القبول الرسمية.', entities:'الكليات والمعاهد العسكرية والصحية والأمنية والجهات النظامية ذات الصلة.' },
+            { id:'pw_train', title:'التدريب والتأهيل', icon:'ph-certificate', description:'برامج دبلوم وتدريب منتهٍ بالتوظيف أو شهادات مهنية معتمدة ترفع الجاهزية العملية بسرعة.', requirements:'شهادة الثانوية أو البكالوريوس حسب البرنامج، واجتياز اختبارات القبول أو المقابلات.', how_to_join:'الالتحاق بالمعسكرات التدريبية، والدبلومات التطبيقية والمهنية.', entities:'صناديق تنمية الموارد البشرية، الأكاديميات المهنية، ومراكز التدريب المعتمدة.' },
+            { id:'pw_direct', title:'العمل المباشر', icon:'ph-briefcase', description:'الدخول إلى سوق العمل مباشرة عبر الوظائف التشغيلية أو خدمة العملاء أو المبيعات أو التدريب على رأس العمل.', requirements:'الجدية، مهارات التواصل والعمل الجماعي، والقدرة على التعلم السريع في بيئة العمل.', how_to_join:'التقديم عبر منصات التوظيف الوطنية، معارض التوظيف، والتقديم المباشر لدى المنشآت.', entities:'منصات التوظيف الوطنية، الشركات والمؤسسات التجارية والخدمية، وبرامج التوظيف.' },
+            { id:'pw_ent', title:'العمل الحر وريادة الأعمال', icon:'ph-rocket-launch', description:'تقديم الخدمات المستقلة أو إطلاق مشروع تجاري أو رقمي قائم على فكرة مبتكرة وحل مشكلة حقيقية.', requirements:'إتقان مهارة أو منتج قابل للتقديم، إدارة الوقت والميزانية، والقدرة على التسويق والتكيف.', how_to_join:'البدء ببناء معرض أعمال (Portfolio) أو نموذج أولي، واستخراج وثائق العمل الحر والاستفادة من حاضنات الأعمال.', entities:'منصات العمل الحر، حاضنات ومسرعات الأعمال، ومنصات دعم المنشآت الصغيرة والمتوسطة.' }
+        ],
+        skills: [
+            { id:'sk_1', title:'التفكير النقدي وحل المشكلات', category:'مهارات شخصية وعقلية', importance:'يساعدكِ على تحليل الخيارات الدراسية والمهنية واتخاذ قرارات مبنية على الأدلة والمنطق.', how_to:'قسّمي المشكلة إلى أجزاء صغيرة، ابحثي عن الأسباب الجذرية، وقارني بين البدائل والنتائج المتوقعة.' },
+            { id:'sk_2', title:'التعلم الذاتي والمهارات الرقمية', category:'مهارات تقنية وأكاديمية', importance:'النجاح الجامعي والمهني يعتمد على قدرتكِ في البحث الموثوق واكتساب المهارات الرقمية واللغوية باستمرار.', how_to:'خصّصي وقتاً أسبوعياً لتعلم أداة رقمية أو لغة أو مهارة عملية وطبّقيها في مشروع صغير.' },
+            { id:'sk_3', title:'إدارة الوقت وتحديد الأولويات', category:'مهارات شخصية', importance:'يمنحكِ التوازن بين الدراسة وتطوير الذات ويخفف التوتر في مواسم المشاريع والاختبارات.', how_to:'حددي الأولويات اليومية والأسبوعية، واستخدمي فترات تركيز واضحة مع مراجعة دورية للإنجاز.' },
+            { id:'sk_4', title:'التواصل الفعال والعمل الجماعي', category:'مهارات مهنية واجتماعية', importance:'أساسي في المشاريع الجامعية وفرق العمل المهنية وعرض الأفكار بوضوح وإقناع.', how_to:'تدربي على تلخيص أفكاركِ بإيجاز، الاستماع الفعّال، وتوزيع الأدوار بوضوح داخل الفريق.' }
+        ],
+        articles: [
+            { id:'art_1', track_id:'', title:'كيف تختارين تخصصكِ الجامعي؟', category:'نصائح', read_time:'٥ دقائق', summary:'خطوات عملية للفصل بين رغباتكِ الحقيقية وبين ضغوط المحيطين عند اختيار التخصص.', content:'اختيار التخصص الجامعي قرار يخص مستقبلكِ وحدكِ. ابدئي بتقييم قدراتكِ في المواد الدراسية وميولكِ وبيئة العمل التي ترتاحين لها، ثم اقرئي الخطة الدراسية الفعلية للتخصصات التي تميلين إليها وتعرفي على طبيعة الدراسة والوظائف المرتبطة بها قبل اتخاذ القرار النهائي.', likes:18, dislikes:1, comments:[] },
+            { id:'art_2', track_id:'', title:'٣ مهارات يبحث عنها سوق العمل', category:'مهارات وسوق العمل', read_time:'٤ دقائق', summary:'دليل مبسط لأهم المهارات الشخصية والتقنية التي تساعدكِ في التفوق الجامعي وسوق العمل.', content:'تمنحكِ الجامعة وسوق العمل مساحة أكبر من الاستقلالية والمسؤولية. ركزي على تنمية التفكير النقدي وحل المشكلات، والتعلم الذاتي والمهارات الرقمية، وإدارة الوقت والتواصل الفعال لتبدئي رحلتكِ بثقة واستعداد.', likes:24, dislikes:0, comments:[] },
+            { id:'art_3', track_id:'', title:'من الهواية إلى المهنة: تجارب ملهمة', category:'قصص وتجارب', read_time:'٦ دقائق', summary:'نماذج وتجارب حول تحويل الشغف والهوايات إلى مسار دراسي أو مهني ناجح.', content:'كثير من التخصصات والمسارات الحديثة كتصميم تجربة المستخدم وإدارة التراث والمتاحف والذكاء الاصطناعي بدأت كفضول وهواية، ثم تحولت بالدراسة والتطبيق المستمر ومعرض الأعمال إلى مسار أكاديمي ومهني متميز.', likes:21, dislikes:2, comments:[] },
+            { id:'art_4', track_id:'', title:'المقابلات الوظيفية والسيرة الذاتية بثقة', category:'سوق العمل', read_time:'٥ دقائق', summary:'كيف تبنين سيرة ذاتية واضحة وتستعدين للمقابلات الوظيفية والتدريبية خطوة بخطوة.', content:'اجعلي سيرتكِ الذاتية مختصرة وواضحة ومبرزة للمهارات والمشاريع والأنشطة التطوعية والتدريبية ذات الصلة. وفي المقابلة، استعدي بأمثلة واقعية توضح كيف حللتِ مشكلة أو عملتِ ضمن فريق، وتدربي على الإجابة بهدوء ووضوح.', likes:15, dislikes:0, comments:[] },
+            { id:'art_5', track_id:'', title:'العمل الحر وريادة الأعمال: كيف تبدئين؟', category:'ريادة الأعمال', read_time:'٦ دقائق', summary:'أساسيات بدء مشروع صغير أو تقديم خدمات عمل حر انطلاقاً من مهارة حقيقية.', content:'يبدأ العمل الحر وريادة الأعمال بتحديد مشكلة واضحة أو خدمة مطلوبة، وبناء نموذج أولي أو عيّنة عمل حقيقية، ثم اختبارها مع مستفيدين فعليين وتطويرها بناءً على الملاحظات مع تنظيم الوقت والميزانية منذ البداية.', likes:19, dislikes:1, comments:[] },
+            { id:'art_6', track_id:'', title:'دليلكِ للحياة الجامعية في السنة الأولى', category:'الحياة الجامعية', read_time:'٧ دقائق', summary:'أهم التحديات التي تواجه الطالبة في أول سنة جامعية وكيف تتعامل معها بوعي وهدوء.', content:'السنة الأولى جامعية تحتاج إلى ترتيب جديد: نظمي وقتكِ بين المحاضرات والمذاكرة منذ الأسبوع الأول، وكوّني شبكة علاقات داعمة من زميلات وعضويات الأندية الطلابية، ولا تترددي في استخدام المرشد الأكاديمي ومكاتب الإرشاد عند الحاجة، وذكّري نفسك دائماً أن التوازن بين الدراسة والحياة الشخصية جزء من النجاح.', likes:27, dislikes:0, comments:[] }
+        ],
+        matrix: [
+            { role:'تحليل البيانات والذكاء الاصطناعي', majors:'علم البيانات، علوم الحاسب، العلوم الاكتوارية، نظم المعلومات', bridge:'تجمع بين البرمجة والإحصاء وفهم طبيعة القطاع (صحي، مالي، أو لوجستي).' },
+            { role:'إدارة المنتجات والحلول الرقمية', majors:'تصميم UX/UI، التكنولوجيا المالية، علوم الحاسب، إدارة الأعمال', bridge:'تربط بين احتياج المستخدم، الجدوى المالية، والتنفيذ التقني.' },
+            { role:'الاستدامة وإدارة المشاريع والمخاطر', majors:'الطاقة المتجددة، الهندسة اللوجستية، العلوم الاكتوارية، GIS', bridge:'تعتمد على التخطيط المبني على البيانات والتحليل العملي والالتزام بالمعايير.' }
+        ]
+    };
 
-        document.querySelectorAll(".tamkeen-link").forEach(a => { a.href = TAMKEEN_URL; });
+    /* =================================================================
+       2. التخزين المحلي + الحالة
+       ================================================================= */
+    const LS_CONTENT='mm_content_v1', LS_ACCOUNTS='mm_accounts_v1', LS_SETTINGS='mm_settings_v1';
+    function loadJSON(k, d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):JSON.parse(JSON.stringify(d)); }catch(e){ return JSON.parse(JSON.stringify(d)); } }
+    function saveStore(){ localStorage.setItem(LS_CONTENT, JSON.stringify(STORE)); }
+    function saveAccounts(){ localStorage.setItem(LS_ACCOUNTS, JSON.stringify(STATE.accounts)); }
+    function saveSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(STORE.settings)); }
 
-        /* ===================================================================
-           البيانات
-           =================================================================== */
-        const APP_DATA = {
-            tracks: [
-                { id: "track_health", title: "الصحي والطبي", icon: "ph-stethoscope", description: "الرعاية الصحية والتأهيل العلاجي والغذائي.", nature: "دقة عالية وتواصل إنساني.", subjects: "الأحياء، الكيمياء، والعلوم الصحية." },
-                { id: "track_tech", title: "التقني والرقمي", icon: "ph-laptop", description: "البرمجة والذكاء الاصطناعي والأنظمة الرقمية.", nature: "تفكير منطقي وحل مشكلات.", subjects: "الحاسب، البرمجة، والرياضيات." },
-                { id: "track_eng", title: "الهندسي والعلوم", icon: "ph-compass-tool", description: "الهندسة والطيران والطاقة المتجددة والعلوم.", nature: "فهم علمي وتطبيق عملي.", subjects: "الفيزياء، الرياضيات، والهندسة." },
-                { id: "track_finance", title: "المالي والثقافي", icon: "ph-chart-line-up", description: "العلوم المالية والتقنية المالية والتراث والمتاحف.", nature: "تحليل بيانات وتنظيم وتواصل.", subjects: "الرياضيات المالية، الاقتصاد، والتاريخ." }
-            ],
-            specializations: [
-                { id: "sp1", track_name: "الصحي والطبي", title: "العلاج الوظيفي", description: "تأهيل الأفراد لممارسة الأنشطة اليومية باستقلالية.", subjects: "التشريح والتأهيل الحركي.", skills: "الصبر والتعاطف.", careers: "أخصائية علاج وظيفي." },
-                { id: "sp2", track_name: "التقني والرقمي", title: "علوم الحاسب والذكاء الاصطناعي", description: "بناء الأنظمة الذكية والبرمجيات وتحليل البيانات.", subjects: "البرمجة والخوارزميات.", skills: "التفكير المنطقي.", careers: "مطورة برمجيات ومحللة بيانات." },
-                { id: "sp3", track_name: "الهندسي والعلوم", title: "هندسة الطيران والفضاء", description: "تصميم وصيانة الطائرات والأنظمة الجوية والفضائية.", subjects: "الديناميكا الهوائية والفيزياء.", skills: "الدقة والتركيز.", careers: "مهندسة طيران وأنظمة." },
-                { id: "sp4", track_name: "المالي والثقافي", title: "التكنولوجيا المالية وإدارة التراث", description: "حلول مالية ذكية أو إدارة المتاحف والتجارب الثقافية.", subjects: "المالية والبرمجة أو التراث والفنون.", skills: "التحليل والتنظيم.", careers: "محللة مالية أو منسقة ثقافية." }
-            ],
-            quizQuestions: [
-                { id: "q1", axis: "الميول", question: "أي مجال يجذب اهتمامكِ أكثر؟", options: [
-                    { text: "الصحي والطبي ومساعدة الناس", track: "الصحي والطبي", skill: "التعاطف والرعاية" },
-                    { text: "التقني والرقمي والبرمجة", track: "التقني والرقمي", skill: "التفكير المنطقي" },
-                    { text: "الهندسي والعلوم والابتكار", track: "الهندسي والعلوم", skill: "التحليل الهندسي" },
-                    { text: "المالي والثقافي والإداري", track: "المالي والثقافي", skill: "التنظيم والتحليل" }
-                ]},
-                { id: "q2", axis: "المواد", question: "ما المواد الأقرب إليكِ؟", options: [
-                    { text: "الأحياء والكيمياء", track: "الصحي والطبي", skill: "العلوم الحيوية" },
-                    { text: "الحاسب والرياضيات", track: "التقني والرقمي", skill: "العلوم الرقمية" },
-                    { text: "الفيزياء والرياضيات", track: "الهندسي والعلوم", skill: "العلوم الفيزيائية" },
-                    { text: "الإدارة والرياضيات والتاريخ", track: "المالي والثقافي", skill: "التخطيط" }
-                ]},
-                { id: "q3", axis: "القدرات", question: "أي نشاط تفضلين في المشاريع؟", options: [
-                    { text: "التوعية والرعاية والعمل الإنساني", track: "الصحي والطبي", skill: "التواصل" },
-                    { text: "بناء حلول أو نماذج رقمية", track: "التقني والرقمي", skill: "حل المشكلات" },
-                    { text: "تصميم النماذج والقياسات العملية", track: "الهندسي والعلوم", skill: "التطبيق العملي" },
-                    { text: "إدارة الوقت والميزانية وتنسيق الأفكار", track: "المالي والثقافي", skill: "الإدارة" }
-                ]},
-                { id: "q4", axis: "القيم", question: "ما الأثر الذي تطمحين له؟", options: [
-                    { text: "تحسين صحة وجودة حياة الآخرين", track: "الصحي والطبي", skill: "العطاء" },
-                    { text: "ابتكار تقنيات حديثة ومفيدة", track: "التقني والرقمي", skill: "الابتكار" },
-                    { text: "تطوير أنظمة وهياكل عملية", track: "الهندسي والعلوم", skill: "الإتقان" },
-                    { text: "بناء قيمة اقتصادية أو ثقافية مستدامة", track: "المالي والثقافي", skill: "الاستدامة" }
-                ]},
-                { id: "q5", axis: "المستقبل", question: "كيف ترين نفسكِ بعد التخرج؟", options: [
-                    { text: "في بيئة صحية وتأهيلية", track: "الصحي والطبي", skill: "العمل الصحي" },
-                    { text: "في قطاع التقنية والبيانات", track: "التقني والرقمي", skill: "العمل التقني" },
-                    { text: "في مشاريع هندسية وعلمية", track: "الهندسي والعلوم", skill: "العمل الهندسي" },
-                    { text: "في قطاع الأعمال أو الثقافة", track: "المالي والثقافي", skill: "العمل الإداري" }
-                ]}
-            ],
-            skills: [
-                { id: "s1", category: "مهارات عقلية", title: "التفكير النقدي وحل المشكلات", importance: "يساعدكِ على مقارنة الخيارات الدراسية بوضوح.", how_to: "قسّمي المشكلة وادرسي أسبابها وخياراتها." },
-                { id: "s2", category: "مهارات تنظيمية", title: "إدارة الوقت وتنظيم الدراسة", importance: "ينظم جدولكِ بين الدراسة وتطوير الذات.", how_to: "حددي مهام اليوم وابدئي بالأهم." }
-            ],
-            articles: [
-                { id: "a1", category: "نصائح", title: "كيف تختارين تخصصكِ الجامعي؟", read_time: "٥ دقائق", summary: "خطوات عملية للموازنة بين ميولكِ وقدراتكِ.", content: "ابدئي بالتعرف على ميولكِ وموادكِ المفضلة، ثم اقرئي طبيعة التخصص قبل اتخاذ القرار." },
-                { id: "a2", category: "مهارات
+    const STORE = loadJSON(LS_CONTENT, DEFAULT_CONTENT);
+    STORE.settings = loadJSON(LS_SETTINGS, { palette:2, visits:0 });
+
+    const PART_ONE_PROMPTS = [
+        { key:'loved_subjects', label:'المواد التي أحبها', placeholder:'مثال: الأحياء، الحاسب، الفيزياء...' },
+        { key:'excel_subjects', label:'المواد التي أتفوق فيها', placeholder:'مثال: الرياضيات، الإنجليزية، الأحياء...' },
+        { key:'out_of_class', label:'الأنشطة أو المجالات التي أستمتع بها خارج الصف', placeholder:'مثال: البرمجة، التصميم، القراءة، التطوع...' },
+        { key:'my_skills', label:'مهاراتي (حل المشكلات، الإبداع، التواصل، العمل الجماعي، المهارات الرقمية...)', placeholder:'اذكري أبرز المهارات التي تتقنينها...' },
+        { key:'skills_to_develop', label:'مهارات أريد تطويرها', placeholder:'مثال: الإلقاء، إدارة الوقت، البرمجة...' },
+        { key:'my_values', label:'القيم التي أميل إليها (الانتماء، التعاون، خدمة المجتمع، الإنجاز...)', placeholder:'اذكري القيم الأقرب إليكِ...' }
+    ];
+    const PART_FOUR_TOOLS = [
+        'اختبار الميول في منصة مدرستي',
+        'منصة سُبل',
+        'مقياس الميول المهنية من هيئة تقويم التعليم والتدريب'
+    ];
+
+    const STATE = {
+        activeSection:'home', authTab:'login', currentUserId:null,
+        accounts: loadJSON(LS_ACCOUNTS, []),
+        quizAnswers:{ partOne:{}, partTwo:{}, summaryField:'', summaryBecause:'', tools:[] },
+        filterTrack:'الكل', searchQuery:'', adminTab:'colors', adminEditId:null, adminAddOpen:{}
+    };
+
+    const ADMIN_USER = 'ramayan122';
+    function seedAdmin(){
+        if(!STATE.accounts.some(a=>a.username===ADMIN_USER)){
+            STATE.accounts.push({ id:'acc_admin', realName:'مديرة الموقع', username:ADMIN_USER, password:'12345678Rr', role:'معلم', isAdmin:true, hasVisited:true, quizzesCount:0, commentsCount:0, likesCount:0, savedResults:[], favoriteSpecs:[], favoriteArticles:[] });
+            saveAccounts();
+        }
+    }
+    seedAdmin();
+
+    const getCurrentUser = () => STATE.accounts.find(a=>a.id===STATE.currentUserId) || null;
+    const isLoggedIn = () => Boolean(getCurrentUser());
+    const isAdmin = () => { const u=getCurrentUser(); return Boolean(u && u.isAdmin); };
+    const trackById = id => STORE.tracks.find(t=>t.id===id) || null;
+    const trackTitle = id => { const t=trackById(id); return t ? t.title : ''; };
+    const getAccountEngagementScore = acc => (acc.quizzesCount||0)*3 + (acc.commentsCount||0)*2 + (acc.likesCount||0) + (acc.favoriteSpecs?.length||0) + (acc.favoriteArticles?.length||0);
+
+    /* عداد الزيارات */
+    (function countVisit(){
+        const today = new Date().toDateString();
+        if(localStorage.getItem('mm_last_visit') !== today){
+            STORE.settings.visits = (STORE.settings.visits||0) + 1;
+            saveSettings();
+            localStorage.setItem('mm_last_visit', today);
+        }
+    })();
+    function updateVisitPills(){
+        const v = STORE.settings.visits||0;
+        ['visitCountNum','sidebarVisitCount','footerVisitCount'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = v.toLocaleString('ar-EG'); });
+    }
+
+    /* =================================================================
+       3. المصادقة (دخول / إنشاء حساب)
+       ================================================================= */
+    function handleLoginSubmit(e){
+        e.preventDefault();
+        const username=document.getElementById('loginUsername').value.trim();
+        const password=document.getElementById('loginPassword').value;
+        const found=STATE.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase() && a.password===password);
+        if(!found){ showToast('اسم المستخدم أو كلمة السر غير صحيحة','ph-warning-circle'); return; }
+        found.hasVisited=true; STATE.currentUserId=found.id; saveAccounts();
+        updateAuthUI(); renderProfileView(); renderNavMenus();
+        showToast('أهلاً بكِ يا ' + found.realName + ' (' + found.role + ')');
+    }
+    function handleRegisterSubmit(e){
+        e.preventDefault();
+        const realName=document.getElementById('regRealName').value.trim();
+        const username=document.getElementById('regUsername').value.trim();
+        const password=document.getElementById('regPassword').value;
+        const role=document.getElementById('regRole').value;
+        if(!realName||!username||!password){ showToast('يرجى تعبئة جميع الحقول','ph-warning-circle'); return; }
+        if(STATE.accounts.some(a=>a.username.toLowerCase()===username.toLowerCase())){ showToast('اسم المستخدم مستخدم مسبقاً','ph-warning-circle'); return; }
+        const newAcc={ id:'acc_'+Date.now(), realName, username, password, role, isAdmin:false, hasVisited:true, quizzesCount:0, commentsCount:0, likesCount:0, savedResults:[], favoriteSpecs:[], favoriteArticles:[] };
+        STATE.accounts.push(newAcc); STATE.currentUserId=newAcc.id; saveAccounts();
+        updateAuthUI(); renderProfileView(); renderNavMenus();
+        showToast('تم إنشاء حساب (' + role + ') باسم ' + realName);
+    }
+    function logoutCurrentUser(){
+        const user=getCurrentUser(); STATE.currentUserId=null;
+        updateAuthUI(); renderNavMenus();
+        if(STATE.activeSection==='quiz'||STATE.activeSection==='admin') navigateTo('profile');
+        else if(STATE.activeSection==='profile') renderProfileView();
+        showToast('تم تسجيل الخروج' + (user?' من '+user.realName:''), 'ph-sign-out');
+    }
+    function requireLoginAction(reasonText, onSuccessNavigate){
+        if(isLoggedIn()){ if(onSuccessNavigate) navigateTo(onSuccessNavigate); return true; }
+        document.getElementById('modalCategoryBadge').textContent='تسجيل الدخول مطلوب';
+        document.getElementById('modalHeadingTitle').textContent='سجّلي الدخول للمتابعة';
+        document.getElementById('modalContentArea').innerHTML=`
+            <div class="p-4 rounded-2xl border space-y-2" style="background:var(--bg-color)">
+                <p class="font-black text-sm" style="color:var(--accent-color)">${reasonText}</p>
+                <p class="text-xs font-bold leading-relaxed opacity-85">الدخول يتم باستخدام <strong>اسم المستخدم</strong> و<strong>كلمة السر</strong> مع تحديد الصفة (<strong>طالب</strong> أو <strong>معلم</strong>).</p>
+            </div>`;
+        document.getElementById('modalActionsArea').innerHTML=`
+            <button onclick="closeInfoModal()" class="px-4 py-2 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--surface-color)">إلغاء</button>
+            <button onclick="closeInfoModal(); navigateTo('profile');" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">الانتقال لتسجيل الدخول</button>`;
+        const modal=document.getElementById('infoModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+        return false;
+    }
+    function startQuizGuarded(){
+        if(!requireLoginAction('لا يمكنكِ إجراء الاختبار إلا بعد تسجيل الدخول بحساب طالب أو معلم.','quiz')) return;
+        renderInspiredQuizForm(); navigateTo('quiz');
+    }
+
+    /* =================================================================
+       4. التنقل والقوائم
+       ================================================================= */
+    const NAV_ITEMS = [
+        { id:'home', label:'الرئيسية', icon:'ph-house' },
+        { id:'quiz', label:'اكتشفي نفسك', icon:'ph-sparkle' },
+        { id:'pathways', label:'المسارات والتأهيل', icon:'ph-path' },
+        { id:'fields', label:'دليل المجالات', icon:'ph-compass' },
+        { id:'majors', label:'التخصصات والوظائف', icon:'ph-graduation-cap' },
+        { id:'skills', label:'المهارات والمعارف', icon:'ph-rocket-launch' },
+        { id:'articles', label:'مقالات ونصائح', icon:'ph-article' },
+        { id:'profile', label:'حسابي', icon:'ph-user-circle' },
+        { id:'about', label:'عن الموقع', icon:'ph-info' }
+    ];
+    function navItemsAll(){
+        const items = NAV_ITEMS.slice();
+        if(isAdmin()) items.push({ id:'admin', label:'لوحة التحكم', icon:'ph-gear' });
+        return items;
+    }
+    function renderNavMenus(){
+        const sidebarNav=document.getElementById('sidebarNav');
+        const mobileDrawer=document.getElementById('mobileDrawer');
+        const items = navItemsAll();
+        if(sidebarNav){
+            sidebarNav.innerHTML = items.map(item=>{
+                const isActive = STATE.activeSection===item.id || (STATE.activeSection==='results' && item.id==='quiz');
+                return `<button onclick="navigateTo('${item.id}')" class="w-full text-right px-4 py-2 rounded-full font-extrabold text-sm flex items-center gap-3 transition-all cursor-pointer ${isActive?'shadow-[0_3px_0_var(--text-color)]':''}" style="${isActive?'background:var(--on-primary); color:var(--primary-color)':'color:var(--on-primary)'}">
+                    <i class="${isActive?'ph-fill':'ph-bold'} ${item.icon} text-lg"></i><span>${item.label}</span></button>`;
+            }).join('');
+        }
+        if(mobileDrawer){
+            mobileDrawer.innerHTML = items.map(item=>{
+                const isActive = STATE.activeSection===item.id;
+                return `<button onclick="navigateTo('${item.id}'); toggleMobileDrawer(false);" class="w-full text-right px-4 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-3" style="${isActive?'background:var(--on-primary); color:var(--primary-color)':'color:var(--on-primary)'}">
+                    <i class="ph-bold ${item.icon} text-lg"></i><span>${item.label}</span></button>`;
+            }).join('');
+        }
+    }
+    function toggleMobileDrawer(forceState){
+        const drawer=document.getElementById('mobileDrawer'); const icon=document.getElementById('mobileDrawerIcon');
+        const show = typeof forceState==='boolean' ? forceState : drawer.classList.contains('hidden');
+        drawer.classList.toggle('hidden', !show);
+        icon.className = show ? 'ph ph-x text-2xl' : 'ph ph-list text-2xl';
+    }
+    function navigateTo(sectionId){
+        if(sectionId==='quiz' && !isLoggedIn()){ requireLoginAction('لا يمكنكِ الدخول إلى الاختبار إلا بعد تسجيل الدخول.', null); return; }
+        if(sectionId==='admin' && !isAdmin()){ showToast('لوحة التحكم للمديرة فقط','ph-lock'); navigateTo('home'); return; }
+        STATE.activeSection=sectionId;
+        document.querySelectorAll('.page-section').forEach(sec=>sec.classList.remove('active'));
+        const target=document.getElementById('section-'+sectionId);
+        if(target) target.classList.add('active');
+        renderNavMenus(); updateAuthUI();
+        if(sectionId==='quiz') renderInspiredQuizForm();
+        if(sectionId==='pathways') renderPathwaysGrid();
+        if(sectionId==='fields') renderFieldsFullGrid();
+        if(sectionId==='majors') renderMajorsSection();
+        if(sectionId==='skills') renderSkillsGrid();
+        if(sectionId==='articles') renderArticlesFullGrid();
+        if(sectionId==='profile') renderProfileView();
+        if(sectionId==='admin') renderAdminPanel();
+        window.scrollTo({ top:0, behavior:'smooth' });
+    }
+
+    /* =================================================================
+       5. الرئيسية
+       ================================================================= */
+    const FIELD_CARD_STYLES = [
+        { bg:'var(--accent-color)', fg:'var(--on-accent)' },
+        { bg:'var(--tertiary-color)', fg:'var(--on-tertiary)' },
+        { bg:'var(--primary-color)', fg:'var(--on-primary)' },
+        { bg:'var(--text-color)', fg:'var(--bg-color)' }
+    ];
+    function renderHomeFields(){
+        const grid=document.getElementById('homeFieldsGrid'); if(!grid) return;
+        const tracks=STORE.tracks.slice(0,4);
+        grid.innerHTML = tracks.map((t,i)=>{
+            const st=FIELD_CARD_STYLES[i % FIELD_CARD_STYLES.length];
+            const count = STORE.specs.filter(s=>s.track_id===t.id).length;
+            return `<div onclick="filterMajorsByTrack('${t.title}')" class="field-card-shape p-7 cursor-pointer flex flex-col items-center text-center border-2 border-[var(--text-color)]" style="background:${st.bg}; color:${st.fg}">
+                <i class="ph-duotone ${t.icon||'ph-compass'} text-5xl mb-3"></i>
+                <h4 class="text-xl font-black mb-1">${t.title}</h4>
+                <p class="text-xs sm:text-sm font-bold opacity-90">${count} تخصصاً ووظيفة تابعة له</p>
+            </div>`;
+        }).join('');
+    }
+    function renderHomeArticlesPreview(){
+        const container=document.getElementById('homeArticlesPreview'); if(!container) return;
+        const arts = STORE.articles.slice(0,3);
+        if(arts.length < 3){
+            container.innerHTML = arts.map(a=>`<article onclick="openArticleModal('${a.id}')" class="bento-article-card md:col-span-6 p-6 sm:p-7 rounded-3xl cursor-pointer text-right" style="background:var(--surface-color)">
+                <span class="text-xs sm:text-sm font-black mb-1.5 block" style="color:var(--accent-color)">${a.category}</span>
+                <h4 class="font-black text-lg sm:text-xl leading-snug mb-1.5">${a.title}</h4>
+                <span class="text-xs sm:text-sm font-bold opacity-75">${a.read_time}</span></article>`).join('');
+            return;
+        }
+        const bgs = ['var(--surface-color)','var(--tertiary-color)','var(--surface-color)'];
+        container.innerHTML = arts.map((a,i)=>`<article onclick="openArticleModal('${a.id}')" class="bento-article-card ${i===2?'md:col-span-12':(i===0?'md:col-span-7':'md:col-span-5')} p-6 sm:p-7 rounded-3xl cursor-pointer flex flex-col justify-center text-right" style="background:${bgs[i]}; color:var(--on-surface)">
+            <span class="text-xs sm:text-sm font-black mb-1.5 block" style="color:${i===1?'var(--on-tertiary)':'var(--accent-color)'}">${a.category}</span>
+            <h4 class="font-black text-lg sm:text-xl leading-snug mb-1.5">${a.title}</h4>
+            <span class="text-xs sm:text-sm font-bold opacity-75">${a.read_time}</span></article>`).join('');
+    }
+
+    /* =================================================================
+       6. الاختبار (4 محاور) + النتائج مع أسباب الترشيح
+       ================================================================= */
+    function renderInspiredQuizForm(){
+        const user=getCurrentUser();
+        const badge=document.getElementById('quizCurrentUserBadge');
+        if(badge && user) badge.textContent = user.realName + ' (' + user.role + ')';
+
+        const p1Body=document.getElementById('partOneTableBody');
+        if(p1Body){
+            p1Body.innerHTML = PART_ONE_PROMPTS.map(item=>`<tr>
+                <td class="p-3.5 font-extrabold border-l border-[var(--text-color)]/20 align-top">${item.label}</td>
+                <td class="p-2.5"><input type="text" data-p1="${item.key}" value="${STATE.quizAnswers.partOne[item.key]||''}" placeholder="${item.placeholder}" required class="w-full px-3 py-2 rounded-xl border text-xs sm:text-sm font-bold focus:outline-none" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)"></td>
+            </tr>`).join('');
+        }
+
+        const p2Body=document.getElementById('partTwoTableBody');
+        if(p2Body){
+            const levels=['أميل إليه بدرجة كبيرة','بدرجة متوسطة','بدرجة ضعيفة'];
+            p2Body.innerHTML = STORE.tracks.map(t=>{
+                const selected = STATE.quizAnswers.partTwo[t.title] || '';
+                return `<tr><td class="p-3.5 font-extrabold border-l border-[var(--text-color)]/20">${t.title}</td>
+                    ${levels.map(lvl=>{
+                        const isChecked = selected===lvl;
+                        return `<td class="p-2.5 text-center border-l border-[var(--text-color)]/20 last:border-l-0">
+                            <button type="button" onclick="selectFieldLevel('${t.title}','${lvl}')" class="w-full py-2 px-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${isChecked?'border-[var(--text-color)] shadow-[2px_2px_0_var(--text-color)]':'border-transparent hover:opacity-80'}" style="${isChecked?'background:var(--tertiary-color); color:var(--on-tertiary)':'background:var(--bg-color); color:var(--text-color)'}">${isChecked?'✓ ':''}${lvl}</button></td>`;
+                    }).join('')}</tr>`;
+            }).join('');
+        }
+
+        const sumSel=document.getElementById('summaryFieldSelect');
+        if(sumSel){
+            sumSel.innerHTML = '<option value="">-- اختاري المجال --</option>' + STORE.tracks.map(t=>`<option value="${t.title}">${t.title}</option>`).join('');
+            sumSel.value = STATE.quizAnswers.summaryField || '';
+        }
+        const sumBec=document.getElementById('summaryBecauseInput');
+        if(sumBec) sumBec.value = STATE.quizAnswers.summaryBecause || '';
+
+        const p4Box=document.getElementById('partFourToolsBox');
+        if(p4Box){
+            p4Box.innerHTML = PART_FOUR_TOOLS.map(tool=>{
+                const checked = STATE.quizAnswers.tools.includes(tool);
+                return `<button type="button" onclick="toggleQuizTool('${tool}')" class="p-3.5 rounded-2xl border-2 text-right flex items-start gap-2.5 transition-all cursor-pointer ${checked?'border-[var(--text-color)] shadow-[3px_3px_0_var(--text-color)] font-black':'font-bold'}" style="background:${checked?'var(--tertiary-color)':'var(--surface-color)'}; color:var(--on-surface)">
+                    <span class="w-5 h-5 rounded-md border-2 border-[var(--text-color)] flex items-center justify-center text-xs shrink-0 mt-0.5" style="background:${checked?'var(--text-color)':'var(--surface-color)'}; color:${checked?'var(--bg-color)':'transparent'}">${checked?'✓':''}</span>
+                    <span class="text-xs sm:text-sm leading-snug">${tool}</span></button>`;
+            }).join('');
+        }
+    }
+    function selectFieldLevel(fieldName, level){ STATE.quizAnswers.partTwo[fieldName]=level; renderInspiredQuizForm(); }
+    function toggleQuizTool(toolName){
+        const idx=STATE.quizAnswers.tools.indexOf(toolName);
+        if(idx===-1) STATE.quizAnswers.tools.push(toolName); else STATE.quizAnswers.tools.splice(idx,1);
+        renderInspiredQuizForm();
+    }
+    function submitInspiredQuiz(e){
+        e.preventDefault();
+        const user=getCurrentUser();
+        if(!user){ requireLoginAction('يجب تسجيل الدخول لحفظ نتيجة الاختبار.', null); return; }
+        document.querySelectorAll('[data-p1]').forEach(inp=>{ STATE.quizAnswers.partOne[inp.getAttribute('data-p1')]=inp.value.trim(); });
+        if(Object.keys(STATE.quizAnswers.partTwo).length < STORE.tracks.length){ showToast('يرجى تحديد درجة الميول لجميع المجالات في ثانياً','ph-warning-circle'); return; }
+        STATE.quizAnswers.summaryField=document.getElementById('summaryFieldSelect').value;
+        STATE.quizAnswers.summaryBecause=document.getElementById('summaryBecauseInput').value.trim();
+        if(STATE.quizAnswers.tools.length===0){ showToast('اختاري أداة واحدة على الأقل في رابعاً','ph-warning-circle'); return; }
+
+        const ratingScore={'أميل إليه بدرجة كبيرة':3,'بدرجة متوسطة':2,'بدرجة ضعيفة':1};
+        const ranked = STORE.tracks.map(t=>({ t, score: ratingScore[STATE.quizAnswers.partTwo[t.title]]||0, level: STATE.quizAnswers.partTwo[t.title] }))
+            .filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+
+        const resultObj={
+            id:'res_'+Date.now(), userId:user.id, userName:user.realName, userRole:user.role,
+            created_at:new Date().toLocaleDateString('ar-SA'),
+            partOne:{...STATE.quizAnswers.partOne}, partTwo:{...STATE.quizAnswers.partTwo},
+            ranked: ranked.map(x=>({ title:x.t.title, level:x.level, score:x.score })),
+            summaryField:STATE.quizAnswers.summaryField, summaryBecause:STATE.quizAnswers.summaryBecause,
+            tools:[...STATE.quizAnswers.tools]
+        };
+        user.savedResults.unshift(resultObj);
+        user.quizzesCount=(user.quizzesCount||0)+1;
+        saveAccounts(); updateSavedCounters();
+        renderResultsView(resultObj);
+        navigateTo('results');
+        showToast('تم حفظ نتيجة اختباركِ في حسابكِ');
+    }
+    function renderResultsView(res){
+        const container=document.getElementById('resultsDisplayContainer');
+        const topTracks = (res.ranked||[]).slice(0,3);
+        const reasons = {
+            'أميل إليه بدرجة كبيرة':'رشّحتِ هذا المجال بدرجة كبيرة في ثانياً، وهو يتوافق مع اهتمامكِ بـ: ' + (res.partOne.loved_subjects||'مجالات متعددة'),
+            'بدرجة متوسطة':'أظهرتِ ميلاً متوسطاً لهذا المجال، ويمكن استكشاف تخصصاته الفرعية لمعرفة ما إذا كان يناسبكِ أكثر',
+            'بدرجة ضعيفة':'الميل لهذا المجال ضعيف حالياً، لكن اطلاعكِ على تخصصاته قد يكشف لكِ فرصاً غير متوقعة'
+        };
+        container.innerHTML=`
+            <div class="rounded-3xl border-2 border-[var(--text-color)] p-7 shadow-[6px_6px_0_var(--text-color)]" style="background:var(--primary-color); color:var(--on-primary)">
+                <span class="inline-block px-4 py-1 rounded-full text-xs font-black mb-2" style="background:var(--tertiary-color); color:var(--on-tertiary)">نتيجة المقياس • ${res.userName} (${res.userRole}) • ${res.created_at}</span>
+                <h2 class="text-2xl sm:text-3xl font-black mb-2">خلاصتي: المجال الأنسب مبدئياً هو <span style="color:var(--tertiary-color)">${res.summaryField}</span></h2>
+                <p class="text-sm font-bold opacity-95">لأن: ${res.summaryBecause}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="p-6 rounded-3xl card-neo space-y-2.5">
+                    <h3 class="text-base font-black" style="color:var(--primary-color)">أولاً: ما أحبه وأتميز به</h3>
+                    <p class="text-xs sm:text-sm font-bold"><strong>المواد التي أحبها:</strong> ${res.partOne.loved_subjects}</p>
+                    <p class="text-xs sm:text-sm font-bold"><strong>المواد التي أتفوق فيها:</strong> ${res.partOne.excel_subjects}</p>
+                    <p class="text-xs sm:text-sm font-bold"><strong>خارج الصف:</strong> ${res.partOne.out_of_class}</p>
+                    <p class="text-xs sm:text-sm font-bold"><strong>مهاراتي:</strong> ${res.partOne.my_skills}</p>
+                    <p class="text-xs sm:text-sm font-bold"><strong>مهارات أريد تطويرها:</strong> ${res.partOne.skills_to_develop}</p>
+                    <p class="text-xs sm:text-sm font-bold"><strong>قيمي:</strong> ${res.partOne.my_values}</p>
+                </div>
+                <div class="p-6 rounded-3xl card-neo space-y-3">
+                    <h3 class="text-base font-black" style="color:var(--accent-color)">ثانياً ورابعاً: الميول والأداة المختارة</h3>
+                    <div>
+                        <p class="text-xs font-extrabold mb-1.5">ترتيب مجالات الميول:</p>
+                        <div class="space-y-1.5">
+                            ${(res.ranked||[]).map((r,i)=>`<div class="flex items-center justify-between gap-2 p-2 rounded-xl border" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)">
+                                <span class="text-xs font-black">${i+1}. ${r.title}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black" style="background:${i===0?'var(--accent-color)':(i===1?'var(--tertiary-color)':'var(--primary-color)')}; color:${i===0?'var(--on-accent)':(i===1?'var(--on-tertiary)':'var(--on-primary)')}">${r.level}</span>
+                            </div>`).join('')}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-extrabold mb-1.5">أدوات سأجربها لاكتشاف ميولي بدقة أكبر:</p>
+                        <ul class="list-disc list-inside text-xs sm:text-sm font-bold space-y-1">${res.tools.map(t=>`<li>${t}</li>`).join('')}</ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-3xl card-neo">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-black">المجالات المقترحة وأسباب الترشيح:</h3>
+                    <button onclick="navigateTo('quiz')" class="text-xs font-extrabold hover:underline cursor-pointer" style="color:var(--accent-color)">تعديل الإجابات</button>
+                </div>
+                <div class="space-y-4">
+                    ${topTracks.map((r,idx)=>{
+                        const track=STORE.tracks.find(t=>t.title===r.title);
+                        const specs=STORE.specs.filter(s=>track && s.track_id===track.id).slice(0,3);
+                        return `<div class="p-4 rounded-2xl border-2 border-[var(--text-color)]" style="background:${idx===0?'var(--tertiary-color)':'var(--bg-color)'}">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                <h4 class="font-black text-base">${idx+1}. ${r.title}</h4>
+                                <span class="px-3 py-0.5 rounded-full text-[10px] font-black border border-[var(--text-color)]" style="background:var(--surface-color)">${r.level}</span>
+                            </div>
+                            <p class="text-xs sm:text-sm font-bold mb-3 leading-relaxed">سبب الترشيح: ${reasons[r.level]||''}</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${specs.length ? specs.map(sp=>`<button onclick="openSpecModal('${sp.id}')" class="px-3 py-1 rounded-full text-xs font-bold border border-[var(--text-color)] hover:opacity-85 cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">${sp.title}</button>`).join('')
+                                : '<span class="text-xs font-bold opacity-70">لا توجد تخصصات مضافة لهذا المجال بعد</span>'}
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+    }
+
+    /* =================================================================
+       7. المسارات / المجالات / التخصصات / المهارات / المقالات
+       ================================================================= */
+    function renderPathwaysGrid(){
+        const grid=document.getElementById('pathwaysFullGrid'); if(!grid) return;
+        grid.innerHTML = STORE.pathways.map(pw=>`<article class="p-6 rounded-3xl card-neo flex flex-col justify-between space-y-4">
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 rounded-2xl border border-[var(--text-color)] flex items-center justify-center shrink-0" style="background:var(--primary-color); color:var(--on-primary)"><i class="ph-duotone ${pw.icon||'ph-path'} text-2xl"></i></div>
+                    <h3 class="text-xl font-black">${pw.title}</h3>
+                </div>
+                <p class="text-sm font-medium leading-relaxed mb-3">${pw.description}</p>
+                <div class="p-3.5 rounded-2xl text-xs sm:text-sm space-y-2" style="background:var(--bg-color)">
+                    <p><strong>الشروط والمتطلبات:</strong> ${pw.requirements}</p>
+                    <p><strong>طريقة الالتحاق:</strong> ${pw.how_to_join}</p>
+                    <p><strong>الجهات والمؤسسات:</strong> ${pw.entities}</p>
+                </div>
+            </div></article>`).join('');
+    }
+    function renderFieldsFullGrid(){
+        const grid=document.getElementById('fieldsFullGrid'); if(!grid) return;
+        grid.innerHTML = STORE.tracks.map(tr=>{
+            const examples=STORE.specs.filter(s=>s.track_id===tr.id);
+            return `<article class="p-6 rounded-3xl card-neo flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-2xl border border-[var(--text-color)] flex items-center justify-center shrink-0" style="background:var(--tertiary-color); color:var(--on-tertiary)"><i class="ph-duotone ${tr.icon||'ph-compass'} text-2xl"></i></div>
+                        <h3 class="text-xl font-black">${tr.title}</h3>
+                    </div>
+                    <p class="text-sm font-medium leading-relaxed mb-3">${tr.description}</p>
+                    <div class="p-3.5 rounded-2xl text-xs sm:text-sm space-y-1.5 mb-4" style="background:var(--bg-color)">
+                        <p><strong>طبيعة العمل والمجال:</strong> ${tr.nature}</p>
+                        <p><strong>المواد والموضوعات:</strong> ${tr.subjects}</p>
+                        <p><strong>المهارات المطلوبة:</strong> ${tr.required_skills}</p>
+                        <p><strong>الوظائف والفرص المهنية:</strong> ${tr.careers_list}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-extrabold block mb-2">أمثلة التخصصات والوظائف التابعة له:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${examples.length ? examples.map(ex=>`<button onclick="openSpecModal('${ex.id}')" class="px-3 py-1 rounded-full text-xs font-bold hover:opacity-90 cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">${ex.title}</button>`).join('')
+                            : '<span class="text-xs font-bold opacity-70">لا توجد تخصصات مضافة بعد</span>'}
+                        </div>
+                    </div>
+                </div>
+                <button onclick="filterMajorsByTrack('${tr.title}')" class="btn-neo w-full py-2.5 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer" style="background:var(--tertiary-color); color:var(--on-tertiary)">تصفح تخصصات ووظائف هذا المجال</button>
+            </article>`;
+        }).join('');
+    }
+    function filterMajorsByTrack(trackName){ STATE.filterTrack=trackName; renderMajorsSection(); navigateTo('majors'); }
+    function renderMajorsSection(){
+        const bar=document.getElementById('majorsFilterBar'); if(!bar) return;
+        const tracks=['الكل', ...STORE.tracks.map(t=>t.title)];
+        bar.innerHTML = tracks.map(t=>{
+            const active = STATE.filterTrack===t;
+            return `<button onclick="setMajorsTrackFilter('${t}')" class="px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold whitespace-nowrap border-2 transition-all cursor-pointer" style="${active?'background:var(--primary-color); color:var(--on-primary); border-color:var(--text-color)':'background:var(--bg-color); color:var(--text-color); border-color:transparent'}">${t}</button>`;
+        }).join('');
+        const matrixBox=document.getElementById('crossCareerMatrix');
+        if(matrixBox){
+            matrixBox.innerHTML = (STORE.matrix||[]).map(item=>`<div class="p-4 rounded-2xl border space-y-1.5" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 20%, transparent)">
+                <h4 class="font-black text-sm" style="color:var(--primary-color)">${item.role}</h4>
+                <p class="text-xs font-extrabold">تخصصات مؤهلة: <span class="font-bold">${item.majors}</span></p>
+                <p class="text-xs font-medium opacity-85 leading-relaxed">${item.bridge}</p></div>`).join('');
+        }
+        renderMajorsCards();
+    }
+    function setMajorsTrackFilter(t){ STATE.filterTrack=t; renderMajorsSection(); }
+    function resetMajorsFilter(){ STATE.filterTrack='الكل'; STATE.searchQuery=''; const inp=document.getElementById('majorSearchInput'); if(inp) inp.value=''; renderMajorsSection(); }
+    function renderMajorsCards(){
+        const grid=document.getElementById('majorsCardsGrid'); const noRes=document.getElementById('majorsNoResults'); const pill=document.getElementById('majorsCountPill');
+        const user=getCurrentUser(); const favList=user?user.favoriteSpecs:[];
+        const list=STORE.specs.filter(s=>{
+            const tTitle=trackTitle(s.track_id);
+            const byTrack = STATE.filterTrack==='الكل' || tTitle===STATE.filterTrack;
+            const q=STATE.searchQuery;
+            const hay=[s.title,s.job_title,s.description,s.subjects,s.skills,s.careers,s.related_majors,tTitle].join(' ');
+            const bySearch = !q || hay.includes(q);
+            return byTrack && bySearch;
+        });
+        if(pill) pill.textContent = list.length + ' تخصص ووظيفة';
+        if(list.length===0){ grid.classList.add('hidden'); noRes.classList.remove('hidden'); return; }
+        grid.classList.remove('hidden'); noRes.classList.add('hidden');
+        grid.innerHTML = list.map(sp=>{
+            const isFav=favList.includes(sp.id);
+            return `<article onclick="openSpecModal('${sp.id}')" class="p-6 rounded-3xl card-neo hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="px-3 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${trackTitle(sp.track_id)}</span>
+                        <button onclick="toggleSpecFav(event,'${sp.id}')" class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer" style="background:var(--bg-color); color:var(--accent-color)" title="حفظ في المفضلة"><i class="${isFav?'ph-fill':'ph-bold'} ph-heart text-lg"></i></button>
+                    </div>
+                    <h3 class="text-lg font-black mb-1 leading-snug">${sp.title}</h3>
+                    <p class="text-xs font-extrabold mb-2" style="color:var(--primary-color)">الوظيفة: ${sp.job_title}</p>
+                    <p class="text-xs sm:text-sm font-medium opacity-85 leading-relaxed mb-4 line-clamp-2">${sp.description}</p>
+                </div>
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs sm:text-sm font-black" style="color:var(--primary-color)"><span>التفاصيل وبيئة العمل</span><i class="ph-bold ph-arrow-left"></i></div>
+            </article>`;
+        }).join('');
+    }
+    function openSpecModal(specId){
+        const sp=STORE.specs.find(s=>s.id===specId); if(!sp) return;
+        const user=getCurrentUser(); const isFav=user?user.favoriteSpecs.includes(sp.id):false;
+        document.getElementById('modalCategoryBadge').textContent = trackTitle(sp.track_id) + ' • ' + sp.job_title;
+        document.getElementById('modalHeadingTitle').textContent = sp.title;
+        document.getElementById('modalContentArea').innerHTML = `
+            <div class="p-4 rounded-2xl" style="background:var(--bg-color)"><h4 class="font-black mb-1" style="color:var(--primary-color)">شرح التخصص والوظيفة ومهامها:</h4><p class="font-bold leading-relaxed">${sp.description}</p></div>
+            <div class="p-4 rounded-2xl" style="background:var(--bg-color)"><h4 class="font-black mb-1" style="color:var(--accent-color)">ماذا تدرس الطالبة في هذا التخصص؟</h4><p class="font-bold leading-relaxed">${sp.subjects}</p></div>
+            <div class="p-4 rounded-2xl" style="background:var(--bg-color)"><h4 class="font-black mb-1">المهارات والمؤهلات المطلوبة:</h4><p class="font-bold leading-relaxed">${sp.skills}</p></div>
+            <div class="p-4 rounded-2xl" style="background:var(--bg-color)"><h4 class="font-black mb-1" style="color:var(--primary-color)">بيئة العمل والفرص المهنية والربط بالدراسة:</h4>
+                <p class="font-bold leading-relaxed mb-1"><strong>بيئة العمل:</strong> ${sp.work_env}</p>
+                <p class="font-bold leading-relaxed mb-1"><strong>الوظائف والفرص:</strong> ${sp.careers}</p>
+                <p class="font-bold leading-relaxed"><strong>تخصصات مرتبطة بالوظيفة:</strong> ${sp.related_majors}</p></div>`;
+        document.getElementById('modalActionsArea').innerHTML = `
+            <button onclick="toggleSpecFav(null,'${sp.id}',true)" class="px-5 py-2.5 rounded-full font-extrabold text-xs sm:text-sm border-2 border-[var(--text-color)] flex items-center gap-1.5 cursor-pointer" style="${isFav?'background:var(--accent-color); color:var(--on-accent)':'background:var(--surface-color); color:var(--on-surface)'}"><i class="${isFav?'ph-fill':'ph-bold'} ph-heart text-base"></i><span>${isFav?'محفوظ في المفضلة':'حفظ في المفضلة'}</span></button>
+            <button onclick="closeInfoModal()" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">إغلاق</button>`;
+        const modal=document.getElementById('infoModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+    function toggleSpecFav(event, specId, refreshModal=false){
+        if(event) event.stopPropagation();
+        const user=getCurrentUser();
+        if(!user){ if(refreshModal) closeInfoModal(); requireLoginAction('سجّلي الدخول لحفظ التخصصات في صفحتكِ.', null); return; }
+        const idx=user.favoriteSpecs.indexOf(specId);
+        if(idx===-1){ user.favoriteSpecs.push(specId); showToast('تم حفظ التخصص في صفحتكِ'); }
+        else { user.favoriteSpecs.splice(idx,1); showToast('تمت الإزالة من المفضلة','ph-trash'); }
+        saveAccounts(); updateSavedCounters(); renderMajorsCards();
+        if(STATE.activeSection==='profile') renderProfileView();
+        if(refreshModal) openSpecModal(specId);
+    }
+    function renderSkillsGrid(){
+        const grid=document.getElementById('skillsCardsGrid'); if(!grid) return;
+        grid.innerHTML = STORE.skills.map(sk=>`<div class="p-6 rounded-3xl card-neo space-y-2.5">
+            <span class="inline-block px-3 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${sk.category}</span>
+            <h3 class="text-lg font-black">${sk.title}</h3>
+            <p class="text-xs sm:text-sm font-medium leading-relaxed"><strong>أهميتها:</strong> ${sk.importance}</p>
+            <p class="p-3.5 rounded-2xl text-xs sm:text-sm font-bold" style="background:var(--bg-color)"><strong style="color:var(--primary-color)">طريقة تطويرها:</strong> ${sk.how_to}</p>
+        </div>`).join('');
+    }
+    function renderArticlesFullGrid(){
+        const grid=document.getElementById('articlesFullGrid'); if(!grid) return;
+        const user=getCurrentUser(); const favArts=user?user.favoriteArticles:[];
+        grid.innerHTML = STORE.articles.map(art=>{
+            const isFav=favArts.includes(art.id);
+            const tLink = art.track_id ? trackTitle(art.track_id) : '';
+            return `<article onclick="openArticleModal('${art.id}')" class="p-6 rounded-3xl card-neo hover:-translate-y-1 transition-transform cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3 gap-2">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="px-3 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${art.category}</span>
+                            ${tLink?`<span class="px-3 py-1 rounded-full border text-[10px] font-black" style="background:var(--primary-color); color:var(--on-primary); border-color:var(--text-color)">مرتبط بمجال: ${tLink}</span>`:''}
+                        </div>
+                        <button onclick="toggleArticleFav(event,'${art.id}')" class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer shrink-0" style="background:var(--bg-color); color:var(--primary-color)" title="حفظ المقال"><i class="${isFav?'ph-fill':'ph-bold'} ph-bookmark-simple text-lg"></i></button>
+                    </div>
+                    <h3 class="text-lg font-black mb-2 leading-snug">${art.title}</h3>
+                    <p class="text-xs sm:text-sm font-medium opacity-85 leading-relaxed mb-4">${art.summary}</p>
+                </div>
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs font-extrabold"><span>${art.read_time} • 💬 ${(art.comments||[]).length} • 👍 ${art.likes||0}</span><span style="color:var(--primary-color)">قراءة وتفاعل ←</span></div>
+            </article>`;
+        }).join('');
+    }
+    function openArticleModal(artId){
+        const art=STORE.articles.find(a=>a.id===artId); if(!art) return;
+        const user=getCurrentUser(); const isFav=user?user.favoriteArticles.includes(art.id):false;
+        document.getElementById('modalCategoryBadge').textContent = art.category + ' • ' + art.read_time;
+        document.getElementById('modalHeadingTitle').textContent = art.title;
+        document.getElementById('modalContentArea').innerHTML = `
+            <div class="p-5 rounded-2xl text-sm sm:text-base font-bold leading-loose" style="background:var(--bg-color)">${art.content}</div>
+            <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                <button onclick="voteArticle('${art.id}','like')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer hover:opacity-85" style="background:var(--surface-color); color:var(--on-surface)"><i class="ph-bold ph-thumbs-up text-base"></i><span>إعجاب (${art.likes||0})</span></button>
+                <button onclick="voteArticle('${art.id}','dislike')" class="px-4 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-black flex items-center gap-1.5 cursor-pointer hover:opacity-85" style="background:var(--surface-color); color:var(--on-surface)"><i class="ph-bold ph-thumbs-down text-base"></i><span>لم يعجبني (${art.dislikes||0})</span></button>
+            </div>
+            <div class="p-4 rounded-2xl space-y-3" style="background:var(--bg-color)">
+                <h4 class="font-black text-sm">التعليقات والمناقشة (${(art.comments||[]).length})</h4>
+                <div class="space-y-2">
+                    ${(art.comments||[]).length===0
+                        ? '<p class="text-xs font-bold opacity-70">لا توجد تعليقات بعد؛ سجّلي الدخول لمشاركة رأيكِ.</p>'
+                        : art.comments.map(c=>`<div class="p-3 rounded-xl border text-xs" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 15%, transparent)"><span class="font-black" style="color:var(--primary-color)">${c.author}</span>${c.role?`<span class="px-2 py-0.5 rounded-full text-[10px] font-black mx-1" style="background:var(--tertiary-color)">${c.role}</span>`:''}<span class="font-bold">: ${c.text}</span></div>`).join('')}
+                </div>
+                ${user
+                    ? `<form onsubmit="addArticleComment(event,'${art.id}')" class="flex gap-2 pt-1"><input type="text" id="newCommentInput" required placeholder="أضيفي تعليقاً باسم ${user.realName}..." class="flex-grow px-3.5 py-2 rounded-xl border text-xs font-bold focus:outline-none" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)"><button type="submit" class="px-4 py-2 rounded-xl text-white text-xs font-black cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">إرسال</button></form>`
+                    : `<div class="p-3 rounded-xl border border-dashed flex items-center justify-between gap-2 text-xs" style="background:var(--surface-color); border-color:var(--accent-color)"><span class="font-extrabold" style="color:var(--accent-color)">لا يمكنكِ التعليق إلا بعد تسجيل الدخول.</span><button type="button" onclick="closeInfoModal(); navigateTo('profile');" class="px-3 py-1.5 rounded-full font-black text-xs cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">تسجيل الدخول</button></div>`}
+            </div>`;
+        document.getElementById('modalActionsArea').innerHTML = `
+            <button onclick="toggleArticleFav(null,'${art.id}',true)" class="px-5 py-2.5 rounded-full font-extrabold text-xs sm:text-sm border-2 border-[var(--text-color)] flex items-center gap-1.5 cursor-pointer" style="${isFav?'background:var(--primary-color); color:var(--on-primary)':'background:var(--surface-color); color:var(--on-surface)'}"><i class="${isFav?'ph-fill':'ph-bold'} ph-bookmark-simple text-base"></i><span>${isFav?'محفوظ في صفحتي':'حفظ المقال'}</span></button>
+            <button onclick="closeInfoModal()" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] font-extrabold text-xs sm:text-sm cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">إغلاق</button>`;
+        const modal=document.getElementById('infoModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+    function voteArticle(artId, type){
+        const user=getCurrentUser();
+        if(!user){ closeInfoModal(); requireLoginAction('سجّلي الدخول للتفاعل مع المقالات.', null); return; }
+        const art=STORE.articles.find(a=>a.id===artId); if(!art) return;
+        if(type==='like'){ art.likes=(art.likes||0)+1; user.likesCount=(user.likesCount||0)+1; }
+        else { art.dislikes=(art.dislikes||0)+1; }
+        saveStore(); saveAccounts(); renderArticlesFullGrid(); renderProfileView(); openArticleModal(artId);
+    }
+    function addArticleComment(e, artId){
+        e.preventDefault();
+        const user=getCurrentUser();
+        if(!user){ closeInfoModal(); requireLoginAction('لا يمكنكِ التعليق على المقالات إلا بعد تسجيل الدخول.', null); return; }
+        const input=document.getElementById('newCommentInput');
+        const art=STORE.articles.find(a=>a.id===artId);
+        if(!art || !input || !input.value.trim()) return;
+        art.comments.push({ author:user.realName, role:user.role, text:input.value.trim() });
+        user.commentsCount=(user.commentsCount||0)+1;
+        saveStore(); saveAccounts();
+        showToast('تم نشر تعليقكِ بنجاح');
+        renderArticlesFullGrid(); renderProfileView(); openArticleModal(artId);
+    }
+    function toggleArticleFav(event, artId, refreshModal=false){
+        if(event) event.stopPropagation();
+        const user=getCurrentUser();
+        if(!user){ if(refreshModal) closeInfoModal(); requireLoginAction('سجّلي الدخول لحفظ المقالات في صفحتكِ.', null); return; }
+        const idx=user.favoriteArticles.indexOf(artId);
+        if(idx===-1){ user.favoriteArticles.push(artId); showToast('تم حفظ المقال في صفحتكِ'); }
+        else { user.favoriteArticles.splice(idx,1); showToast('تمت إزالة المقال من المحفوظات','ph-trash'); }
+        saveAccounts(); updateSavedCounters(); renderArticlesFullGrid();
+        if(STATE.activeSection==='profile') renderProfileView();
+        if(refreshModal) openArticleModal(artId);
+    }
+
+    /* =================================================================
+       8. واجهة الحساب + صفحتي
+       ================================================================= */
+    function updateAuthUI(){
+        const user=getCurrentUser();
+        const topBar=document.getElementById('topAuthStatusBar');
+        const topActions=document.getElementById('topAuthActionsBar');
+        const sidebarCard=document.getElementById('sidebarAccountCard');
+        const mobileLabel=document.getElementById('mobileAuthLabel');
+        if(user){
+            if(topBar) topBar.innerHTML=`
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                <span>مرحباً <strong>${user.realName}</strong>${user.isAdmin?' <span class="adm-badge">مديرة</span>':''}</span>
+                <span class="px-2.5 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>`;
+            if(topActions) topActions.innerHTML=`
+                <button onclick="navigateTo('profile')" class="px-3.5 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--bg-color)">صفحتي</button>
+                <button onclick="logoutCurrentUser()" class="px-3.5 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">خروج</button>`;
+            if(sidebarCard) sidebarCard.innerHTML=`
+                <div class="flex items-center justify-between gap-2">
+                    <div><p class="font-black">${user.realName} ${user.isAdmin?'👑':''}</p><p class="text-[11px]" style="color:var(--on-primary); opacity:.8">@${user.username} • ${user.role}</p></div>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>
+                </div>`;
+            if(mobileLabel) mobileLabel.textContent=user.realName.split(' ')[0];
+        } else {
+            if(topBar) topBar.innerHTML=`<span class="w-2.5 h-2.5 rounded-full inline-block" style="background:var(--accent-color)"></span><span>أنتِ تتصفحين كزائرة — <strong>سجّلي الدخول</strong> لإجراء الاختبار أو التعليق</span>`;
+            if(topActions) topActions.innerHTML=`
+                <button onclick="STATE.authTab='login'; navigateTo('profile');" class="px-4 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">تسجيل الدخول</button>
+                <button onclick="STATE.authTab='register'; navigateTo('profile');" class="px-4 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--tertiary-color); color:var(--on-tertiary)">إنشاء حساب</button>`;
+            if(sidebarCard) sidebarCard.innerHTML=`<p class="font-bold mb-2" style="color:var(--on-primary)">غير مسجلة الدخول</p><button onclick="navigateTo('profile')" class="w-full py-1.5 rounded-full font-black text-xs cursor-pointer" style="background:var(--tertiary-color); color:var(--on-tertiary)">دخول / تسجيل</button>`;
+            if(mobileLabel) mobileLabel.textContent='دخول';
+        }
+        updateSavedCounters(); updateVisitPills();
+    }
+    function updateSavedCounters(){
+        const user=getCurrentUser();
+        const count=user ? (user.savedResults?.length||0)+(user.favoriteSpecs?.length||0)+(user.favoriteArticles?.length||0) : 0;
+        const sb=document.getElementById('sidebarSavedBadge'); if(sb) sb.textContent=count;
+    }
+    function emptyMsg(t){ return `<p class="text-xs font-bold opacity-70 p-3.5 rounded-2xl text-center" style="background:var(--bg-color)">${t}</p>`; }
+    function renderProfileView(){
+        const authCard=document.getElementById('authGateCard');
+        const user=getCurrentUser();
+        if(authCard){
+            if(user){
+                authCard.innerHTML=`
+                    <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:var(--primary-color); color:var(--on-primary)"><i class="ph-fill ph-identification-badge text-2xl"></i></div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap"><h3 class="text-xl font-black">${user.realName}</h3><span class="px-3 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>${user.isAdmin?'<span class="adm-badge">مديرة الموقع 👑</span>':''}</div>
+                                <p class="text-xs font-bold opacity-75">@${user.username} • نقاط التفاعل: ${getAccountEngagementScore(user)}</p>
+                            </div>
+                        </div>
+                        <button onclick="logoutCurrentUser()" class="btn-neo px-5 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">تسجيل الخروج</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 pt-4 text-center">
+                        <div class="p-3 rounded-2xl" style="background:var(--bg-color)"><span class="block text-lg font-black" style="color:var(--primary-color)">${user.quizzesCount||0}</span><span class="text-xs font-bold">اختبارات منجزة</span></div>
+                        <div class="p-3 rounded-2xl" style="background:var(--bg-color)"><span class="block text-lg font-black" style="color:var(--accent-color)">${user.commentsCount||0}</span><span class="text-xs font-bold">تعليقات</span></div>
+                        <div class="p-3 rounded-2xl" style="background:var(--bg-color)"><span class="block text-lg font-black">${(user.favoriteSpecs?.length||0)+(user.favoriteArticles?.length||0)}</span><span class="text-xs font-bold">عناصر محفوظة</span></div>
+                    </div>`;
+            } else {
+                const isLogin=STATE.authTab==='login';
+                authCard.innerHTML=`
+                    <div class="flex items-center gap-2 mb-5 flex-wrap">
+                        <button onclick="STATE.authTab='login'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${isLogin?'background:var(--primary-color); color:var(--on-primary)':'background:var(--bg-color)'}">تسجيل الدخول</button>
+                        <button onclick="STATE.authTab='register'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${!isLogin?'background:var(--accent-color); color:var(--on-accent)':'background:var(--bg-color)'}">إنشاء حساب جديد</button>
+                    </div>
+                    ${isLogin
+                        ? `<form onsubmit="handleLoginSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                            <div class="fld"><label>اسم المستخدم</label><input type="text" id="loginUsername" required placeholder="مثال: sara_student"></div>
+                            <div class="fld"><label>كلمة السر</label><input type="password" id="loginPassword" required placeholder="••••••••"></div>
+                            <button type="submit" class="btn-neo py-2.5 px-6 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">دخول</button>
+                        </form>
+                        <p class="text-xs font-bold opacity-75 mt-3">ليس لديكِ حساب؟ اضغطي «إنشاء حساب جديد» وأدخلي الاسم الحقيقي واسم المستخدم وكلمة السر واختاري الصفة.</p>`
+                        : `<form onsubmit="handleRegisterSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
+                            <div class="fld"><label>الاسم الحقيقي *</label><input type="text" id="regRealName" required placeholder="الاسم الكامل"></div>
+                            <div class="fld"><label>اسم المستخدم *</label><input type="text" id="regUsername" required placeholder="مثال: rama_16"></div>
+                            <div class="fld"><label>كلمة السر *</label><input type="password" id="regPassword" required placeholder="••••••••"></div>
+                            <div class="fld"><label>الصفة *</label><select id="regRole"><option value="طالب">طالب</option><option value="معلم">معلم</option></select></div>
+                            <button type="submit" class="btn-neo py-2.5 px-5 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">تسجيل الحساب</button>
+                        </form>`}`;
+            }
+        }
+        const resBox=document.getElementById('profileSavedResults');
+        const majBox=document.getElementById('profileSavedMajors');
+        const artBox=document.getElementById('profileSavedArticles');
+        if(!user){
+            if(resBox) resBox.innerHTML=emptyMsg('سجّلي الدخول لعرض نتائجكِ.');
+            if(majBox) majBox.innerHTML=emptyMsg('سجّلي الدخول لعرض التخصصات المفضلة.');
+            if(artBox) artBox.innerHTML=emptyMsg('سجّلي الدخول لعرض المقالات المحفوظة.');
+            return;
+        }
+        if(resBox) resBox.innerHTML = user.savedResults.length ? user.savedResults.map((r,i)=>`
+            <div class="p-3 rounded-2xl flex items-center justify-between gap-2" style="background:var(--bg-color)">
+                <div><span class="font-black text-xs sm:text-sm block" style="color:var(--primary-color)">${r.summaryField}</span><span class="text-[11px] font-bold">${r.created_at}</span></div>
+                <button onclick="viewSavedResult(${i})" class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--surface-color)">عرض</button>
+            </div>`).join('') : emptyMsg('لم تجري الاختبار بعد.');
+        if(majBox) majBox.innerHTML = user.favoriteSpecs.length ? user.favoriteSpecs.map(id=>{
+            const sp=STORE.specs.find(s=>s.id===id); if(!sp) return '';
+            return `<div onclick="openSpecModal('${sp.id}')" class="p-3 rounded-2xl flex items-center justify-between cursor-pointer" style="background:var(--bg-color)">
+                <div><span class="font-black text-xs sm:text-sm block">${sp.title}</span><span class="text-[11px] font-bold" style="color:var(--primary-color)">${sp.job_title}</span></div>
+                <button onclick="toggleSpecFav(event,'${sp.id}')" class="cursor-pointer" style="color:var(--accent-color)"><i class="ph-fill ph-heart text-base"></i></button></div>`;
+        }).join('') : emptyMsg('لا توجد تخصصات مفضلة.');
+        if(artBox) artBox.innerHTML = user.favoriteArticles.length ? user.favoriteArticles.map(id=>{
+            const art=STORE.articles.find(a=>a.id===id); if(!art) return '';
+            return `<div onclick="openArticleModal('${art.id}')" class="p-3 rounded-2xl flex items-center justify-between cursor-pointer" style="background:var(--bg-color)">
+                <span class="font-black text-xs sm:text-sm">${art.title}</span>
+                <button onclick="toggleArticleFav(event,'${art.id}')" class="cursor-pointer" style="color:var(--primary-color)"><i class="ph-fill ph-bookmark-simple text-base"></i></button></div>`;
+        }).join('') : emptyMsg('لا توجد مقالات محفوظة.');
+    }
+    function viewSavedResult(i){
+        const user=getCurrentUser(); if(!user) return;
+        const r=user.savedResults[i]; if(!r) return;
+        renderResultsView(r); navigateTo('results');
+    }
+
+    /* =================================================================
+       9. لوحة التحكم (مديرة فقط)
+       ================================================================= */
+    const ADMIN_TABS = [
+        ['colors','الألوان','ph-palette'], ['articles','المقالات','ph-article'],
+        ['tracks','المجالات','ph-compass'], ['specs','التخصصات','ph-graduation-cap'],
+        ['pathways','المسارات','ph-path'], ['skills','المهارات','ph-rocket-launch'],
+        ['accounts','الحسابات','ph-users-three'], ['stats','الإحصائيات','ph-chart-bar'], ['danger','إعادة الضبط','ph-arrow-counter-clockwise']
+    ];
+    const ADMIN_TYPES = {
+        tracks:{ label:'مجال', fields:[['title','اسم المجال'],['icon','الأيقونة (مثل ph-heart)'],['description','الوصف','textarea'],['nature','طبيعة العمل','textarea'],['subjects','المواد والموضوعات','textarea'],['required_skills','المهارات المطلوبة','textarea'],['careers_list','الوظائف','textarea']] },
+        specs:{ label:'تخصص/وظيفة', fields:[['title','اسم التخصص'],['job_title','اسم الوظيفة'],['track_id','المجال التابع له','track'],['description','شرح مبسط','textarea'],['subjects','ماذا تدرس الطالبة؟','textarea'],['skills','المهارات المطلوبة','textarea'],['work_env','بيئة العمل','textarea'],['careers','الوظائف والفرص','textarea'],['related_majors','تخصصات مرتبطة','textarea']] },
+        articles:{ label:'مقال', fields:[['title','عنوان المقال'],['category','التصنيف'],['track_id','الربط بمجال (اختياري)','track_opt'],['read_time','مدة القراءة'],['summary','الملخص','textarea'],['content','نص المقال','textarea']] },
+        pathways:{ label:'مسار', fields:[['title','اسم المسار'],['icon','الأيقونة'],['description','الوصف','textarea'],['requirements','الشروط والمتطلبات','textarea'],['how_to_join','طريقة الالتحاق','textarea'],['entities','الجهات والمؤسسات','textarea']] },
+        skills:{ label:'مهارة', fields:[['title','العنوان'],['category','التصنيف'],['importance','الأهمية','textarea'],['how_to','طريقة التطوير','textarea']] }
+    };
+    function renderAdminPanel(){
+        if(!isAdmin()){ navigateTo('home'); return; }
+        const tabsBar=document.getElementById('adminTabsBar');
+        tabsBar.innerHTML = ADMIN_TABS.map(t=>`<button onclick="STATE.adminTab='${t[0]}'; STATE.adminEditId=null; renderAdminPanel();" class="admin-tab ${STATE.adminTab===t[0]?'on':''} flex items-center gap-1.5 shrink-0"><i class="ph-bold ${t[2]}"></i>${t[1]}</button>`).join('');
+        const box=document.getElementById('adminPanelContent');
+        const t=STATE.adminTab;
+        if(t==='colors'){
+            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
+                <h3 class="text-lg font-black">اختيار لوحة ألوان الموقع</h3>
+                <p class="text-xs sm:text-sm font-bold opacity-75">اللوحة المختارة تظهر لجميع الزائرات فوراً وتُحفظ في المتصفح. اللوحة الحالية: <b id="currentPaletteName">${PALETTES[STORE.settings.palette||0].n}</b></p>
+                <div class="palette-grid">
+                    ${PALETTES.map((p,i)=>`<button onclick="applyPalette(${i}); document.getElementById('currentPaletteName').textContent='${p.n}'; showToast('تم تطبيق لوحة ${p.n}')" class="palette-card ${(STORE.settings.palette||0)===i?'on':''}">
+                        <b>${i+1}. ${p.n}</b><div class="swatches"><i style="background:${p.bg}"></i><i style="background:${p.p}"></i><i style="background:${p.a}"></i><i style="background:${p.s}"></i><i style="background:${p.tx}"></i></div>
+                    </button>`).join('')}
+                </div>
+                <p class="text-[11px] font-bold opacity-60">ملاحظة: عند الربط بقاعدة بيانات لاحقاً تُحفظ اللوحة في جدول site_settings وتُطبق لكل الزائرات.</p>
+            </div>`;
+            return;
+        }
+        if(t==='accounts'){
+            const ranked=[...STATE.accounts].sort((a,b)=>getAccountEngagementScore(b)-getAccountEngagementScore(a));
+            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
+                <h3 class="text-lg font-black">الحسابات المسجلة <span class="adm-badge">${STATE.accounts.length}</span></h3>
+                <p class="text-xs font-bold opacity-75">إدارة كاملة: حذف الحسابات الوهمية، تغيير الصفة، ومشاهدة الأكثر تفاعلاً. هذا القسم يظهر لكِ فقط.</p>
+                <div class="space-y-2.5">
+                ${ranked.map((acc,idx)=>`
+                    <div class="admin-list-row">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="w-7 h-7 rounded-full border border-[var(--text-color)] flex items-center justify-center text-xs font-black shrink-0" style="background:${idx===0?'var(--tertiary-color)':'var(--bg-color)'}">${idx+1}</span>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap"><span class="font-black text-sm">${acc.realName}</span>${acc.isAdmin?'<span class="adm-badge">مديرة 👑</span>':''}<span class="px-2 py-0.5 rounded-full border border-[var(--text-color)] text-[10px] font-black" style="background:var(--surface-color)">${acc.role}</span></div>
+                                <span class="text-xs font-bold opacity-70">@${acc.username} • اختبارات: ${acc.quizzesCount||0} • تعليقات: ${acc.commentsCount||0} • نقاط التفاعل: ${getAccountEngagementScore(acc)}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            ${!acc.isAdmin?`<select onchange="adminChangeRole('${acc.id}', this.value)" class="px-2 py-1 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--surface-color)"><option value="طالب" ${acc.role==='طالب'?'selected':''}>طالب</option><option value="معلم" ${acc.role==='معلم'?'selected':''}>معلم</option></select>
+                            <button onclick="adminDeleteAccount('${acc.id}')" class="px-3 py-1.5 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer hover:opacity-85" style="background:var(--accent-color); color:var(--on-accent)">حذف</button>`:'<span class="text-[11px] font-black opacity-60">الحساب الرئيسي</span>'}
+                        </div>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+            return;
+        }
+        if(t==='stats'){
+            const totalQuizzes=STATE.accounts.reduce((s,a)=>s+(a.quizzesCount||0),0);
+            const totalComments=STATE.accounts.reduce((s,a)=>s+(a.commentsCount||0),0);
+            const totalCommentsAll=STORE.articles.reduce((s,a)=>s+((a.comments||[]).length),0);
+            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
+                <h3 class="text-lg font-black">إحصائيات الموقع</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="p-4 rounded-2xl border border-[var(--text-color)]" style="background:var(--bg-color)"><span class="block text-2xl font-black" style="color:var(--primary-color)">${(STORE.settings.visits||0).toLocaleString('ar-EG')}</span><span class="text-xs font-bold">زيارة للموقع</span></div>
+                    <div class="p-4 rounded-2xl border border-[var(--text-color)]" style="background:var(--bg-color)"><span class="block text-2xl font-black" style="color:var(--accent-color)">${STATE.accounts.length}</span><span class="text-xs font-bold">حساب مسجل</span></div>
+                    <div class="p-4 rounded-2xl border border-[var(--text-color)]" style="background:var(--bg-color)"><span class="block text-2xl font-black">${totalQuizzes}</span><span class="text-xs font-bold">اختبار منجز</span></div>
+                    <div class="p-4 rounded-2xl border border-[var(--text-color)]" style="background:var(--bg-color)"><span class="block text-2xl font-black">${totalCommentsAll}</span><span class="text-xs font-bold">تعليق على المقالات</span></div>
+                </div>
+                <p class="text-[11px] font-bold opacity-60">تُحفظ هذه الإحصائيات محلياً في متصفحكِ (تجريبياً)؛ مع الربط بقاعدة البيانات تصبح حقيقية ومركزية لكل الزائرات.</p>
+            </div>`;
+            return;
+        }
+        if(t==='danger'){
+            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4" style="border-color:var(--accent-color)">
+                <h3 class="text-lg font-black" style="color:var(--accent-color)">منطقة الخطر</h3>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="adminResetContent()" class="btn-neo px-5 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--tertiary-color); color:var(--on-tertiary)">إعادة المحتوى للوضع الافتراضي</button>
+                    <button onclick="adminFactoryReset()" class="btn-neo px-5 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">مسح كل شيء (محتوى + حسابات + زيارات)</button>
+                </div>
+                <p class="text-[11px] font-bold opacity-60">مسح كل شيء يعيد الموقع كأول مرة: يبقى حساب المديرة فقط ويعاد توليده تلقائياً.</p>
+            </div>`;
+            return;
+        }
+        // أقسام المحتوى (tracks/specs/articles/pathways/skills)
+        const schema=ADMIN_TYPES[t];
+        const editing = STATE.adminEditId ? STORE[t].find(x=>x.id===STATE.adminEditId) : null;
+        const isOpen = STATE.adminAddOpen[t] || editing;
+        const items=[...STORE[t]].reverse();
+        const fieldHTML = (f)=>{
+            const [k,label,kind]=f;
+            const val = editing ? (editing[k]||'') : '';
+            if(kind==='textarea') return `<div class="fld"><label>${label}</label><textarea id="af_${k}">${val}</textarea></div>`;
+            if(kind==='track'||kind==='track_opt'){
+                const opts = STORE.tracks.map(tr=>`<option value="${tr.id}" ${val===tr.id?'selected':''}>${tr.title}</option>`).join('');
+                return `<div class="fld"><label>${label}</label><select id="af_${k}">${kind==='track_opt'?`<option value="">— بدون ربط —</option>`:''}${opts}</select></div>`;
+            }
+            return `<div class="fld"><label>${label}</label><input type="text" id="af_${k}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+        };
+        box.innerHTML=`<div class="space-y-5">
+            <div class="p-6 rounded-3xl card-neo space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-lg font-black">${editing?'تعديل':'إضافة'} ${schema.label} ${editing?'<span class="adm-badge">وضع التعديل</span>':''}</h3>
+                    <button onclick="STATE.adminAddOpen['${t}']=!${isOpen}; STATE.adminEditId=null; renderAdminPanel();" class="px-4 py-1.5 rounded-full border-2 border-[var(--text-color)] text-xs font-black cursor-pointer" style="background:${isOpen?'var(--accent-color)':'var(--primary-color)'}; color:${isOpen?'var(--on-accent)':'var(--on-primary)'}">${isOpen?'إخفاء النموذج':'+ نموذج الإضافة'}</button>
+                </div>
+                ${isOpen?`<form onsubmit="adminSaveItem(event,'${t}')" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    ${schema.fields.map(fieldHTML).join('')}
+                    <div class="sm:col-span-2 flex flex-wrap gap-2 pt-2">
+                        <button type="submit" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] text-sm font-extrabold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">${editing?'حفظ التعديلات':'إضافة'}</button>
+                        ${editing?`<button type="button" onclick="STATE.adminEditId=null; renderAdminPanel();" class="px-5 py-2.5 rounded-full border-2 border-[var(--text-color)] text-sm font-extrabold cursor-pointer" style="background:var(--surface-color)">إلغاء التعديل</button>`:''}
+                    </div>
+                </form>`:''}
+            </div>
+            <div class="p-6 rounded-3xl card-neo space-y-2.5">
+                <h3 class="text-base font-black">العناصر الحالية (${STORE[t].length})</h3>
+                ${items.map(it=>{
+                    const sub = it.job_title || it.category || (it.track_id?trackTitle(it.track_id):'') || '';
+                    return `<div class="admin-list-row">
+                        <div><span class="font-black text-sm">${it.title}</span>${sub?`<span class="text-xs font-bold opacity-70"> — ${sub}</span>`:''}</div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="STATE.adminEditId='${it.id}'; renderAdminPanel(); window.scrollTo({top:0,behavior:'smooth'})" class="px-3 py-1.5 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--bg-color)">تعديل</button>
+                            <button onclick="adminDeleteItem('${t}','${it.id}')" class="px-3 py-1.5 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حذف</button>
+                        </div>
+                    </div>`;
+                }).join('') || '<p class="text-xs font-bold opacity-70">لا توجد عناصر.</p>'}
+            </div>
+        </div>`;
+    }
+    function adminSaveItem(e, type){
+        e.preventDefault();
+        const schema=ADMIN_TYPES[type];
+        const obj={};
+        schema.fields.forEach(([k])=>{ const el=document.getElementById('af_'+k); if(el) obj[k]=el.value.trim(); });
+        if(STATE.adminEditId){
+            const it=STORE[type].find(x=>x.id===STATE.adminEditId);
+            if(it){ Object.assign(it,obj); showToast('تم حفظ التعديلات'); }
+            STATE.adminEditId=null;
+        } else {
+            obj.id=type.slice(0,4)+'_'+Date.now();
+            if(type==='articles'){ obj.likes=0; obj.dislikes=0; obj.comments=[]; }
+            STORE[type].unshift(obj);
+            showToast('تمت الإضافة بنجاح');
+        }
+        saveStore();
+        STATE.adminAddOpen[type]=false;
+        renderAdminPanel(); refreshPublicSections();
+    }
+    function adminDeleteItem(type, id){
+        if(!confirm('هل أنتِ متأكدة من الحذف؟')) return;
+        STORE[type]=STORE[type].filter(x=>x.id!==id);
+        saveStore(); renderAdminPanel(); refreshPublicSections();
+        showToast('تم الحذف','ph-trash');
+    }
+    function adminDeleteAccount(accId){
+        if(!confirm('حذف هذا الحساب نهائياً؟')) return;
+        STATE.accounts=STATE.accounts.filter(a=>a.id!==accId);
+        saveAccounts(); renderAdminPanel(); updateAuthUI();
+        showToast('تم حذف الحساب','ph-trash');
+    }
+    function adminChangeRole(accId, role){
+        const acc=STATE.accounts.find(a=>a.id===accId);
+        if(!acc) return;
+        acc.role=role; saveAccounts(); renderAdminPanel();
+        showToast('تم تغيير صفة '+acc.realName+' إلى '+role);
+    }
+    function adminResetContent(){
+        if(!confirm('سيتم استبدال كل المحتوى المعدّل بالمحتوى الافتراضي. متابعة؟')) return;
+        STORE.tracks=JSON.parse(JSON.stringify(DEFAULT_CONTENT.tracks));
+        STORE.specs=JSON.parse(JSON.stringify(DEFAULT_CONTENT.specs));
+        STORE.pathways=JSON.parse(JSON.stringify(DEFAULT_CONTENT.pathways));
+        STORE.skills=JSON.parse(JSON.stringify(DEFAULT_CONTENT.skills));
+        STORE.articles=JSON.parse(JSON.stringify(DEFAULT_CONTENT.articles));
+        STORE.matrix=JSON.parse(JSON.stringify(DEFAULT_CONTENT.matrix));
+        saveStore(); renderAdminPanel(); refreshPublicSections();
+        showToast('تمت إعادة المحتوى الافتراضي');
+    }
+    function adminFactoryReset(){
+        if(!confirm('تحذير: سيتم مسح المحتوى والحسابات (عدا حساب المديرة) والزيارات. متابعة؟')) return;
+        localStorage.removeItem(LS_CONTENT); localStorage.removeItem(LS_ACCOUNTS); localStorage.removeItem(LS_SETTINGS); localStorage.removeItem('mm_last_visit');
+        location.reload();
+    }
+    function refreshPublicSections(){
+        renderHomeFields(); renderHomeArticlesPreview(); renderPathwaysGrid(); renderFieldsFullGrid();
+        renderMajorsSection(); renderSkillsGrid(); renderArticlesFullGrid();
+        if(STATE.activeSection==='profile') renderProfileView();
+        renderInspiredQuizFormIfActive();
+    }
+    function renderInspiredQuizFormIfActive(){ if(STATE.activeSection==='quiz') renderInspiredQuizForm(); }
+
+    /* =================================================================
+       10. أدوات مساعدة والتشغيل
+       ================================================================= */
+    function closeInfoModal(e){
+        if(e && e.target.id!=='infoModal') return;
+        const modal=document.getElementById('infoModal');
+        modal.classList.add('hidden'); modal.classList.remove('flex');
+    }
+    let toastTimeout;
+    function showToast(msg, icon='ph-check-circle'){
+        const box=document.getElementById('toastBox');
+        document.getElementById('toastBoxMessage').textContent=msg;
+        document.getElementById('toastBoxIcon').className='ph-fill '+icon+' text-lg';
+        document.getElementById('toastBoxIcon').style.color='var(--tertiary-color)';
+        box.classList.remove('opacity-0','translate-y-4');
+        clearTimeout(toastTimeout);
+        toastTimeout=setTimeout(()=>{ box.classList.add('opacity-0','translate-y-4'); }, 2800);
+    }
+    document.addEventListener('DOMContentLoaded', ()=>{
+        applyPalette(STORE.settings.palette||0, false);
+        renderNavMenus(); updateAuthUI();
+        renderHomeFields(); renderHomeArticlesPreview();
+        renderPathwaysGrid(); renderFieldsFullGrid(); renderMajorsSection();
+        renderSkillsGrid(); renderArticlesFullGrid(); renderProfileView();
+        const searchInput=document.getElementById('majorSearchInput');
+        if(searchInput) searchInput.addEventListener('input', (e)=>{ STATE.searchQuery=e.target.value.trim(); renderMajorsCards(); });
+    });
+    </script>
+</body>
+</html>
