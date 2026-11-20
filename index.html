@@ -1395,5 +1395,14 @@
         if(searchInput) searchInput.addEventListener('input', (e)=>{ STATE.searchQuery=e.target.value.trim(); renderMajorsCards(); });
     });
     </script>
+
+    <!-- قبل إغلاق </body> في نهاية الملف -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://lhpeveaogupprdrpcyno.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_1ThHmH79jo3mJWqwPUz65w_wiYnRWvN";
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+</body>
 </body>
 </html>
