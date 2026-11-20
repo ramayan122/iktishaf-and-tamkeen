@@ -663,50 +663,61 @@
          * 1. بيانات الحسابات والصلاحيات (اسم حقيقي + يوزر + كلمة سر + طالب/معلم)
          * ===================================================================
          */
-        const INITIAL_ACCOUNTS = [
-            {
-                id: "acc_student_1",
-                realName: "سارة المنصور",
-                username: "sara_student",
-                password: "123",
-                role: "طالب",
-                hasVisited: true,
-                quizzesCount: 2,
-                commentsCount: 3,
-                likesCount: 4,
-                savedResults: [],
-                favoriteSpecs: ["spec_02", "spec_04"],
-                favoriteArticles: ["art_1"]
-            },
-            {
-                id: "acc_teacher_1",
-                realName: "أ. نورة الحربي",
-                username: "noura_teacher",
-                password: "123",
-                role: "معلم",
-                hasVisited: true,
-                quizzesCount: 1,
-                commentsCount: 5,
-                likesCount: 6,
-                savedResults: [],
-                favoriteSpecs: ["spec_10"],
-                favoriteArticles: ["art_1", "art_2"]
-            },
-            {
-                id: "acc_student_2",
-                realName: "جود الغامدي",
-                username: "joud_std",
-                password: "123",
-                role: "طالب",
-                hasVisited: false,
-                quizzesCount: 1,
-                commentsCount: 1,
-                likesCount: 2,
-                savedResults: [],
-                favoriteSpecs: [],
-                favoriteArticles: []
+        // =====================================================================
+        // إعدادات الربط مع Supabase (ضع بيانات مشروعك هنا عند الربط)
+        // =====================================================================
+        const SUPABASE_CONFIG = {
+            url: "https://jcsarxytyadzuyukakhf.supabase.co",       // مثال: "https://xxxxxxxxxxxx.supabase.co"
+            anonKey: "sb_publishable_uEYkeyIXyfIrA_E-KoP7kQ_e2ujdSjQ"    // ضع هنا مفتاح anon public key من Supabase
+        };
+
+        /*
+         * مقترح جداول Supabase SQL (إن رغبتِ بربط قاعدة البيانات لاحقاً):
+         * create table profiles (
+         *   id uuid primary key default gen_random_uuid(),
+         *   real_name text not null,
+         *   username text unique not null,
+         *   password text not null,
+         *   role text check (role in ('طالب', 'معلم')) not null,
+         *   has_visited boolean default true,
+         *   quizzes_count int default 0,
+         *   comments_count int default 0,
+         *   likes_count int default 0,
+         *   created_at timestamptz default now()
+         * );
+         */
+
+        async function syncAccountToSupabase(account) {
+            if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
+                // لم يتم إدخال بيانات Supabase بعد؛ يتم العمل محلياً في المتصفح
+                return;
             }
-        ];
+            try {
+                await fetch(`${SUPABASE_CONFIG.url}/rest/v1/profiles`, {
+                    method: "POST",
+                    headers: {
+                        "apikey": SUPABASE_CONFIG.anonKey,
+                        "Authorization": `Bearer ${SUPABASE_CONFIG.anonKey}`,
+                        "Content-Type": "application/json",
+                        "Prefer": "resolution=merge-duplicates"
+                    },
+                    body: JSON.stringify({
+                        real_name: account.realName,
+                        username: account.username,
+                        password: account.password,
+                        role: account.role,
+                        has_visited: account.hasVisited,
+                        quizzes_count: account.quizzesCount || 0,
+                        comments_count: account.commentsCount || 0,
+                        likes_count: account.likesCount || 0
+                    })
+                });
+            } catch (err) {
+                console.warn("تعذر المزامنة مع Supabase:", err);
+            }
+        }
+
+        const INITIAL_ACCOUNTS = [];
 
         const PART_ONE_PROMPTS = [
             { key: "loved_subjects", label: "المواد التي أحبها", placeholder: "مثال: الأحياء، الحاسب، الفيزياء..." },
@@ -897,9 +908,7 @@
                     content: "اختيار التخصص الجامعي قرار يخص مستقبلكِ وحدكِ. ابدئي بتقييم قدراتكِ في المواد الدراسية وميولكِ وبيئة العمل التي ترتاحين لها، ثم اقرئي الخطة الدراسية الفعلية للتخصصات التي تميلين إليها وتعرفي على طبيعة الدراسة والوظائف المرتبطة بها قبل اتخاذ القرار النهائي.",
                     likes: 18,
                     dislikes: 1,
-                    comments: [
-                        { author: "أ. نورة الحربي", role: "معلم", text: "قراءة الخطة الدراسية قبل التقديم فرّقت مع طالباتي كثيراً في فهم طبيعة المواد." }
-                    ]
+                    comments: []
                 },
                 {
                     id: "art_2",
@@ -1002,6 +1011,7 @@
 
             found.hasVisited = true;
             STATE.currentUserId = found.id;
+            syncAccountToSupabase(found);
             updateAuthUI();
             renderProfileView();
             showToast(`أهلاً بكِ يا ${found.realName} (${found.role})`);
@@ -1042,6 +1052,7 @@
 
             STATE.accounts.push(newAcc);
             STATE.currentUserId = newAcc.id;
+            syncAccountToSupabase(newAcc);
             updateAuthUI();
             renderProfileView();
             showToast(`تم إنشاء حساب (${role}) باسم ${realName}`);
@@ -1973,7 +1984,7 @@
                                     </button>
                                 </form>
                                 <p class="text-xs font-bold text-[var(--text-color)]/75 mt-3">
-                                    حسابات جاهزة للتجربة (كلمة السر: <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">123</code>): طالب <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">sara_student</code> أو معلم <code class="bg-[var(--bg-color)] px-1.5 py-0.5 rounded">noura_teacher</code>
+                                    ليس لديكِ حساب بعد؟ اضغطي على <strong>«إنشاء حساب جديد»</strong> وأدخلي الاسم الحقيقي واسم المستخدم وكلمة السر واختاري الصفة (طالب أو معلم).
                                 </p>
                             `
                             : `
@@ -2013,6 +2024,9 @@
             const visitedCount = document.getElementById("visitedAccountsCount");
             if (visitedCount) visitedCount.textContent = visited.length;
             if (visitedBox) {
+                if (visited.length === 0) {
+                    visitedBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">لا توجد حسابات دخلت بعد.</p>`;
+                } else {
                 visitedBox.innerHTML = visited.map(acc => {
                     const isCurrent = user && user.id === acc.id;
                     return `
@@ -2032,12 +2046,16 @@
                         </div>
                     `;
                 }).join("");
+                }
             }
 
             // الحسابات الأكثر تفاعلاً
             const activeRanked = [...STATE.accounts].sort((a, b) => getAccountEngagementScore(b) - getAccountEngagementScore(a));
             const activeBox = document.getElementById("mostActiveAccountsList");
             if (activeBox) {
+                if (activeRanked.length === 0) {
+                    activeBox.innerHTML = `<p class="text-xs font-bold text-[var(--text-color)]/70 bg-[var(--bg-color)] p-3.5 rounded-2xl text-center">لا توجد حسابات مسجلة بعد.</p>`;
+                } else {
                 activeBox.innerHTML = activeRanked.map((acc, idx) => {
                     const score = getAccountEngagementScore(acc);
                     return `
@@ -2056,6 +2074,7 @@
                         </div>
                     `;
                 }).join("");
+                }
             }
 
             // المحفوظات والنتائج للحساب الحالي
