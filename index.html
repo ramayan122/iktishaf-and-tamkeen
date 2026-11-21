@@ -425,9 +425,10 @@
         if (!isSupabaseReady()) return null;
         if (sbClient) return sbClient;
         const k = getActiveSupabaseKeys();
-        sbClient = window.supabase.createClient(k.url.trim(), k.anonKey.trim());
+        sbClient = window.supabase.createClient(k.url.trim(), k.anonKey.trim(), { db: { schema: 'masara' } });
         return sbClient;
     }
+    const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
     /* =================================================================
        1. لوحات الألوان (9 لوحات)
@@ -725,7 +726,7 @@
             if(sk.data && sk.data.length) STORE.skills = sk.data;
             if(ar.data && ar.data.length){
                 const cMap = {};
-                (cm.data||[]).forEach(c=>{ (cMap[c.article_id]=cMap[c.article_id]||[]).push({ author:c.author_name, role:c.author_role, text:c.text }); });
+                (cm.data||[]).forEach(c=>{ (cMap[c.article_id]=cMap[c.article_id]||[]).push({ id:c.id, userId:c.user_id, author:c.author_name, role:c.author_role, authorBadge:c.author_badge||'', text:c.text }); });
                 STORE.articles = ar.data.map(a=>({ ...a, comments:cMap[a.id]||[] }));
             }
             if(st.data && typeof st.data.palette_index === 'number') applyPalette(st.data.palette_index, false);
@@ -753,6 +754,9 @@
             const userObj = {
                 id:data.id, realName:data.realName, username:data.username,
                 role: data.role==='معلمة'?'معلمة':'طالبة', isAdmin:Boolean(data.isAdmin),
+                badge: data.badge || '',
+                restrictionType: data.restrictionType || 'none',
+                restrictionReason: data.restrictionReason || '',
                 favoriteSpecs:data.favoriteSpecs||[], favoriteArticles:data.favoriteArticles||[],
                 savedResults: (resList||[]).map(r=>({ id:r.id, quizType:r.quiz_type, summaryTitle:r.summary_title, created_at:r.created_at, ...(r.payload||{}) })).reverse()
             };
@@ -768,6 +772,10 @@
         const pHash = await hashPass(password);
         const found = STATE.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase() && a.passwordHash===pHash);
         if(!found){ showToast('اسم المستخدم أو كلمة السر غير صحيحة','ph-warning-circle'); return; }
+        if(found.restrictionType === 'suspended' && !found.isAdmin){
+            showToast(found.restrictionReason ? 'تم تجميد هذا الحساب: ' + found.restrictionReason : 'تم تجميد هذا الحساب من قِبل مديرة الموقع','ph-prohibit');
+            return;
+        }
         STATE.currentUserObj = found;
         STATE.currentUserId = found.id;
         sessionStorage.setItem(LS_SESSION, found.id);
@@ -787,7 +795,11 @@
         if(sb && !asLocalAdmin){
             const { data, error } = await sb.rpc('register_user', { p_real_name:realName, p_username:username, p_password:password, p_role:role });
             if(error || !data || data.error){ showToast((data && data.error) || 'تعذر إنشاء الحساب','ph-warning-circle'); return; }
-            const userObj = { id:data.id, realName:data.realName, username:data.username, role:data.role, isAdmin:false, favoriteSpecs:[], favoriteArticles:[], savedResults:[] };
+            const userObj = {
+                id:data.id, realName:data.realName, username:data.username, role:data.role,
+                isAdmin:false, badge:data.badge||'', restrictionType:data.restrictionType||'none', restrictionReason:data.restrictionReason||'',
+                favoriteSpecs:[], favoriteArticles:[], savedResults:[]
+            };
             STATE.currentUserObj = userObj;
             STATE.currentUserId = userObj.id;
             sessionStorage.setItem(LS_SESSION, userObj.id);
@@ -798,7 +810,12 @@
 
         if(STATE.accounts.some(a=>a.username.toLowerCase()===username.toLowerCase())){ showToast('اسم المستخدم مستخدم مسبقاً','ph-warning-circle'); return; }
         const pHash = await hashPass(password);
-        const newAcc = { id:'acc_'+Date.now(), realName, username, passwordHash:pHash, role, isAdmin:Boolean(asLocalAdmin), savedResults:[], favoriteSpecs:[], favoriteArticles:[] };
+        const newAcc = {
+            id:'acc_'+Date.now(), realName, username, passwordHash:pHash, role,
+            isAdmin:Boolean(asLocalAdmin), badge: asLocalAdmin?'مديرة الموقع':'',
+            restrictionType:'none', restrictionReason:'',
+            savedResults:[], favoriteSpecs:[], favoriteArticles:[]
+        };
         STATE.accounts.push(newAcc); saveAccounts();
         STATE.currentUserObj = newAcc; STATE.currentUserId = newAcc.id;
         sessionStorage.setItem(LS_SESSION, newAcc.id);
@@ -1595,7 +1612,7 @@
         if(idx===-1){ user.favoriteSpecs.push(specId); showToast('تم حفظ التخصص في صفحتكِ'); }
         else { user.favoriteSpecs.splice(idx,1); showToast('تمت الإزالة من المفضلة','ph-trash'); }
         const sb=getSupabase();
-        if(sb) await sb.from('app_users').update({ favorite_specs:user.favoriteSpecs }).eq('id', user.id);
+        if(sb) await sb.rpc('update_user_favorites', { p_user_id:user.id, p_favorite_specs:user.favoriteSpecs, p_favorite_articles:user.favoriteArticles });
         else saveAccounts();
         updateSavedCounters();
         if(STATE.activeSection==='academic') renderAcademicSection();
@@ -1632,6 +1649,7 @@
     function openArticleModal(artId){
         const art=STORE.articles.find(a=>a.id===artId); if(!art) return;
         const user=getCurrentUser(); const isFav=user?user.favoriteArticles.includes(art.id):false;
+        const isMuted = Boolean(user && !user.isAdmin && (user.restrictionType==='mute_comments' || user.restrictionType==='suspended'));
         document.getElementById('modalCategoryBadge').textContent = art.category + ' • ' + art.read_time;
         document.getElementById('modalHeadingTitle').textContent = art.title;
         document.getElementById('modalContentArea').innerHTML = `
@@ -1641,11 +1659,21 @@
                 <div class="space-y-2">
                     ${(art.comments||[]).length===0
                         ? '<p class="text-xs font-bold opacity-70">لا توجد تعليقات بعد؛ سجّلي الدخول لمشاركة رأيكِ.</p>'
-                        : art.comments.map(c=>`<div class="p-3 rounded-xl border text-xs" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 15%, transparent)"><span class="font-black" style="color:var(--primary-color)">${c.author}</span>${c.role?`<span class="px-2 py-0.5 rounded-full text-[10px] font-black mx-1" style="background:var(--tertiary-color)">${c.role}</span>`:''}<span class="font-bold">: ${c.text}</span></div>`).join('')}
+                        : art.comments.map(c=>`<div class="p-3 rounded-xl border text-xs flex items-start justify-between gap-2" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 15%, transparent)">
+                            <div class="leading-relaxed">
+                                <span class="font-black" style="color:var(--primary-color)">${esc(c.author)}</span>
+                                ${c.role?`<span class="px-2 py-0.5 rounded-full text-[10px] font-black mx-1" style="background:var(--tertiary-color); color:var(--on-tertiary)">${esc(c.role)}</span>`:''}
+                                ${c.authorBadge?`<span class="adm-badge mx-0.5">${esc(c.authorBadge)}</span>`:''}
+                                <span class="font-bold">: ${esc(c.text)}</span>
+                            </div>
+                            ${isAdmin() && c.id ? `<button type="button" onclick="adminDeleteComment('${art.id}','${c.id}',true)" class="px-2.5 py-1 rounded-full border border-[var(--text-color)] text-[10px] font-black shrink-0 cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حذف</button>` : ''}
+                        </div>`).join('')}
                 </div>
-                ${user
-                    ? `<form onsubmit="addArticleComment(event,'${art.id}')" class="flex gap-2 pt-1"><input type="text" id="newCommentInput" required placeholder="أضيفي تعليقاً باسم ${user.realName}..." class="flex-grow px-3.5 py-2 rounded-xl border text-xs font-bold focus:outline-none" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)"><button type="submit" class="px-4 py-2 rounded-xl text-xs font-black cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">إرسال</button></form>`
-                    : `<div class="p-3 rounded-xl border border-dashed flex items-center justify-between gap-2 text-xs" style="background:var(--surface-color); border-color:var(--accent-color)"><span class="font-extrabold" style="color:var(--accent-color)">سجّلي الدخول لإضافة تعليق.</span><button type="button" onclick="closeInfoModal(); navigateTo('profile');" class="px-3 py-1.5 rounded-full font-black text-xs cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">تسجيل الدخول</button></div>`}
+                ${!user
+                    ? `<div class="p-3 rounded-xl border border-dashed flex items-center justify-between gap-2 text-xs" style="background:var(--surface-color); border-color:var(--accent-color)"><span class="font-extrabold" style="color:var(--accent-color)">سجّلي الدخول لإضافة تعليق.</span><button type="button" onclick="closeInfoModal(); navigateTo('profile');" class="px-3 py-1.5 rounded-full font-black text-xs cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">تسجيل الدخول</button></div>`
+                    : isMuted
+                    ? `<div class="p-3 rounded-xl border-2 text-xs font-extrabold" style="background:var(--surface-color); border-color:var(--accent-color); color:var(--accent-color)">تم تقييد ميزة التعليق لهذا الحساب من قِبل الإدارة${user.restrictionReason ? ': ' + esc(user.restrictionReason) : '.'}</div>`
+                    : `<form onsubmit="addArticleComment(event,'${art.id}')" class="flex gap-2 pt-1"><input type="text" id="newCommentInput" required placeholder="أضيفي تعليقاً باسم ${esc(user.realName)}..." class="flex-grow px-3.5 py-2 rounded-xl border text-xs font-bold focus:outline-none" style="background:var(--surface-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)"><button type="submit" class="px-4 py-2 rounded-xl text-xs font-black cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">إرسال</button></form>`}
             </div>`;
         document.getElementById('modalActionsArea').innerHTML = `
             <button onclick="toggleArticleFav(null,'${art.id}',true)" class="px-5 py-2.5 rounded-full font-extrabold text-xs sm:text-sm border-2 border-[var(--text-color)] flex items-center gap-1.5 cursor-pointer" style="${isFav?'background:var(--primary-color); color:var(--on-primary)':'background:var(--surface-color); color:var(--on-surface)'}"><i class="${isFav?'ph-fill':'ph-bold'} ph-bookmark-simple text-base"></i><span>${isFav?'محفوظ في صفحتي':'حفظ المقال'}</span></button>
@@ -1657,13 +1685,17 @@
         e.preventDefault();
         const user=getCurrentUser();
         if(!user){ closeInfoModal(); requireLoginAction('لا يمكنكِ التعليق إلا بعد تسجيل الدخول.'); return; }
+        if(!user.isAdmin && (user.restrictionType==='mute_comments' || user.restrictionType==='suspended')){
+            showToast('التعليقات مقيدة لهذا الحساب حالياً','ph-prohibit');
+            return;
+        }
         const input=document.getElementById('newCommentInput');
         const art=STORE.articles.find(a=>a.id===artId);
         if(!art || !input || !input.value.trim()) return;
-        const cmt = { id:'cmt_'+Date.now(), author:user.realName, role:user.role, text:input.value.trim() };
+        const cmt = { id:'cmt_'+Date.now(), userId:user.id, author:user.realName, role:user.role, authorBadge:user.badge||'', text:input.value.trim() };
         art.comments.push(cmt);
         const sb = getSupabase();
-        if(sb) await sb.from('article_comments').insert({ id:cmt.id, article_id:artId, user_id:user.id, author_name:cmt.author, author_role:cmt.role, text:cmt.text });
+        if(sb) await sb.from('article_comments').insert({ id:cmt.id, article_id:artId, user_id:user.id, author_name:cmt.author, author_role:cmt.role, author_badge:cmt.authorBadge, text:cmt.text });
         else saveStore();
         showToast('تم نشر تعليقكِ بنجاح');
         renderArticlesFullGrid(); openArticleModal(artId);
@@ -1677,7 +1709,7 @@
         if(idx===-1){ user.favoriteArticles.push(artId); showToast('تم حفظ المقال في صفحتكِ'); }
         else { user.favoriteArticles.splice(idx,1); showToast('تمت إزالة المقال من المحفوظات','ph-trash'); }
         const sb=getSupabase();
-        if(sb) await sb.from('app_users').update({ favorite_articles:user.favoriteArticles }).eq('id', user.id);
+        if(sb) await sb.rpc('update_user_favorites', { p_user_id:user.id, p_favorite_specs:user.favoriteSpecs, p_favorite_articles:user.favoriteArticles });
         else saveAccounts();
         updateSavedCounters(); renderArticlesFullGrid();
         if(STATE.activeSection==='profile') renderProfileView();
@@ -1694,16 +1726,17 @@
         const sidebarCard=document.getElementById('sidebarAccountCard');
         const mobileLabel=document.getElementById('mobileAuthLabel');
         if(user){
+            const badgeMarkup = user.badge ? ` <span class="adm-badge">${esc(user.badge)}</span>` : '';
             if(topBar) topBar.innerHTML=`
-                <span>مرحباً <strong>${user.realName}</strong>${user.isAdmin?' <span class="adm-badge">مديرة</span>':''}</span>
-                <span class="px-2.5 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>`;
+                <span>مرحباً <strong>${esc(user.realName)}</strong>${user.isAdmin?' <span class="adm-badge">مديرة</span>':''}${badgeMarkup}</span>
+                <span class="px-2.5 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${esc(user.role)}</span>`;
             if(topActions) topActions.innerHTML=`
                 <button onclick="navigateTo('profile')" class="px-3.5 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--bg-color)">صفحتي</button>
                 <button onclick="logoutCurrentUser()" class="px-3.5 py-1.5 rounded-full border border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">خروج</button>`;
             if(sidebarCard) sidebarCard.innerHTML=`
                 <div class="flex items-center justify-between gap-2">
-                    <div><p class="font-black">${user.realName} ${user.isAdmin?'👑':''}</p><p class="text-[11px]" style="color:var(--on-primary); opacity:.8">@${user.username} • ${user.role}</p></div>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>
+                    <div><p class="font-black">${esc(user.realName)} ${user.isAdmin?'👑':''}</p><p class="text-[11px]" style="color:var(--on-primary); opacity:.8">@${esc(user.username)} • ${esc(user.role)}${user.badge?' • '+esc(user.badge):''}</p></div>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${esc(user.role)}</span>
                 </div>`;
             if(mobileLabel) mobileLabel.textContent=user.realName.split(' ')[0];
         } else {
@@ -1734,12 +1767,13 @@
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:var(--primary-color); color:var(--on-primary)"><i class="ph-fill ph-identification-badge text-2xl"></i></div>
                             <div>
-                                <div class="flex items-center gap-2 flex-wrap"><h3 class="text-xl font-black">${user.realName}</h3><span class="px-3 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${user.role}</span>${user.isAdmin?'<span class="adm-badge">مديرة الموقع 👑</span>':''}</div>
-                                <p class="text-xs font-bold opacity-75">@${user.username}</p>
+                                <div class="flex items-center gap-2 flex-wrap"><h3 class="text-xl font-black">${esc(user.realName)}</h3><span class="px-3 py-0.5 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${esc(user.role)}</span>${user.isAdmin?'<span class="adm-badge">مديرة الموقع 👑</span>':''}${user.badge?`<span class="adm-badge">${esc(user.badge)}</span>`:''}</div>
+                                <p class="text-xs font-bold opacity-75">@${esc(user.username)}</p>
                             </div>
                         </div>
                         <button onclick="logoutCurrentUser()" class="btn-neo px-5 py-2 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">تسجيل الخروج</button>
                     </div>
+                    ${(!user.isAdmin && user.restrictionType==='mute_comments')?`<div class="mt-3 p-3 rounded-2xl border-2 text-xs font-extrabold" style="background:var(--bg-color); border-color:var(--accent-color); color:var(--accent-color)">تنبيه إداري: ميزة إضافة التعليقات مقيدة لهذا الحساب حالياً${user.restrictionReason?' ('+esc(user.restrictionReason)+')':''}.</div>`:''}
                     <div class="grid grid-cols-3 gap-3 pt-4 text-center">
                         <div class="p-3 rounded-2xl" style="background:var(--bg-color)"><span class="block text-lg font-black" style="color:var(--primary-color)">${user.savedResults?.length||0}</span><span class="text-xs font-bold">نتائج الاختبارات</span></div>
                         <div class="p-3 rounded-2xl" style="background:var(--bg-color)"><span class="block text-lg font-black" style="color:var(--accent-color)">${user.favoriteSpecs?.length||0}</span><span class="text-xs font-bold">تخصصات مفضلة</span></div>
@@ -1817,10 +1851,10 @@
        ================================================================= */
     const ADMIN_TABS = [
         ['colors','الألوان','ph-palette'], ['supabase','ربط Supabase','ph-database'],
-        ['articles','المقالات والاقتراحات','ph-article'], ['pathways','المسارات','ph-path'],
-        ['categories','الأقسام الكبرى','ph-compass'], ['specs','التخصصات والوظائف','ph-graduation-cap'],
-        ['skills','المهارات','ph-rocket-launch'], ['accounts','الحسابات','ph-users-three'],
-        ['danger','إعادة الضبط','ph-arrow-counter-clockwise']
+        ['articles','المقالات والاقتراحات','ph-article'], ['comments','إدارة التعليقات','ph-chats-circle'],
+        ['pathways','المسارات','ph-path'], ['categories','الأقسام الكبرى','ph-compass'],
+        ['specs','التخصصات والوظائف','ph-graduation-cap'], ['skills','المهارات','ph-rocket-launch'],
+        ['accounts','الحسابات والتقييد والأوسمة','ph-users-three'], ['danger','إعادة الضبط','ph-arrow-counter-clockwise']
     ];
     const ADMIN_TYPES = {
         pathways:{ label:'مسار', fields:[['title','اسم المسار'],['icon','الأيقونة (مثل ph-graduation-cap)'],['description','الوصف','textarea'],['requirements','الشروط والمتطلبات','textarea'],['how_to_join','طريقة الالتحاق','textarea'],['entities','الجهات والمؤسسات','textarea']] },
@@ -1854,8 +1888,14 @@
             const k = getActiveSupabaseKeys();
             const ready = isSupabaseReady();
             box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
-                <h3 class="text-lg font-black">ربط الموقع بـ Supabase</h3>
+                <h3 class="text-lg font-black">ربط الموقع بـ Supabase (بنظام Schema مستقل: <code dir="ltr">masara</code>)</h3>
                 <p class="text-xs sm:text-sm font-bold">الحالة: <span style="color:${ready?'var(--primary-color)':'var(--accent-color)'}">${ready?'متصل بقاعدة بيانات Supabase':'وضع المعاينة المحلية (بانتظار المفتاحين)'}</span></p>
+                <div class="p-4 rounded-2xl border-2 border-[var(--text-color)] text-xs font-bold space-y-1.5" style="background:var(--bg-color)">
+                    <p class="font-black" style="color:var(--primary-color)">خطوات عزل المشروع داخل سيرفركِ المجاني في Supabase:</p>
+                    <p>1. شغّلي ملف <code dir="ltr">supabase_schema.sql</code> داخل <strong>SQL Editor</strong> لإنشاء الغرفة المستقلة <code dir="ltr">masara</code>.</p>
+                    <p>2. في لوحة تحكم Supabase اذهبي إلى: <strong>Project Settings → API → Exposed schemas</strong> وأضيفي <code dir="ltr">masara</code> ثم اضغطي Save.</p>
+                    <p>3. أدخلي مفتاحي مشروعكِ بالأسفل (وللتفعيل الدائم على GitHub ضعيهما عند <code dir="ltr">SUPABASE_CONFIG</code> في أعلى ملف HTML).</p>
+                </div>
                 <form onsubmit="saveSupabaseFromUI(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="fld"><label>1. رابط المشروع (Project URL)</label><input dir="ltr" type="url" id="sbUrlInp" required value="${k.url==='PUT_YOUR_SUPABASE_URL_HERE'?'':k.url}" placeholder="https://xxxx.supabase.co"></div>
                     <div class="fld"><label>2. المفتاح العام (Anon Public Key)</label><input dir="ltr" type="text" id="sbKeyInp" required value="${k.anonKey==='PUT_YOUR_SUPABASE_ANON_KEY_HERE'?'':k.anonKey}" placeholder="eyJhbGciOi..."></div>
@@ -1864,33 +1904,105 @@
                         ${ready?`<button type="button" onclick="clearSupabaseFromUI()" class="px-5 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--surface-color)">فصل الربط</button>`:''}
                     </div>
                 </form>
-                <p class="text-xs font-bold opacity-80 p-3 rounded-2xl" style="background:var(--bg-color)">للتفعيل الدائم عند النشر على GitHub: ضعي نفس المفتاحين في أعلى كود الجافاسكربت عند <code>SUPABASE_CONFIG</code>، وشغّلي ملف <code>supabase_schema.sql</code> في SQL Editor.</p>
+            </div>`;
+            return;
+        }
+
+        if(t==='comments'){
+            const allCmts = [];
+            STORE.articles.forEach(art=>{
+                (art.comments||[]).forEach(c=>{
+                    allCmts.push({ artId:art.id, artTitle:art.title, ...c });
+                });
+            });
+            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-lg font-black">إدارة التعليقات على المقالات <span class="adm-badge">${allCmts.length}</span></h3>
+                    <p class="text-xs font-bold opacity-75">يمكنكِ مراقبة وحذف أي تعليق غير مناسب فوراً.</p>
+                </div>
+                ${allCmts.length===0 ? emptyMsg('لا توجد تعليقات منشورة على المقالات حالياً.') : `
+                <div class="space-y-2.5">
+                    ${allCmts.map(c=>`
+                        <div class="admin-list-row">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-black text-xs sm:text-sm" style="color:var(--primary-color)">${esc(c.author)}</span>
+                                    <span class="px-2 py-0.5 rounded-full border border-[var(--text-color)] text-[10px] font-black" style="background:var(--tertiary-color); color:var(--on-tertiary)">${esc(c.role||'طالبة')}</span>
+                                    ${c.authorBadge?`<span class="adm-badge">${esc(c.authorBadge)}</span>`:''}
+                                    <span class="text-[11px] font-bold opacity-70">على مقال: ${esc(c.artTitle)}</span>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold">${esc(c.text)}</p>
+                            </div>
+                            <button onclick="adminDeleteComment('${c.artId}','${c.id}',false)" class="px-3.5 py-1.5 rounded-full border border-[var(--text-color)] text-[11px] font-black shrink-0 cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حذف التعليق</button>
+                        </div>`).join('')}
+                </div>`}
             </div>`;
             return;
         }
 
         if(t==='accounts'){
-            let accs = STATE.accounts;
+            let accs = STATE.accounts.map(u=>({ ...u, badge:u.badge||'', restrictionType:u.restrictionType||'none', restrictionReason:u.restrictionReason||'' }));
             const sb = getSupabase();
             if(sb){
-                const { data } = await sb.from('public_users_summary').select('*');
-                if(data) accs = data.map(u=>({ id:u.id, realName:u.real_name, username:u.username, role:u.role, isAdmin:u.is_admin }));
+                const { data } = await sb.from('public_users_summary').select('*').order('created_at',{ascending:true});
+                if(data) accs = data.map(u=>({
+                    id:u.id, realName:u.real_name, username:u.username, role:u.role, isAdmin:u.is_admin,
+                    badge:u.badge||'', restrictionType:u.restriction_type||'none', restrictionReason:u.restriction_reason||''
+                }));
             }
+            const restLabel = rt => rt==='suspended' ? 'حساب مجمّد' : (rt==='mute_comments' ? 'ممنوعة من التعليق' : 'نشط');
+            const restStyle = rt => rt==='suspended' ? 'background:var(--accent-color); color:var(--on-accent)' : (rt==='mute_comments' ? 'background:var(--tertiary-color); color:var(--on-tertiary)' : 'background:var(--bg-color); color:var(--text-color)');
             box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
-                <h3 class="text-lg font-black">الحسابات المسجلة <span class="adm-badge">${accs.length}</span></h3>
-                <div class="space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-lg font-black">الحسابات المسجلة والأوسمة والتقييد <span class="adm-badge">${accs.length}</span></h3>
+                    <p class="text-xs font-bold opacity-75">أعطِي أوسمة تميز (مثل: أستاذة مشرفة، مديرة المدرسة، طالبة متميزة) أو قيّدي الحسابات عند الحاجة.</p>
+                </div>
+                <div class="space-y-3">
                 ${accs.map((acc,idx)=>`
-                    <div class="admin-list-row">
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <span class="w-7 h-7 rounded-full border border-[var(--text-color)] flex items-center justify-center text-xs font-black shrink-0" style="background:var(--bg-color)">${idx+1}</span>
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap"><span class="font-black text-sm">${acc.realName}</span>${acc.isAdmin?'<span class="adm-badge">مديرة 👑</span>':''}<span class="px-2 py-0.5 rounded-full border border-[var(--text-color)] text-[10px] font-black" style="background:var(--surface-color)">${acc.role}</span></div>
-                                <span class="text-xs font-bold opacity-70">@${acc.username}</span>
+                    <div class="p-4 rounded-2xl border-2 border-[var(--text-color)] space-y-3" style="background:var(--bg-color)">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span class="w-7 h-7 rounded-full border border-[var(--text-color)] flex items-center justify-center text-xs font-black shrink-0" style="background:var(--surface-color)">${idx+1}</span>
+                                <div>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-black text-sm">${esc(acc.realName)}</span>
+                                        ${acc.isAdmin?'<span class="adm-badge">مديرة 👑</span>':''}
+                                        <span class="px-2 py-0.5 rounded-full border border-[var(--text-color)] text-[10px] font-black" style="background:var(--surface-color)">${esc(acc.role)}</span>
+                                        ${acc.badge?`<span class="adm-badge">${esc(acc.badge)}</span>`:''}
+                                        <span class="px-2.5 py-0.5 rounded-full border border-[var(--text-color)] text-[10px] font-black" style="${restStyle(acc.restrictionType)}">${restLabel(acc.restrictionType)}</span>
+                                    </div>
+                                    <span class="text-xs font-bold opacity-70">@${esc(acc.username)}</span>
+                                </div>
                             </div>
+                            ${!acc.isAdmin?`<div class="flex items-center gap-2 shrink-0">
+                                <select onchange="adminChangeRole('${acc.id}', this.value)" class="px-2.5 py-1 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--surface-color)"><option value="طالبة" ${acc.role==='طالبة'?'selected':''}>طالبة</option><option value="معلمة" ${acc.role==='معلمة'?'selected':''}>معلمة</option></select>
+                                <button onclick="adminDeleteAccount('${acc.id}')" class="px-3 py-1 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حذف الحساب</button>
+                            </div>`:'<span class="text-[11px] font-black opacity-60">الحساب الرئيسي</span>'}
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            ${!acc.isAdmin?`<select onchange="adminChangeRole('${acc.id}', this.value)" class="px-2 py-1 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--surface-color)"><option value="طالبة" ${acc.role==='طالبة'?'selected':''}>طالبة</option><option value="معلمة" ${acc.role==='معلمة'?'selected':''}>معلمة</option></select>
-                            <button onclick="adminDeleteAccount('${acc.id}')" class="px-3 py-1.5 rounded-full border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">حذف</button>`:'<span class="text-[11px] font-black opacity-60">الحساب الرئيسي</span>'}
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-2 border-t border-[var(--text-color)]/15">
+                            <div class="p-3 rounded-xl space-y-2" style="background:var(--surface-color)">
+                                <label class="block text-[11px] font-black" style="color:var(--primary-color)">وسم التمييز (يظهر بجانب اسمها وفي التعليقات):</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <input type="text" id="badgeInp_${acc.id}" value="${esc(acc.badge)}" placeholder="مثال: أستاذة مشرفة" class="flex-grow min-w-[140px] px-3 py-1.5 rounded-xl border text-xs font-bold focus:outline-none" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)">
+                                    <button type="button" onclick="adminSaveBadge('${acc.id}')" class="px-3.5 py-1.5 rounded-xl border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">حفظ الوسم</button>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${['أستاذة مشرفة','مديرة المدرسة','طالبة متميزة',''].map(preset=>`<button type="button" onclick="document.getElementById('badgeInp_${acc.id}').value='${preset}'; adminSaveBadge('${acc.id}');" class="px-2.5 py-0.5 rounded-full border border-[var(--text-color)]/40 text-[10px] font-bold cursor-pointer hover:opacity-80" style="background:var(--bg-color)">${preset || 'إزالة الوسم'}</button>`).join('')}
+                                </div>
+                            </div>
+                            ${!acc.isAdmin?`<div class="p-3 rounded-xl space-y-2" style="background:var(--surface-color)">
+                                <label class="block text-[11px] font-black" style="color:var(--accent-color)">تقييد الحساب:</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <select id="restSel_${acc.id}" class="px-2.5 py-1.5 rounded-xl border text-xs font-bold" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)">
+                                        <option value="none" ${acc.restrictionType==='none'?'selected':''}>نشط (بدون قيود)</option>
+                                        <option value="mute_comments" ${acc.restrictionType==='mute_comments'?'selected':''}>منع من التعليق فقط</option>
+                                        <option value="suspended" ${acc.restrictionType==='suspended'?'selected':''}>تجميد الحساب بالكامل</option>
+                                    </select>
+                                    <input type="text" id="restReason_${acc.id}" value="${esc(acc.restrictionReason)}" placeholder="سبب التقييد (اختياري)..." class="flex-grow min-w-[130px] px-3 py-1.5 rounded-xl border text-xs font-bold focus:outline-none" style="background:var(--bg-color); border-color:color-mix(in srgb, var(--text-color) 25%, transparent)">
+                                    <button type="button" onclick="adminSaveRestriction('${acc.id}')" class="px-3.5 py-1.5 rounded-xl border border-[var(--text-color)] text-[11px] font-black cursor-pointer" style="background:var(--tertiary-color); color:var(--on-tertiary)">تطبيق</button>
+                                </div>
+                            </div>`:''}
                         </div>
                     </div>`).join('')}
                 </div>
@@ -2022,7 +2134,7 @@
         STATE.accounts=STATE.accounts.filter(a=>a.id!==accId);
         saveAccounts();
         const sb=getSupabase();
-        if(sb) await sb.from('app_users').delete().eq('id', accId);
+        if(sb) await sb.rpc('admin_delete_user', { p_user_id: accId });
         renderAdminPanel(); updateAuthUI();
         showToast('تم حذف الحساب','ph-trash');
     }
@@ -2030,9 +2142,44 @@
         const acc=STATE.accounts.find(a=>a.id===accId);
         if(acc){ acc.role=role; saveAccounts(); }
         const sb=getSupabase();
-        if(sb) await sb.from('app_users').update({ role }).eq('id', accId);
+        if(sb) await sb.rpc('admin_update_user', { p_user_id: accId, p_role: role });
         renderAdminPanel();
         showToast('تم تغيير الصفة إلى '+role);
+    }
+    async function adminSaveBadge(accId){
+        const inp=document.getElementById('badgeInp_'+accId);
+        const badge = inp ? inp.value.trim() : '';
+        const acc=STATE.accounts.find(a=>a.id===accId);
+        if(acc){ acc.badge=badge; saveAccounts(); }
+        if(STATE.currentUserObj && STATE.currentUserObj.id===accId){ STATE.currentUserObj.badge=badge; updateAuthUI(); }
+        const sb=getSupabase();
+        if(sb) await sb.rpc('admin_update_user', { p_user_id: accId, p_badge: badge });
+        renderAdminPanel();
+        showToast(badge ? 'تم تعيين وسم: ' + badge : 'تمت إزالة الوسم');
+    }
+    async function adminSaveRestriction(accId){
+        const sel=document.getElementById('restSel_'+accId);
+        const rsn=document.getElementById('restReason_'+accId);
+        const restrictionType = sel ? sel.value : 'none';
+        const restrictionReason = rsn ? rsn.value.trim() : '';
+        const acc=STATE.accounts.find(a=>a.id===accId);
+        if(acc){ acc.restrictionType=restrictionType; acc.restrictionReason=restrictionReason; saveAccounts(); }
+        const sb=getSupabase();
+        if(sb) await sb.rpc('admin_update_user', { p_user_id: accId, p_restriction_type: restrictionType, p_restriction_reason: restrictionReason });
+        renderAdminPanel();
+        showToast(restrictionType==='none' ? 'تم رفع التقييد وتنشيط الحساب' : 'تم حفظ تقييد الحساب');
+    }
+    async function adminDeleteComment(artId, cmtId, reopenModal=false){
+        const art=STORE.articles.find(a=>a.id===artId);
+        if(art){
+            art.comments=(art.comments||[]).filter(c=>c.id!==cmtId);
+            saveStore();
+        }
+        const sb=getSupabase();
+        if(sb) await sb.from('article_comments').delete().eq('id', cmtId);
+        showToast('تم حذف التعليق','ph-trash');
+        if(reopenModal) openArticleModal(artId);
+        else if(STATE.activeSection==='admin') renderAdminPanel();
     }
     function adminResetContent(){
         STORE.pathways=JSON.parse(JSON.stringify(DEFAULT_CONTENT.pathways));
