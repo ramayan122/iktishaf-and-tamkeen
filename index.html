@@ -362,8 +362,8 @@
             <section id="section-admin" class="page-section space-y-6">
                 <div>
                     <span class="px-3.5 py-1 rounded-full border border-[var(--text-color)] text-xs font-black" style="background:var(--accent-color); color:var(--on-accent)">لوحة التحكم</span>
-                    <h2 class="text-2xl sm:text-3xl font-black mt-2">إدارة محتوى الموقع وربط Supabase</h2>
-                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">تغيير الألوان، إدارة المسارات والأقسام والتخصصات، إضافة المقالات المرتبطة بالاقتراحات، وإدارة الحسابات.</p>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-2">إدارة محتوى الموقع والألوان والحسابات</h2>
+                    <p class="text-sm sm:text-base font-medium mt-1 opacity-80">تغيير الألوان والوضع الفاتح والداكن، إدارة المسارات والأقسام والتخصصات، المقالات والتعليقات، وإدارة الحسابات.</p>
                 </div>
                 <div id="adminTabsBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
                 <div id="adminPanelContent"></div>
@@ -395,73 +395,134 @@
 
     <script>
     /* =================================================================
-       0. إعدادات الربط مع Supabase — ضعي مفتاحي مشروعكِ هنا قبل الرفع لـ GitHub
-       1) SUPABASE_URL: رابط المشروع (Project URL)
-       2) SUPABASE_ANON_KEY: المفتاح العام (Anon Public Key)
-       (ويمكنكِ أيضاً إدخالهما مباشرة من تبويب "ربط Supabase" في لوحة التحكم)
+       0. إعدادات الاتصال بقاعدة البيانات السحابية
        ================================================================= */
     const SUPABASE_CONFIG = {
         url: 'https://lhpeveaogupprdrpcyno.supabase.co',
         anonKey: 'sb_publishable_1ThHmH79jo3mJWqwPUz65w_wiYnRWvN'
     };
 
-    const LS_SB_KEYS = 'masara_supabase_keys_v1';
-    function getActiveSupabaseKeys() {
-        try {
-            const raw = localStorage.getItem(LS_SB_KEYS);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (parsed.url && parsed.anonKey) return parsed;
-            }
-        } catch(e){}
-        return SUPABASE_CONFIG;
-    }
+    const cleanSbUrl = u => String(u || '').trim().replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '');
     function isSupabaseReady() {
-        const k = getActiveSupabaseKeys();
-        return Boolean(k.url && k.anonKey && k.url.startsWith('https://') && k.url !== 'PUT_YOUR_SUPABASE_URL_HERE' && k.anonKey !== 'PUT_YOUR_SUPABASE_ANON_KEY_HERE' && window.supabase);
+        return Boolean(SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey && SUPABASE_CONFIG.url.startsWith('https://') && window.supabase);
     }
     let sbClient = null;
     function getSupabase() {
         if (!isSupabaseReady()) return null;
         if (sbClient) return sbClient;
-        const k = getActiveSupabaseKeys();
-        sbClient = window.supabase.createClient(k.url.trim(), k.anonKey.trim(), { db: { schema: 'masara' } });
-        return sbClient;
+        try {
+            sbClient = window.supabase.createClient(cleanSbUrl(SUPABASE_CONFIG.url), SUPABASE_CONFIG.anonKey.trim(), { db: { schema: 'masara' } });
+            return sbClient;
+        } catch(e) {
+            return null;
+        }
     }
     const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
     /* =================================================================
-       1. لوحات الألوان (9 لوحات)
+       1. لوحات الألوان (16 لوحة أساسية + لوحات مخصصة + الوضع الفاتح والداكن)
        ================================================================= */
     const PALETTES = [
-        { n:'شاي بالنعناع',     bg:'#FFF6E5', tx:'#2B2D42', p:'#FF6B6B', a:'#4ECDC4', s:'#FFE66D' },
-        { n:'توت وليمون',       bg:'#FFF3F0', tx:'#2E1A47', p:'#9B5DE5', a:'#F15BB5', s:'#FEE440' },
-        { n:'بحر',              bg:'#E8F7F5', tx:'#073B4C', p:'#118AB2', a:'#EF476F', s:'#FFD166' },
-        { n:'خوخ',              bg:'#FFF0E6', tx:'#3D2B1F', p:'#F77F00', a:'#2A9D8F', s:'#FCBF49' },
-        { n:'ليل وردي',         bg:'#1B1035', tx:'#FDF0FF', p:'#FF7AC6', a:'#7AF0E0', s:'#3A1F6B' },
-        { n:'زيتوني',           bg:'#F3F1E3', tx:'#2C3318', p:'#6B8E23', a:'#E76F51', s:'#F4D35E' },
-        { n:'وردي وفستقي',      bg:'#FFF5F7', tx:'#3A1C3F', p:'#E8508A', a:'#7ED6B5', s:'#FFD98E' },
-        { n:'بنفسجي ومرجان',    bg:'#FBF7FF', tx:'#2A1B4D', p:'#7B4DFF', a:'#FF8A7A', s:'#FFE08A' },
-        { n:'أزرق دافئ',        bg:'#FFF9EE', tx:'#1E2A44', p:'#2F6FED', a:'#FFA94D', s:'#A5E3D0' }
+        { id:'0',  n:'شاي بالنعناع',     bg:'#FFF6E5', tx:'#2B2D42', p:'#FF6B6B', a:'#4ECDC4', s:'#FFE66D' },
+        { id:'1',  n:'توت وليمون',       bg:'#FFF3F0', tx:'#2E1A47', p:'#9B5DE5', a:'#F15BB5', s:'#FEE440' },
+        { id:'2',  n:'بحر',              bg:'#E8F7F5', tx:'#073B4C', p:'#118AB2', a:'#EF476F', s:'#FFD166' },
+        { id:'3',  n:'خوخ',              bg:'#FFF0E6', tx:'#3D2B1F', p:'#F77F00', a:'#2A9D8F', s:'#FCBF49' },
+        { id:'4',  n:'ليل وردي',         bg:'#1B1035', tx:'#FDF0FF', p:'#FF7AC6', a:'#7AF0E0', s:'#3A1F6B' },
+        { id:'5',  n:'زيتوني',           bg:'#F3F1E3', tx:'#2C3318', p:'#6B8E23', a:'#E76F51', s:'#F4D35E' },
+        { id:'6',  n:'وردي وفستقي',      bg:'#FFF5F7', tx:'#3A1C3F', p:'#E8508A', a:'#7ED6B5', s:'#FFD98E' },
+        { id:'7',  n:'بنفسجي ومرجان',    bg:'#FBF7FF', tx:'#2A1B4D', p:'#7B4DFF', a:'#FF8A7A', s:'#FFE08A' },
+        { id:'8',  n:'أزرق دافئ',        bg:'#FFF9EE', tx:'#1E2A44', p:'#2F6FED', a:'#FFA94D', s:'#A5E3D0' },
+        { id:'9',  n:'نعناع وسماوي',     bg:'#ECFDF5', tx:'#064E3B', p:'#059669', a:'#0284C7', s:'#FDE047' },
+        { id:'10', n:'غروب رملي',        bg:'#FDF6EC', tx:'#3B2314', p:'#C2593F', a:'#3D7A6E', s:'#F3C669' },
+        { id:'11', n:'توت وكريمة',       bg:'#FDF2F8', tx:'#4A1230', p:'#BE185D', a:'#0D9488', s:'#FDE68A' },
+        { id:'12', n:'زمردي وذهبي',      bg:'#F0FDF4', tx:'#143326', p:'#15803D', a:'#B45309', s:'#FACC15' },
+        { id:'13', n:'أرجواني ناعم',     bg:'#F5F3FF', tx:'#2E1065', p:'#6D28D9', a:'#EA580C', s:'#FDE047' },
+        { id:'14', n:'قهوة وكراميل',     bg:'#FAF5EF', tx:'#2C1E16', p:'#8C4A27', a:'#2B7A78', s:'#E9B44C' },
+        { id:'15', n:'فراولة وليمون',    bg:'#FFF1F2', tx:'#3F0E1D', p:'#E11D48', a:'#16A34A', s:'#FEF08A' }
     ];
-    function luminance(h){ const n=parseInt(h.slice(1),16); const f=c=>{c/=255; return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)}; return .2126*f(n>>16)+.7152*f((n>>8)&255)+.0722*f(n&255); }
+    function getAllPalettes(){
+        const builtIn = PALETTES.map((p,i)=>({ ...p, id:String(i), isCustom:false }));
+        const custom = (STORE.settings.customPalettes||[]).map(c=>({ ...c, isCustom:true }));
+        return [...builtIn, ...custom];
+    }
+    function hexToRgb(h){
+        const clean = String(h||'#000000').replace('#','');
+        const full = clean.length===3 ? clean.split('').map(x=>x+x).join('') : clean.padEnd(6,'0').slice(0,6);
+        const n = parseInt(full,16);
+        return [(n>>16)&255, (n>>8)&255, n&255];
+    }
+    function rgbToHex(r,g,b){
+        return '#' + [r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+    }
+    function mixHex(h1, h2, w){
+        const [r1,g1,b1]=hexToRgb(h1), [r2,g2,b2]=hexToRgb(h2);
+        return rgbToHex(r1*(1-w)+r2*w, g1*(1-w)+g2*w, b1*(1-w)+b2*w);
+    }
+    function luminance(h){ const [r,g,b]=hexToRgb(h); const f=c=>{c/=255; return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)}; return .2126*f(r)+.7152*f(g)+.0722*f(b); }
     const onColor = h => luminance(h) > .35 ? '#111111' : '#ffffff';
 
-    function applyPalette(idx, saveIt){
-        const p = PALETTES[idx] || PALETTES[2];
+    async function saveThemeSettingsToDB(){
+        const sb = getSupabase();
+        if(!sb) return;
+        const s = STORE.settings;
+        const numIdx = Number.isInteger(Number(s.activePaletteId)) ? Number(s.activePaletteId) : 2;
+        const payload = {
+            id:'default',
+            palette_index: numIdx,
+            active_palette_id: String(s.activePaletteId || '2'),
+            theme_mode: s.themeMode || 'light',
+            custom_palettes: s.customPalettes || [],
+            updated_at: new Date().toISOString()
+        };
+        const { error } = await sb.from('site_settings').upsert(payload);
+        if(error){
+            // احتياط في حال لم تُحدّث أعمدة site_settings بعد
+            await sb.from('site_settings').upsert({ id:'default', palette_index: numIdx, updated_at: new Date().toISOString() });
+            await sb.from('site_settings').upsert({ id:'theme_mode', palette_index: (s.themeMode==='dark'?1:0), updated_at: new Date().toISOString() });
+        }
+    }
+
+    function applyTheme(paletteId, mode, saveIt){
+        const all = getAllPalettes();
+        const targetId = (paletteId !== undefined && paletteId !== null) ? String(paletteId) : String(STORE.settings.activePaletteId ?? STORE.settings.palette ?? '2');
+        const p = all.find(x=>String(x.id)===targetId) || all[2];
+        const m = mode || STORE.settings.themeMode || 'light';
+
+        let bg = p.bg, surface = '#ffffff', tx = p.tx, pr = p.p, ac = p.a, tr = p.s;
+        if(m === 'dark'){
+            bg = p.n==='ليل وردي' ? '#1B1035' : mixHex(p.p, '#0B101D', 0.88);
+            surface = p.n==='ليل وردي' ? '#26184A' : mixHex(p.p, '#151E32', 0.82);
+            tx = p.n==='ليل وردي' ? '#FDF0FF' : '#F4F7FC';
+            if(luminance(pr) < 0.14) pr = mixHex(pr, '#FFFFFF', 0.35);
+            if(luminance(ac) < 0.14) ac = mixHex(ac, '#FFFFFF', 0.35);
+        } else {
+            if(luminance(bg) < 0.35){
+                bg = mixHex(pr, '#FFFFFF', 0.90);
+                surface = '#FFFFFF';
+                tx = mixHex(pr, '#111827', 0.65);
+            }
+            if(luminance(tx) > 0.55) tx = mixHex(pr, '#111827', 0.70);
+        }
+
         const r = document.documentElement.style;
-        r.setProperty('--bg-color', p.bg);      r.setProperty('--text-color', p.tx);
-        r.setProperty('--primary-color', p.p);  r.setProperty('--accent-color', p.a);
-        r.setProperty('--tertiary-color', p.s); r.setProperty('--surface-color', p.n==='ليل وردي' ? '#26184A' : '#ffffff');
-        r.setProperty('--on-primary', onColor(p.p)); r.setProperty('--on-accent', onColor(p.a));
-        r.setProperty('--on-tertiary', onColor(p.s)); r.setProperty('--on-surface', p.tx);
-        STORE.settings.palette = idx;
+        r.setProperty('--bg-color', bg);         r.setProperty('--text-color', tx);
+        r.setProperty('--primary-color', pr);    r.setProperty('--accent-color', ac);
+        r.setProperty('--tertiary-color', tr);   r.setProperty('--surface-color', surface);
+        r.setProperty('--on-primary', onColor(pr));   r.setProperty('--on-accent', onColor(ac));
+        r.setProperty('--on-tertiary', onColor(tr));  r.setProperty('--on-surface', onColor(surface)==='#111111' ? tx : '#F4F7FC');
+
+        STORE.settings.activePaletteId = String(p.id);
+        STORE.settings.palette = Number.isInteger(Number(p.id)) ? Number(p.id) : 2;
+        STORE.settings.themeMode = m;
+
         if(saveIt !== false) {
             saveSettings();
-            const sb = getSupabase();
-            if(sb) sb.from('site_settings').upsert({ id:'default', palette_index:idx, updated_at:new Date().toISOString() });
+            saveThemeSettingsToDB();
         }
-        document.querySelectorAll('.palette-card').forEach((e,i)=>e.classList.toggle('on', i===idx));
+        document.querySelectorAll('.palette-card').forEach(el=>el.classList.toggle('on', el.dataset.pid === String(p.id)));
+    }
+    function applyPalette(idxOrId, saveIt){
+        applyTheme(String(idxOrId), STORE.settings.themeMode || 'light', saveIt);
     }
 
     /* =================================================================
@@ -656,23 +717,36 @@
     ];
 
     /* =================================================================
-       4. التخزين المحلي والمزامنة مع Supabase
+       4. التخزين المحلي، ثبات الجلسة، والمزامنة الكاملة بين الأجهزة
        ================================================================= */
-    const LS_CONTENT='mm_content_v3', LS_ACCOUNTS='mm_accounts_v3', LS_SETTINGS='mm_settings_v3', LS_SESSION='mm_session_v3';
+    const LS_CONTENT='mm_content_v4', LS_ACCOUNTS='mm_accounts_v4', LS_SETTINGS='mm_settings_v4', LS_SESSION='mm_session_v4';
     function loadJSON(k, d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):JSON.parse(JSON.stringify(d)); }catch(e){ return JSON.parse(JSON.stringify(d)); } }
     function saveStore(){ localStorage.setItem(LS_CONTENT, JSON.stringify({ pathways:STORE.pathways, categories:STORE.categories, specs:STORE.specs, skills:STORE.skills, articles:STORE.articles, matrix:STORE.matrix })); }
     function saveAccounts(){ localStorage.setItem(LS_ACCOUNTS, JSON.stringify(STATE.accounts)); }
     function saveSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(STORE.settings)); }
+    function loadSessionUser(){ try{ const v=localStorage.getItem(LS_SESSION); return v?JSON.parse(v):null; }catch(e){ return null; } }
+    function saveSessionUser(u){
+        if(!u){ localStorage.removeItem(LS_SESSION); return; }
+        localStorage.setItem(LS_SESSION, JSON.stringify({
+            id:u.id, realName:u.realName, username:u.username, role:u.role, isAdmin:Boolean(u.isAdmin),
+            badge:u.badge||'', restrictionType:u.restrictionType||'none', restrictionReason:u.restrictionReason||'',
+            favoriteSpecs:u.favoriteSpecs||[], favoriteArticles:u.favoriteArticles||[], savedResults:u.savedResults||[]
+        }));
+    }
 
     const STORE = loadJSON(LS_CONTENT, DEFAULT_CONTENT);
-    STORE.settings = loadJSON(LS_SETTINGS, { palette:2 });
+    STORE.settings = loadJSON(LS_SETTINGS, { palette:2, activePaletteId:'2', themeMode:'light', customPalettes:[] });
+    if(!Array.isArray(STORE.settings.customPalettes)) STORE.settings.customPalettes = [];
+    if(!STORE.settings.activePaletteId) STORE.settings.activePaletteId = String(STORE.settings.palette ?? 2);
+    if(!STORE.settings.themeMode) STORE.settings.themeMode = 'light';
 
+    const savedSess = loadSessionUser();
     const STATE = {
         activeSection:'home',
         quizMode:'academic_quiz',
         authTab:'login',
-        currentUserId: sessionStorage.getItem(LS_SESSION) || null,
-        currentUserObj: null,
+        currentUserId: savedSess ? savedSess.id : null,
+        currentUserObj: savedSess,
         accounts: loadJSON(LS_ACCOUNTS, []),
         // نموذج المشروع
         projectCard:{ partOne:{}, partTwo:{}, summaryField:'', summaryBecause:'', tools:[] },
@@ -707,12 +781,39 @@
         return btoa(unescape(encodeURIComponent(txt)));
     }
 
+    let contentSeededPromise = null;
+    async function ensureContentSeeded(sb){
+        if(!sb) return;
+        if(contentSeededPromise) return contentSeededPromise;
+        contentSeededPromise = (async ()=>{
+            try{
+                const { data:marker } = await sb.from('site_settings').select('id').eq('id','content_seeded').maybeSingle();
+                if(marker) return;
+                const [pwCnt, catCnt, spCnt, skCnt, arCnt] = await Promise.all([
+                    sb.from('pathways').select('id',{count:'exact',head:true}),
+                    sb.from('categories').select('id',{count:'exact',head:true}),
+                    sb.from('specializations').select('id',{count:'exact',head:true}),
+                    sb.from('skills').select('id',{count:'exact',head:true}),
+                    sb.from('articles').select('id',{count:'exact',head:true})
+                ]);
+                if(!pwCnt.count) await sb.from('pathways').upsert(DEFAULT_CONTENT.pathways.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' });
+                if(!catCnt.count) await sb.from('categories').upsert(DEFAULT_CONTENT.categories.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' });
+                if(!spCnt.count) await sb.from('specializations').upsert(DEFAULT_CONTENT.specs.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' });
+                if(!skCnt.count) await sb.from('skills').upsert(DEFAULT_CONTENT.skills.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' });
+                if(!arCnt.count) await sb.from('articles').upsert(DEFAULT_CONTENT.articles.map(a=>{ const c={...a}; delete c.comments; return c; }), { onConflict:'id' });
+                await sb.from('site_settings').upsert({ id:'content_seeded', palette_index:1 });
+            }catch(e){}
+        })();
+        return contentSeededPromise;
+    }
+
     async function syncInitialFromSupabase(){
         const sb = getSupabase();
         if(!sb) return;
         try{
-            const [st, pw, cat, sp, sk, ar, cm] = await Promise.all([
-                sb.from('site_settings').select('palette_index').eq('id','default').maybeSingle(),
+            await ensureContentSeeded(sb);
+            const [stAll, pw, cat, sp, sk, ar, cm] = await Promise.all([
+                sb.from('site_settings').select('*'),
                 sb.from('pathways').select('*').order('sort_order',{ascending:true}),
                 sb.from('categories').select('*').order('sort_order',{ascending:true}),
                 sb.from('specializations').select('*').order('sort_order',{ascending:true}),
@@ -729,14 +830,57 @@
                 (cm.data||[]).forEach(c=>{ (cMap[c.article_id]=cMap[c.article_id]||[]).push({ id:c.id, userId:c.user_id, author:c.author_name, role:c.author_role, authorBadge:c.author_badge||'', text:c.text }); });
                 STORE.articles = ar.data.map(a=>({ ...a, comments:cMap[a.id]||[] }));
             }
-            if(st.data && typeof st.data.palette_index === 'number') applyPalette(st.data.palette_index, false);
+
+            const rows = stAll.data || [];
+            const defSet = rows.find(r=>r.id==='default');
+            const modeRow = rows.find(r=>r.id==='theme_mode');
+            if(defSet){
+                if(Array.isArray(defSet.custom_palettes)) STORE.settings.customPalettes = defSet.custom_palettes;
+                const pid = defSet.active_palette_id || String(defSet.palette_index ?? 2);
+                const mode = defSet.theme_mode || (modeRow ? (modeRow.palette_index===1?'dark':'light') : 'light');
+                applyTheme(pid, mode, false);
+                saveSettings();
+            }
+
+            // تحديث بيانات الجلسة المحفوظة من السحابة حتى لا تتغير التحديثات عند إعادة التحميل
+            if(STATE.currentUserObj){
+                const u = STATE.currentUserObj;
+                const [uSum, uFav, uRes] = await Promise.all([
+                    sb.from('public_users_summary').select('*').eq('id', u.id).maybeSingle(),
+                    sb.rpc('get_user_favorites', { p_user_id: u.id }),
+                    sb.from('quiz_results').select('*').eq('user_id', u.id)
+                ]);
+                if(uSum.data){
+                    if(uSum.data.restriction_type==='suspended' && !uSum.data.is_admin){
+                        STATE.currentUserObj = null; STATE.currentUserId = null; saveSessionUser(null);
+                        showToast('تم تجميد هذا الحساب من قِبل الإدارة','ph-prohibit');
+                    } else {
+                        u.realName = uSum.data.real_name;
+                        u.role = uSum.data.role;
+                        u.isAdmin = Boolean(uSum.data.is_admin);
+                        u.badge = uSum.data.badge || '';
+                        u.restrictionType = uSum.data.restriction_type || 'none';
+                        u.restrictionReason = uSum.data.restriction_reason || '';
+                        if(uFav.data){
+                            u.favoriteSpecs = uFav.data.favoriteSpecs || u.favoriteSpecs || [];
+                            u.favoriteArticles = uFav.data.favoriteArticles || u.favoriteArticles || [];
+                        }
+                        if(uRes.data){
+                            u.savedResults = uRes.data.map(r=>({ id:r.id, quizType:r.quiz_type, summaryTitle:r.summary_title, created_at:r.created_at, ...(r.payload||{}) })).reverse();
+                        }
+                        saveSessionUser(u);
+                    }
+                }
+            }
+
             saveStore();
-            refreshPublicSections();
+            renderNavMenus(); updateAuthUI(); refreshPublicSections();
+            if(STATE.activeSection==='admin' && isAdmin()) renderAdminPanel();
         }catch(e){}
     }
 
     /* =================================================================
-       5. المصادقة (دخول / إنشاء حساب — بدون أي كلمات سر في HTML)
+       5. المصادقة (دخول / إنشاء حساب)
        ================================================================= */
     async function handleLoginSubmit(e){
         e.preventDefault();
@@ -762,13 +906,12 @@
             };
             STATE.currentUserObj = userObj;
             STATE.currentUserId = userObj.id;
-            sessionStorage.setItem(LS_SESSION, userObj.id);
+            saveSessionUser(userObj);
             updateAuthUI(); renderProfileView(); renderNavMenus();
             showToast('أهلاً بكِ يا ' + userObj.realName + ' (' + userObj.role + ')');
             return;
         }
 
-        // وضع المعاينة المحلية
         const pHash = await hashPass(password);
         const found = STATE.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase() && a.passwordHash===pHash);
         if(!found){ showToast('اسم المستخدم أو كلمة السر غير صحيحة','ph-warning-circle'); return; }
@@ -778,7 +921,7 @@
         }
         STATE.currentUserObj = found;
         STATE.currentUserId = found.id;
-        sessionStorage.setItem(LS_SESSION, found.id);
+        saveSessionUser(found);
         updateAuthUI(); renderProfileView(); renderNavMenus();
         showToast('أهلاً بكِ يا ' + found.realName + ' (' + found.role + ')');
     }
@@ -802,7 +945,7 @@
             };
             STATE.currentUserObj = userObj;
             STATE.currentUserId = userObj.id;
-            sessionStorage.setItem(LS_SESSION, userObj.id);
+            saveSessionUser(userObj);
             updateAuthUI(); renderProfileView(); renderNavMenus();
             showToast('تم إنشاء حساب (' + role + ') باسم ' + realName);
             return;
@@ -818,16 +961,16 @@
         };
         STATE.accounts.push(newAcc); saveAccounts();
         STATE.currentUserObj = newAcc; STATE.currentUserId = newAcc.id;
-        sessionStorage.setItem(LS_SESSION, newAcc.id);
+        saveSessionUser(newAcc);
         updateAuthUI(); renderProfileView(); renderNavMenus();
-        showToast(asLocalAdmin ? 'تم إعداد حساب المديرة (طالبة) للمعاينة' : 'تم إنشاء حساب (' + role + ') باسم ' + realName);
+        showToast(asLocalAdmin ? 'تم إعداد حساب المديرة' : 'تم إنشاء حساب (' + role + ') باسم ' + realName);
         if(asLocalAdmin) navigateTo('admin');
     }
 
     function logoutCurrentUser(){
         const user = getCurrentUser();
         STATE.currentUserObj = null; STATE.currentUserId = null;
-        sessionStorage.removeItem(LS_SESSION);
+        saveSessionUser(null);
         updateAuthUI(); renderNavMenus();
         if(STATE.activeSection==='quiz'||STATE.activeSection==='admin'||STATE.activeSection==='results') navigateTo('profile');
         else if(STATE.activeSection==='profile') renderProfileView();
@@ -1115,6 +1258,7 @@
         const user = getCurrentUser();
         if(!user) return;
         user.savedResults.unshift(resObj);
+        saveSessionUser(user);
         const sb = getSupabase();
         if(sb){
             await sb.from('quiz_results').insert({
@@ -1611,6 +1755,7 @@
         const idx=user.favoriteSpecs.indexOf(specId);
         if(idx===-1){ user.favoriteSpecs.push(specId); showToast('تم حفظ التخصص في صفحتكِ'); }
         else { user.favoriteSpecs.splice(idx,1); showToast('تمت الإزالة من المفضلة','ph-trash'); }
+        saveSessionUser(user);
         const sb=getSupabase();
         if(sb) await sb.rpc('update_user_favorites', { p_user_id:user.id, p_favorite_specs:user.favoriteSpecs, p_favorite_articles:user.favoriteArticles });
         else saveAccounts();
@@ -1708,6 +1853,7 @@
         const idx=user.favoriteArticles.indexOf(artId);
         if(idx===-1){ user.favoriteArticles.push(artId); showToast('تم حفظ المقال في صفحتكِ'); }
         else { user.favoriteArticles.splice(idx,1); showToast('تمت إزالة المقال من المحفوظات','ph-trash'); }
+        saveSessionUser(user);
         const sb=getSupabase();
         if(sb) await sb.rpc('update_user_favorites', { p_user_id:user.id, p_favorite_specs:user.favoriteSpecs, p_favorite_articles:user.favoriteArticles });
         else saveAccounts();
@@ -1785,15 +1931,14 @@
                     <div class="flex items-center gap-2 mb-5 flex-wrap">
                         <button onclick="STATE.authTab='login'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${t==='login'?'background:var(--primary-color); color:var(--on-primary)':'background:var(--bg-color)'}">تسجيل الدخول</button>
                         <button onclick="STATE.authTab='register'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${t==='register'?'background:var(--accent-color); color:var(--on-accent)':'background:var(--bg-color)'}">إنشاء حساب جديد</button>
-                        ${!sbReady && !hasLocalAdmin ? `<button onclick="STATE.authTab='admin_setup'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${t==='admin_setup'?'background:var(--tertiary-color); color:var(--on-tertiary)':'background:var(--bg-color)'}">إعداد حساب المديرة (للمعاينة)</button>`:''}
+                        ${!sbReady && !hasLocalAdmin ? `<button onclick="STATE.authTab='admin_setup'; renderProfileView();" class="px-5 py-2 rounded-full text-xs sm:text-sm font-black border-2 border-[var(--text-color)] cursor-pointer" style="${t==='admin_setup'?'background:var(--tertiary-color); color:var(--on-tertiary)':'background:var(--bg-color)'}">إعداد حساب المديرة</button>`:''}
                     </div>
                     ${t==='login'
                         ? `<form onsubmit="handleLoginSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                             <div class="fld"><label>اسم المستخدم</label><input type="text" id="loginUsername" required placeholder="اسم المستخدم"></div>
                             <div class="fld"><label>كلمة السر</label><input type="password" id="loginPassword" required placeholder="••••••••"></div>
                             <button type="submit" class="btn-neo py-2.5 px-6 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">دخول</button>
-                        </form>
-                        <p class="text-xs font-bold opacity-75 mt-3">${sbReady?'متصل بـ Supabase: يتم التحقق من حسابكِ عبر قاعدة البيانات.':'يعمل بالمعاينة المحلية حتى يتم وضع مفتاحي Supabase.'}</p>`
+                        </form>`
                         : t==='register'
                         ? `<form onsubmit="handleRegisterSubmit(event,false)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
                             <div class="fld"><label>الاسم الحقيقي *</label><input type="text" id="regRealName" required placeholder="الاسم الكامل"></div>
@@ -1803,7 +1948,6 @@
                             <button type="submit" class="btn-neo py-2.5 px-5 rounded-full border-2 border-[var(--text-color)] font-extrabold text-sm cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)">تسجيل الحساب</button>
                         </form>`
                         : `<form onsubmit="handleRegisterSubmit(event,true)" class="space-y-4">
-                            <p class="text-xs font-bold p-3 rounded-2xl" style="background:var(--bg-color)">إعداد حساب المديرة (<strong>طالبة</strong>) للمعاينة المحلية فقط؛ عند ربط Supabase يعمل حسابكِ المشفر من ملف <code>supabase_schema.sql</code> تلقائياً.</p>
                             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
                                 <div class="fld"><label>الاسم</label><input type="text" id="admRealName" required placeholder="اسمكِ"></div>
                                 <div class="fld"><label>اسم المستخدم</label><input type="text" id="admUsername" required placeholder="اسم المستخدم"></div>
@@ -1847,10 +1991,10 @@
     }
 
     /* =================================================================
-       13. لوحة التحكم (مديرة فقط) + ربط Supabase + المقالات المستهدفة
+       13. لوحة التحكم (مديرة فقط)
        ================================================================= */
     const ADMIN_TABS = [
-        ['colors','الألوان','ph-palette'], ['supabase','ربط Supabase','ph-database'],
+        ['colors','الألوان والمظهر','ph-palette'],
         ['articles','المقالات والاقتراحات','ph-article'], ['comments','إدارة التعليقات','ph-chats-circle'],
         ['pathways','المسارات','ph-path'], ['categories','الأقسام الكبرى','ph-compass'],
         ['specs','التخصصات والوظائف','ph-graduation-cap'], ['skills','المهارات','ph-rocket-launch'],
@@ -1872,38 +2016,52 @@
         const t=STATE.adminTab;
 
         if(t==='colors'){
-            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
-                <h3 class="text-lg font-black">اختيار لوحة ألوان الموقع</h3>
-                <p class="text-xs sm:text-sm font-bold opacity-75">اللوحة الحالية: <b id="currentPaletteName">${PALETTES[STORE.settings.palette||0].n}</b></p>
-                <div class="palette-grid">
-                    ${PALETTES.map((p,i)=>`<button onclick="applyPalette(${i}); document.getElementById('currentPaletteName').textContent='${p.n}'; showToast('تم تطبيق لوحة ${p.n}')" class="palette-card ${(STORE.settings.palette||0)===i?'on':''}">
-                        <b>${i+1}. ${p.n}</b><div class="swatches"><i style="background:${p.bg}"></i><i style="background:${p.p}"></i><i style="background:${p.a}"></i><i style="background:${p.s}"></i><i style="background:${p.tx}"></i></div>
-                    </button>`).join('')}
-                </div>
-            </div>`;
-            return;
-        }
-
-        if(t==='supabase'){
-            const k = getActiveSupabaseKeys();
-            const ready = isSupabaseReady();
-            box.innerHTML=`<div class="p-6 rounded-3xl card-neo space-y-4">
-                <h3 class="text-lg font-black">ربط الموقع بـ Supabase (بنظام Schema مستقل: <code dir="ltr">masara</code>)</h3>
-                <p class="text-xs sm:text-sm font-bold">الحالة: <span style="color:${ready?'var(--primary-color)':'var(--accent-color)'}">${ready?'متصل بقاعدة بيانات Supabase':'وضع المعاينة المحلية (بانتظار المفتاحين)'}</span></p>
-                <div class="p-4 rounded-2xl border-2 border-[var(--text-color)] text-xs font-bold space-y-1.5" style="background:var(--bg-color)">
-                    <p class="font-black" style="color:var(--primary-color)">خطوات عزل المشروع داخل سيرفركِ المجاني في Supabase:</p>
-                    <p>1. ألصقي محتوى ملف <code dir="ltr">supabase_schema.sql</code> في <strong>SQL Editor</strong> واضغطي زر التشغيل الأخضر <strong>Run</strong> (وليس الحفظ فقط).</p>
-                    <p>2. في لوحة تحكم Supabase اذهبي إلى: <strong>Project Settings → Data API → Exposed schemas</strong> وأضيفي <code dir="ltr">masara</code> ثم اضغطي Save.</p>
-                    <p>3. انسخي رابط المشروع والمفتاح العام من <strong>Project Settings → Data API / API Keys</strong> وأدخليهما بالأسفل (أو ضعيهما في <code dir="ltr">SUPABASE_CONFIG</code> بأعلى ملف HTML).</p>
-                </div>
-                <form onsubmit="saveSupabaseFromUI(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="fld"><label>1. رابط المشروع (Project URL)</label><input dir="ltr" type="url" id="sbUrlInp" required value="${k.url==='PUT_YOUR_SUPABASE_URL_HERE'?'':k.url}" placeholder="https://xxxx.supabase.co"></div>
-                    <div class="fld"><label>2. المفتاح العام (Anon Public Key)</label><input dir="ltr" type="text" id="sbKeyInp" required value="${k.anonKey==='PUT_YOUR_SUPABASE_ANON_KEY_HERE'?'':k.anonKey}" placeholder="eyJhbGciOi..."></div>
-                    <div class="md:col-span-2 flex flex-wrap gap-2">
-                        <button type="submit" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">حفظ المفتاحين والاتصال</button>
-                        ${ready?`<button type="button" onclick="clearSupabaseFromUI()" class="px-5 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--surface-color)">فصل الربط</button>`:''}
+            const allP = getAllPalettes();
+            const curId = String(STORE.settings.activePaletteId ?? STORE.settings.palette ?? '2');
+            const curPal = allP.find(x=>String(x.id)===curId) || allP[2];
+            const curMode = STORE.settings.themeMode || 'light';
+            box.innerHTML=`<div class="space-y-5">
+                <div class="p-6 rounded-3xl card-neo space-y-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-black">وضع الإضاءة ولوحات الألوان (${allP.length} لوحة)</h3>
+                            <p class="text-xs sm:text-sm font-bold opacity-75">اللوحة الحالية: <b id="currentPaletteName">${esc(curPal.n)}</b> • الوضع: <b>${curMode==='dark'?'داكن 🌙':'فاتح ☀️'}</b> (يُحفظ لجميع الزائرات)</p>
+                        </div>
+                        <div class="flex items-center gap-2 p-1.5 rounded-full border-2 border-[var(--text-color)]" style="background:var(--bg-color)">
+                            <button type="button" onclick="applyTheme('${curPal.id}','light',true); renderAdminPanel(); showToast('تم تفعيل الوضع الفاتح');" class="px-4 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 cursor-pointer" style="${curMode==='light'?'background:var(--primary-color); color:var(--on-primary)':'color:var(--text-color)'}"><i class="ph-fill ph-sun"></i>الوضع الفاتح</button>
+                            <button type="button" onclick="applyTheme('${curPal.id}','dark',true); renderAdminPanel(); showToast('تم تفعيل الوضع الداكن');" class="px-4 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 cursor-pointer" style="${curMode==='dark'?'background:var(--primary-color); color:var(--on-primary)':'color:var(--text-color)'}"><i class="ph-fill ph-moon-stars"></i>الوضع الداكن</button>
+                        </div>
                     </div>
-                </form>
+
+                    <div class="palette-grid">
+                        ${allP.map((p,i)=>`<div data-pid="${p.id}" onclick="applyTheme('${p.id}','${curMode}',true); renderAdminPanel(); showToast('تم تطبيق لوحة ${esc(p.n)}')" class="palette-card ${curId===String(p.id)?'on':''} relative">
+                            <div class="flex items-center justify-between gap-1 mb-1.5">
+                                <b class="mb-0 text-xs">${i+1}. ${esc(p.n)}</b>
+                                ${p.isCustom?`<button type="button" onclick="event.stopPropagation(); deleteCustomPalette('${p.id}')" class="px-1.5 py-0.5 rounded-full text-[10px] font-black cursor-pointer" style="background:var(--accent-color); color:var(--on-accent)" title="حذف اللوحة">×</button>`:''}
+                            </div>
+                            <div class="swatches"><i style="background:${p.bg}"></i><i style="background:${p.p}"></i><i style="background:${p.a}"></i><i style="background:${p.s}"></i><i style="background:${p.tx}"></i></div>
+                        </div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-3xl card-neo space-y-4">
+                    <div>
+                        <span class="adm-badge">تخصيص وإضافة</span>
+                        <h3 class="text-lg font-black mt-1">إضافة لوحة ألوان من اختياركِ وحفظها كأساسية</h3>
+                        <p class="text-xs font-bold opacity-75">اختاري الألوان الخمسة المناسبة لكِ، وسيتم حفظ اللوحة في الموقع للعمل بالوضعين الفاتح والداكن.</p>
+                    </div>
+                    <form onsubmit="addCustomPalette(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+                            <div class="fld sm:col-span-3 lg:col-span-1"><label>اسم اللوحة *</label><input type="text" id="cpName" required placeholder="مثال: ألواني الخاصة"></div>
+                            <div class="fld"><label>لون الخلفية</label><input type="color" id="cpBg" value="${curPal.bg}" class="w-full h-10 p-1 cursor-pointer"></div>
+                            <div class="fld"><label>اللون الأساسي</label><input type="color" id="cpPri" value="${curPal.p}" class="w-full h-10 p-1 cursor-pointer"></div>
+                            <div class="fld"><label>لون التمييز</label><input type="color" id="cpAcc" value="${curPal.a}" class="w-full h-10 p-1 cursor-pointer"></div>
+                            <div class="fld"><label>اللون الثانوي</label><input type="color" id="cpTer" value="${curPal.s}" class="w-full h-10 p-1 cursor-pointer"></div>
+                            <div class="fld"><label>لون النص</label><input type="color" id="cpTx" value="${curPal.tx}" class="w-full h-10 p-1 cursor-pointer"></div>
+                        </div>
+                        <button type="submit" class="btn-neo px-6 py-2.5 rounded-full border-2 border-[var(--text-color)] text-xs font-extrabold cursor-pointer" style="background:var(--primary-color); color:var(--on-primary)">حفظ اللوحة كأساسية وتطبيقها</button>
+                    </form>
+                </div>
             </div>`;
             return;
         }
@@ -2077,21 +2235,31 @@
         </div>`;
     }
 
-    async function saveSupabaseFromUI(e){
+    async function addCustomPalette(e){
         e.preventDefault();
-        const url=document.getElementById('sbUrlInp').value.trim();
-        const key=document.getElementById('sbKeyInp').value.trim();
-        localStorage.setItem(LS_SB_KEYS, JSON.stringify({ url, anonKey:key }));
-        sbClient = null;
-        await syncInitialFromSupabase();
+        const name = document.getElementById('cpName').value.trim();
+        if(!name) return;
+        const pal = {
+            id:'cust_' + Date.now(),
+            n: name,
+            bg: document.getElementById('cpBg').value,
+            p: document.getElementById('cpPri').value,
+            a: document.getElementById('cpAcc').value,
+            s: document.getElementById('cpTer').value,
+            tx: document.getElementById('cpTx').value,
+            isCustom: true
+        };
+        STORE.settings.customPalettes = [...(STORE.settings.customPalettes||[]), pal];
+        applyTheme(pal.id, STORE.settings.themeMode || 'light', true);
         renderAdminPanel();
-        showToast('تم حفظ مفتاحي Supabase وتحديث الاتصال');
+        showToast('تم حفظ لوحة «' + name + '» وتطبيقها كأساسية');
     }
-    function clearSupabaseFromUI(){
-        localStorage.removeItem(LS_SB_KEYS);
-        sbClient = null;
+    function deleteCustomPalette(pid){
+        STORE.settings.customPalettes = (STORE.settings.customPalettes||[]).filter(c=>String(c.id)!==String(pid));
+        const nextId = String(STORE.settings.activePaletteId)===String(pid) ? '2' : STORE.settings.activePaletteId;
+        applyTheme(nextId, STORE.settings.themeMode || 'light', true);
         renderAdminPanel();
-        showToast('تم فصل الربط والعودة للمعاينة المحلية');
+        showToast('تم حذف اللوحة المخصصة','ph-trash');
     }
 
     async function adminSaveItem(e, type){
@@ -2104,21 +2272,22 @@
             const it=STORE[type].find(x=>x.id===STATE.adminEditId);
             if(it) Object.assign(it, obj);
             STATE.adminEditId=null;
-            showToast('تم حفظ التعديلات');
         } else {
             obj.id=finalId;
             if(type==='articles') obj.comments=[];
             STORE[type].unshift(obj);
-            showToast('تمت الإضافة بنجاح');
         }
         saveStore();
         const sb=getSupabase();
         if(sb){
+            await ensureContentSeeded(sb);
             const dbTable = type==='specs' ? 'specializations' : type;
             const dbObj = { ...obj, id:finalId };
             delete dbObj.comments;
-            await sb.from(dbTable).upsert(dbObj);
+            const { error } = await sb.from(dbTable).upsert(dbObj);
+            if(error){ showToast('تعذر الحفظ في قاعدة البيانات: ' + error.message, 'ph-warning-circle'); return; }
         }
+        showToast('تم حفظ التغييرات بنجاح');
         STATE.adminAddOpen[type]=false;
         renderAdminPanel(); refreshPublicSections();
     }
@@ -2126,7 +2295,10 @@
         STORE[type]=STORE[type].filter(x=>x.id!==id);
         saveStore();
         const sb=getSupabase();
-        if(sb) await sb.from(type==='specs'?'specializations':type).delete().eq('id', id);
+        if(sb){
+            await ensureContentSeeded(sb);
+            await sb.from(type==='specs'?'specializations':type).delete().eq('id', id);
+        }
         renderAdminPanel(); refreshPublicSections();
         showToast('تم الحذف','ph-trash');
     }
@@ -2151,7 +2323,11 @@
         const badge = inp ? inp.value.trim() : '';
         const acc=STATE.accounts.find(a=>a.id===accId);
         if(acc){ acc.badge=badge; saveAccounts(); }
-        if(STATE.currentUserObj && STATE.currentUserObj.id===accId){ STATE.currentUserObj.badge=badge; updateAuthUI(); }
+        if(STATE.currentUserObj && STATE.currentUserObj.id===accId){
+            STATE.currentUserObj.badge=badge;
+            saveSessionUser(STATE.currentUserObj);
+            updateAuthUI();
+        }
         const sb=getSupabase();
         if(sb) await sb.rpc('admin_update_user', { p_user_id: accId, p_badge: badge });
         renderAdminPanel();
@@ -2181,14 +2357,25 @@
         if(reopenModal) openArticleModal(artId);
         else if(STATE.activeSection==='admin') renderAdminPanel();
     }
-    function adminResetContent(){
+    async function adminResetContent(){
         STORE.pathways=JSON.parse(JSON.stringify(DEFAULT_CONTENT.pathways));
         STORE.categories=JSON.parse(JSON.stringify(DEFAULT_CONTENT.categories));
         STORE.specs=JSON.parse(JSON.stringify(DEFAULT_CONTENT.specs));
         STORE.skills=JSON.parse(JSON.stringify(DEFAULT_CONTENT.skills));
         STORE.articles=JSON.parse(JSON.stringify(DEFAULT_CONTENT.articles));
         STORE.matrix=JSON.parse(JSON.stringify(DEFAULT_CONTENT.matrix));
-        saveStore(); renderAdminPanel(); refreshPublicSections();
+        saveStore();
+        const sb=getSupabase();
+        if(sb){
+            await Promise.all([
+                sb.from('pathways').upsert(DEFAULT_CONTENT.pathways.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' }),
+                sb.from('categories').upsert(DEFAULT_CONTENT.categories.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' }),
+                sb.from('specializations').upsert(DEFAULT_CONTENT.specs.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' }),
+                sb.from('skills').upsert(DEFAULT_CONTENT.skills.map((x,i)=>({ ...x, sort_order:i })), { onConflict:'id' }),
+                sb.from('articles').upsert(DEFAULT_CONTENT.articles.map(a=>{ const c={...a}; delete c.comments; return c; }), { onConflict:'id' })
+            ]);
+        }
+        renderAdminPanel(); refreshPublicSections();
         showToast('تمت إعادة المحتوى الافتراضي');
     }
     function refreshPublicSections(){
@@ -2213,7 +2400,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{
-        applyPalette(STORE.settings.palette||2, false);
+        applyTheme(STORE.settings.activePaletteId || String(STORE.settings.palette??2), STORE.settings.themeMode || 'light', false);
         renderNavMenus(); updateAuthUI();
         renderHomeFields(); renderHomeArticlesPreview();
         renderAcademicSection(); renderCareerSection();
