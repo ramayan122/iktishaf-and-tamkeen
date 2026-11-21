@@ -1892,9 +1892,9 @@
                 <p class="text-xs sm:text-sm font-bold">الحالة: <span style="color:${ready?'var(--primary-color)':'var(--accent-color)'}">${ready?'متصل بقاعدة بيانات Supabase':'وضع المعاينة المحلية (بانتظار المفتاحين)'}</span></p>
                 <div class="p-4 rounded-2xl border-2 border-[var(--text-color)] text-xs font-bold space-y-1.5" style="background:var(--bg-color)">
                     <p class="font-black" style="color:var(--primary-color)">خطوات عزل المشروع داخل سيرفركِ المجاني في Supabase:</p>
-                    <p>1. شغّلي ملف <code dir="ltr">supabase_schema.sql</code> داخل <strong>SQL Editor</strong> لإنشاء الغرفة المستقلة <code dir="ltr">masara</code>.</p>
-                    <p>2. في لوحة تحكم Supabase اذهبي إلى: <strong>Project Settings → API → Exposed schemas</strong> وأضيفي <code dir="ltr">masara</code> ثم اضغطي Save.</p>
-                    <p>3. أدخلي مفتاحي مشروعكِ بالأسفل (وللتفعيل الدائم على GitHub ضعيهما عند <code dir="ltr">SUPABASE_CONFIG</code> في أعلى ملف HTML).</p>
+                    <p>1. ألصقي محتوى ملف <code dir="ltr">supabase_schema.sql</code> في <strong>SQL Editor</strong> واضغطي زر التشغيل الأخضر <strong>Run</strong> (وليس الحفظ فقط).</p>
+                    <p>2. في لوحة تحكم Supabase اذهبي إلى: <strong>Project Settings → Data API → Exposed schemas</strong> وأضيفي <code dir="ltr">masara</code> ثم اضغطي Save.</p>
+                    <p>3. انسخي رابط المشروع والمفتاح العام من <strong>Project Settings → Data API / API Keys</strong> وأدخليهما بالأسفل (أو ضعيهما في <code dir="ltr">SUPABASE_CONFIG</code> بأعلى ملف HTML).</p>
                 </div>
                 <form onsubmit="saveSupabaseFromUI(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="fld"><label>1. رابط المشروع (Project URL)</label><input dir="ltr" type="url" id="sbUrlInp" required value="${k.url==='PUT_YOUR_SUPABASE_URL_HERE'?'':k.url}" placeholder="https://xxxx.supabase.co"></div>
